@@ -24,6 +24,7 @@
   "devDependencies": {
     "@adonisjs/sink": "^1.0.12",
     "coveralls": "^2.13.1",
+    "cz-conventional-changelog": "^2.0.0",
     "japa": "^1.0.3",
     "japa-cli": "^1.0.1",
     "nyc": "^11.1.0",
@@ -53,5 +54,10 @@
   "bugs": {
     "url": "https://github.com/adonisjs/adonis-shield/issues"
   },
-  "homepage": "https://github.com/adonisjs/adonis-shield#readme"
+  "homepage": "https://github.com/adonisjs/adonis-shield#readme",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
