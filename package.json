@@ -1,7 +1,7 @@
 {
   "name": "@adonisjs/shield",
   "version": "1.0.0",
-  "description": "Web security middleware for adonis framework",
+  "description": "Adonis shield is middleware to standard HTTP websites to protect themselves from common web attacks like xss, csp and csrf",
   "main": "index.js",
   "scripts": {
     "lint": "standard",
@@ -41,5 +41,20 @@
     "include": [
       "src"
     ]
-  }
+  },
+  "bin": {
+    "shield": "index.js"
+  },
+  "directories": {
+    "example": "example",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adonisjs/adonis-shield.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adonisjs/adonis-shield/issues"
+  },
+  "homepage": "https://github.com/adonisjs/adonis-shield#readme"
 }
