@@ -78,16 +78,16 @@ test.failing('2 + 2 is always 4, but add method returns 6', (assert) => {
 
 Now since the `add` method has a bug, it will return `6` instead of `4`. But the build will pass.
 
-[appveyor-image]: https://img.shields.io/appveyor/ci/thetutlage/adonis-cors/master.svg?style=flat-square
+[appveyor-image]: https://img.shields.io/appveyor/ci/thetutlage/adonis-shield/master.svg?style=flat-square
 
-[appveyor-url]: https://ci.appveyor.com/project/thetutlage/adonis-cors
+[appveyor-url]: https://ci.appveyor.com/project/thetutlage/adonis-shield
 
-[npm-image]: https://img.shields.io/npm/v/@adonisjs/cors.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/@adonisjs/cors
+[npm-image]: https://img.shields.io/npm/v/@adonisjs/shield.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/@adonisjs/shield
 
-[travis-image]: https://img.shields.io/travis/adonisjs/adonis-cors/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/adonisjs/adonis-cors
+[travis-image]: https://img.shields.io/travis/adonisjs/adonis-shield/master.svg?style=flat-square
+[travis-url]: https://travis-ci.org/adonisjs/adonis-shield
 
-[coveralls-image]: https://img.shields.io/coveralls/adonisjs/adonis-cors/master.svg?style=flat-square
+[coveralls-image]: https://img.shields.io/coveralls/adonisjs/adonis-shield/master.svg?style=flat-square
 
-[coveralls-url]: https://coveralls.io/github/adonisjs/adonis-cors
+[coveralls-url]: https://coveralls.io/github/adonisjs/adonis-shield
