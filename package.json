@@ -32,7 +32,7 @@
   "dependencies": {
     "@adonisjs/generic-exceptions": "^1.0.0",
     "csrf": "^3.0.6",
-    "node-cookie": "^2.0.1",
+    "node-cookie": "^2.0.2",
     "node-csp": "^1.0.1",
     "node-guard": "^1.0.0",
     "uuid": "^3.1.0"
