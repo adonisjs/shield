@@ -23,7 +23,7 @@ NOTE: You don't need this middleware if you are writing an API server.
 
 
 ## Setup
-Checkout [instructions.md](instructions) file on how to setup this inside Adonisjs application.
+Checkout [instructions](instructions.md) file on how to setup this inside Adonisjs application.
 
 ## Node/OS Target
 
