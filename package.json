@@ -1,0 +1,43 @@
+{
+  "name": "@adonisjs/shield",
+  "version": "1.0.0",
+  "description": "Web security middleware for adonis framework",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard",
+    "pretest": "npm run lint",
+    "posttest": "npm run coverage",
+    "test:local": "FORCE_COLOR=true node bin/index.js --local",
+    "test": "nyc npm run test:local",
+    "test:win": "set FORCE_COLOR=true && node bin/index.js --win",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "keywords": [
+    "adonisjs",
+    "adonis",
+    "web-security",
+    "csrf",
+    "csp"
+  ],
+  "author": "virk",
+  "license": "MIT",
+  "devDependencies": {
+    "@adonisjs/sink": "^1.0.12",
+    "coveralls": "^2.13.1",
+    "japa": "^1.0.3",
+    "japa-cli": "^1.0.1",
+    "nyc": "^11.1.0",
+    "standard": "^10.0.3"
+  },
+  "dependencies": {
+    "csrf": "^3.0.6",
+    "node-csp": "^1.0.1",
+    "node-guard": "^1.0.0",
+    "uuid": "^3.1.0"
+  },
+  "nyc": {
+    "include": [
+      "src"
+    ]
+  }
+}
