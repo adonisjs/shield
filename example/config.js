@@ -135,6 +135,11 @@ module.exports = {
     enable: true,
     methods: ['POST', 'PUT', 'DELETE'],
     filterUris: [],
-    compareHostAndOrigin: true
+    cookieOptions: {
+      httpOnly: false,
+      sameSite: true,
+      path: '/',
+      maxAge: 7200
+    }
   }
 }

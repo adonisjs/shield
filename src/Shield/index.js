@@ -12,11 +12,27 @@
 const guard = require('node-guard')
 const csp = require('node-csp')
 const uuid = require('uuid')
+const csrf = new (require('csrf'))()
+const GE = require('@adonisjs/generic-exceptions')
+const nodeCookie = require('node-cookie')
 
 class Shield {
   constructor (Config) {
     this.config = Config.merge('shield', require('../../example/config.js'))
     this.cspNonce = uuid.v4()
+    this.appSecret = Config.get('app.secret')
+  }
+
+  /**
+   * The session key name for storing the CSRF
+   * secret
+   *
+   * @method sessionKey
+   *
+   * @return {String}
+   */
+  get sessionKey () {
+    return 'csrf-secret'
   }
 
   /**
@@ -45,6 +61,46 @@ class Shield {
     }
 
     return []
+  }
+
+  /**
+   * Returns whether the request method falls within
+   * the defined methods in the config
+   *
+   * @method _fallsUnderValidationMethod
+   *
+   * @param  {String}           method
+   *
+   * @return {Boolean}
+   *
+   * @private
+   */
+  _fallsUnderValidationMethod (method) {
+    method = method.toLowerCase()
+    return !!this.config.csrf.methods.find((definedMethod) => {
+      return definedMethod.toLowerCase() === method
+    })
+  }
+
+  /**
+   * Returns a boolean telling if the current request
+   * url is supposed to be selected for csrf token
+   * validation or not
+   *
+   * @method _fallsUnderValidationUri
+   *
+   * @param  {Object}                 request
+   *
+   * @return {Boolean}
+   *
+   * @private
+   */
+  _fallsUnderValidationUri (request) {
+    const { filterUris } = this.config.csrf
+    if (filterUris && filterUris.length) {
+      return !request.match(filterUris)
+    }
+    return true
   }
 
   /**
@@ -131,6 +187,203 @@ class Shield {
    */
   setRequestNonce (request) {
     request.nonce = this.cspNonce
+  }
+
+  /**
+   * Generates a new csrf secret only when it doesn't
+   * exists for the current user session.
+   *
+   * This method will set the secret inside the session
+   * too.
+   *
+   * So what you will it? umm....., ohh it has side-effects :)
+   *
+   * @method getCsrfSecret
+   *
+   * @param  {Object}      session
+   *
+   * @return {String}
+   */
+  async getCsrfSecret (session) {
+    const secret = session.get(this.sessionKey)
+    if (secret) {
+      return secret
+    }
+
+    const newSecret = await csrf.secret()
+    session.put(this.sessionKey, newSecret)
+    return newSecret
+  }
+
+  /**
+   * Generates a new csrf token for a given
+   * secret
+   *
+   * @method generateCsrfToken
+   *
+   * @param  {String}          secret
+   *
+   * @return {String}
+   */
+  generateCsrfToken (secret) {
+    return csrf.create(secret)
+  }
+
+  /**
+   * Verifies the user token with the session secret.
+   *
+   * This method internally uses `tsscmp` which saves users from
+   * timing attacks.
+   *
+   * @method verifyToken
+   *
+   * @param  {String}    secret
+   * @param  {String}    token
+   *
+   * @return {void}
+   *
+   * @throws {HttpException} If unable to verify secret
+   */
+  verifyToken (secret, token) {
+    if (!csrf.verify(secret, token)) {
+      throw new GE.HttpException('Invalid CSRF token', 403, 'EBADCSRFTOKEN')
+    }
+  }
+
+  /**
+   * Returns the csrf token by reading it from one of expected
+   * resources.
+   *
+   * @method getCsrfToken
+   *
+   * @param  {Object} request
+   *
+   * @return {String|Null}
+   */
+  getCsrfToken (request) {
+    const token = request.input('_csrf') || request.header('x-csrf-token')
+    if (token) {
+      return token
+    }
+
+    const encryptedToken = request.header('x-xsrf-token')
+    return encryptedToken ? nodeCookie.unPackValue(encryptedToken, this.appSecret, !!this.appSecret) : null
+  }
+
+  /**
+   * Shares `csrfToken` and `csrfField` locals with
+   * the view instance
+   *
+   * @method shareCsrfViewLocals
+   *
+   * @param  {String}             csrfToken
+   * @param  {Object}             view
+   *
+   * @return {void}
+   */
+  shareCsrfViewLocals (csrfToken, view) {
+    view.share({ csrfToken, csrfField: `<input type="hidden" name="_csrf" value="${csrfToken}">` })
+  }
+
+  /**
+   * Sets the Csrf cookie on the response, this value is
+   * used automatically by frontend frameworks like
+   * Angular.
+   *
+   * Note: Since all cookies the signed and encrypted, so csrf
+   * token is encrypted too and when sent back as a header,
+   * this module will decrypt it automatically, so your
+   * life is good in short :).
+   *
+   * @method setCsrfCookie
+   *
+   * @param  {String}       csrfToken
+   * @param  {Object}       response
+   */
+  setCsrfCookie (csrfToken, response) {
+    response.cookie('XSRF-TOKEN', csrfToken, this.config.csrf.cookieOptions)
+  }
+
+  /**
+   * Sets the token on the request object
+   *
+   * @method setRequestCsrfToken
+   *
+   * @param  {String}            csrfToken
+   * @param  {Object}            request
+   *
+   * @return {void}
+   */
+  setRequestCsrfToken (csrfToken, request) {
+    request.csrfToken = csrfToken
+  }
+
+  async handle ({ request, response, session, view }, next) {
+    const { request: req, response: res } = response
+
+    /**
+     * Setting guard headers
+     */
+    this.setGuardHeaders(req, res)
+
+    /**
+     * Building csp string with required header and
+     * meta keys
+     */
+    const headers = this.buildCsp(req, res)
+
+    /**
+     * Setting csp as HTTP headers
+     */
+    this.setCspHeaders(headers, response)
+
+    /**
+     * Sharing csp nonce and meta tags as view
+     * locals
+     */
+    this.shareCspViewLocals(headers, view)
+
+    /**
+     * Sharing csp nonce with request property
+     */
+    this.setRequestNonce(request)
+
+    /**
+     * Getting the csrf secret and setting
+     * as the session value too.
+     */
+    const csrfSecret = await this.getCsrfSecret(session)
+
+    /**
+     * If the request url and method is supposed to be checked
+     * against csrf attack, then verify the token.
+     */
+    if (this._fallsUnderValidationUri(request) && this._fallsUnderValidationMethod(request.method())) {
+      const csrfToken = this.getCsrfToken(request)
+      this.verifyToken(csrfSecret, csrfToken)
+    }
+
+    /**
+     * Generate a new token for each request, if verification
+     * was skipped or passed.
+     */
+    const newCsrfToken = this.generateCsrfToken(csrfSecret)
+
+    /**
+     * Share the csrf token, csrf field as view locals
+     */
+    this.shareCsrfViewLocals(newCsrfToken, view)
+
+    /**
+     * Set the response cookie for csrf token. This is required by Javascript
+     * frameworks like angular, and don't worry cookie is signed and encrypted.
+     */
+    this.setCsrfCookie(newCsrfToken, response)
+
+    /**
+     * Set token on the request object
+     */
+    this.setRequestCsrfToken(newCsrfToken, request)
   }
 }
 
