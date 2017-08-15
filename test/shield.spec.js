@@ -554,4 +554,26 @@ test.group('Shield', () => {
       assert.equal(message, 'EBADCSRFTOKEN: Invalid CSRF token')
     }
   })
+
+  test('throw exception when session is not set', async (assert) => {
+    assert.plan(3)
+
+    const config = new Config()
+    const shield = new Shield(config)
+    const request = getReq()
+    request.method = () => 'POST'
+
+    const response = getRes()
+    response.response = response
+    response.request = request
+
+    const view = getView()
+    try {
+      await shield.handle({ view, request, response })
+    } catch ({ status, message, code }) {
+      assert.equal(status, 500)
+      assert.equal(code, 'E_RUNTIME_ERROR')
+      assert.equal(message, 'E_RUNTIME_ERROR: Make sure to install/setup session provider to use shield middleware')
+    }
+  })
 })

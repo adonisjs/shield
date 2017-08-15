@@ -319,6 +319,12 @@ class Shield {
   }
 
   async handle ({ request, response, session, view }, next) {
+    if (!session) {
+      throw GE
+        .RuntimeException
+        .invoke('Make sure to install/setup session provider to use shield middleware')
+    }
+
     const { request: req, response: res } = response
 
     /**
