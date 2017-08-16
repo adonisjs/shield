@@ -523,7 +523,7 @@ test.group('Shield', () => {
 
     const view = getView()
     const session = getSession()
-    await shield.handle({ view, session, request, response })
+    await shield.handle({ view, session, request, response }, function () {})
 
     const xsrfToken = response.cookies.find((cookie) => cookie.key === 'XSRF-TOKEN')
     const viewPair = view.locals.find((local) => Object.keys(local).indexOf('csrfToken') > -1)
@@ -547,7 +547,7 @@ test.group('Shield', () => {
     const view = getView()
     const session = getSession()
     try {
-      await shield.handle({ view, session, request, response })
+      await shield.handle({ view, session, request, response }, function () {})
     } catch ({ status, message, code }) {
       assert.equal(status, 403)
       assert.equal(code, 'EBADCSRFTOKEN')
@@ -569,7 +569,7 @@ test.group('Shield', () => {
 
     const view = getView()
     try {
-      await shield.handle({ view, request, response })
+      await shield.handle({ view, request, response }, function () {})
     } catch ({ status, message, code }) {
       assert.equal(status, 500)
       assert.equal(code, 'E_RUNTIME_ERROR')
