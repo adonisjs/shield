@@ -390,6 +390,7 @@ class Shield {
      * Set token on the request object
      */
     this.setRequestCsrfToken(newCsrfToken, request)
+    await next()
   }
 }
 

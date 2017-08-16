@@ -1,3 +1,13 @@
+<a name="1.0.1"></a>
+## [1.0.1](https://github.com/adonisjs/adonis-shield/compare/v1.0.0...v1.0.1) (2017-08-16)
+
+
+### Bug Fixes
+
+* **shield:** call await next to advance middleware chain ([5036b54](https://github.com/adonisjs/adonis-shield/commit/5036b54))
+
+
+
 <a name="1.0.0"></a>
 # 1.0.0 (2017-08-15)
 
