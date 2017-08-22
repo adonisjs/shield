@@ -175,7 +175,12 @@ class Shield {
     const metaTags = this._getHeaderKeys(headers).map((key) => {
       return `<meta http-equiv="${key}" content="${headers[key]}">`
     })
-    view.share({ cspMeta: metaTags.join('\n'), cspNonce: this.cspNonce })
+    view.share({
+      cspMeta: function () {
+        return this.safe(metaTags.join('\n'))
+      },
+      cspNonce: this.cspNonce
+    })
   }
 
   /**
@@ -282,7 +287,12 @@ class Shield {
    * @return {void}
    */
   shareCsrfViewLocals (csrfToken, view) {
-    view.share({ csrfToken, csrfField: `<input type="hidden" name="_csrf" value="${csrfToken}">` })
+    view.share({
+      csrfToken,
+      csrfField: function () {
+        return this.safe(`<input type="hidden" name="_csrf" value="${csrfToken}">`)
+      }
+    })
   }
 
   /**
