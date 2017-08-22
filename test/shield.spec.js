@@ -60,6 +60,9 @@ function getSession () {
 function getView () {
   return {
     locals: [],
+    safe (input) {
+      return input
+    },
     share (values) {
       this.locals.push(values)
     }
@@ -299,10 +302,12 @@ test.group('Shield', () => {
     const view = getView()
 
     shield.shareCspViewLocals(shield.buildCsp(req, res), view)
-    assert.deepEqual(view.locals, [{
-      cspMeta: '<meta http-equiv="Content-Security-Policy" content="script-src *; ">',
-      cspNonce: shield.cspNonce
-    }])
+    assert.lengthOf(view.locals, 1)
+    assert.equal(view.locals[0].cspNonce, shield.cspNonce)
+    assert.equal(
+      view.locals[0].cspMeta.bind(view)(),
+      '<meta http-equiv="Content-Security-Policy" content="script-src *; ">'
+    )
   })
 
   test('share all meta tags when setAllHeaders is set to true', (assert) => {
@@ -317,10 +322,12 @@ test.group('Shield', () => {
     const view = getView()
 
     shield.shareCspViewLocals(shield.buildCsp(req, res), view)
-    assert.deepEqual(view.locals, [{
-      cspMeta: '<meta http-equiv="Content-Security-Policy" content="script-src *; ">\n<meta http-equiv="X-Content-Security-Policy" content="script-src *; ">\n<meta http-equiv="X-WebKit-CSP" content="script-src *; ">',
-      cspNonce: shield.cspNonce
-    }])
+    assert.lengthOf(view.locals, 1)
+    assert.equal(view.locals[0].cspNonce, shield.cspNonce)
+    assert.equal(
+      view.locals[0].cspMeta.bind(view)(),
+      '<meta http-equiv="Content-Security-Policy" content="script-src *; ">\n<meta http-equiv="X-Content-Security-Policy" content="script-src *; ">\n<meta http-equiv="X-WebKit-CSP" content="script-src *; ">'
+    )
   })
 
   test('set nonce on request', (assert) => {
@@ -459,7 +466,7 @@ test.group('Shield', () => {
     const view = getView()
     shield.shareCsrfViewLocals('22', view)
     assert.equal(view.locals[0].csrfToken, '22')
-    assert.equal(view.locals[0].csrfField, '<input type="hidden" name="_csrf" value="22">')
+    assert.equal(view.locals[0].csrfField.bind(view)(), '<input type="hidden" name="_csrf" value="22">')
   })
 
   test('set XSRF-TOKEN cookie with csrf token', async (assert) => {
