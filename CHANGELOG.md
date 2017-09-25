@@ -1,3 +1,13 @@
+<a name="1.0.3"></a>
+## [1.0.3](https://github.com/adonisjs/adonis-shield/compare/v1.0.2...v1.0.3) (2017-09-25)
+
+
+### Bug Fixes
+
+* **csrf:** get right appkey and check enable flag ([6e88019](https://github.com/adonisjs/adonis-shield/commit/6e88019))
+
+
+
 <a name="1.0.2"></a>
 ## [1.0.2](https://github.com/adonisjs/adonis-shield/compare/v1.0.1...v1.0.2) (2017-08-22)
 
