@@ -20,7 +20,7 @@ class Shield {
   constructor (Config) {
     this.config = Config.merge('shield', require('../../example/config.js'))
     this.cspNonce = uuid.v4()
-    this.appSecret = Config.get('app.secret')
+    this.appSecret = Config.get('app.appKey')
   }
 
   /**
@@ -61,6 +61,20 @@ class Shield {
     }
 
     return []
+  }
+
+  /**
+   * Returns a boolean telling whether CSRF is enabled
+   * or not
+   *
+   * @method _isCsrfEnabled
+   *
+   * @return {Boolean}
+   *
+   * @private
+   */
+  _isCsrfEnabled () {
+    return this.config.csrf.enable
   }
 
   /**
@@ -374,7 +388,7 @@ class Shield {
      * If the request url and method is supposed to be checked
      * against csrf attack, then verify the token.
      */
-    if (this._fallsUnderValidationUri(request) && this._fallsUnderValidationMethod(request.method())) {
+    if (this._isCsrfEnabled() && this._fallsUnderValidationUri(request) && this._fallsUnderValidationMethod(request.method())) {
       const csrfToken = this.getCsrfToken(request)
       this.verifyToken(csrfSecret, csrfToken)
     }

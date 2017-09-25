@@ -562,6 +562,26 @@ test.group('Shield', () => {
     }
   })
 
+  test('ignore csrf when csrf is disabled', async (assert) => {
+    assert.plan(1)
+
+    const config = new Config()
+    config.set('shield.csrf.enable', false)
+    const shield = new Shield(config)
+    const request = getReq()
+    request.method = () => 'POST'
+
+    const response = getRes()
+    response.response = response
+    response.request = request
+
+    const view = getView()
+    const session = getSession()
+    await shield.handle({ view, session, request, response }, function () {
+      assert.isTrue(true)
+    })
+  })
+
   test('throw exception when session is not set', async (assert) => {
     assert.plan(3)
 
