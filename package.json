@@ -1,6 +1,6 @@
 {
   "name": "@adonisjs/shield",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Adonis shield is middleware to standard HTTP websites to protect themselves from common web attacks like xss, csp and csrf",
   "main": "index.js",
   "scripts": {
