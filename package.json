@@ -1,6 +1,6 @@
 {
   "name": "@adonisjs/shield",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Adonis shield is middleware to standard HTTP websites to protect themselves from common web attacks like xss, csp and csrf",
   "main": "index.js",
   "scripts": {
@@ -22,12 +22,12 @@
   "author": "virk",
   "license": "MIT",
   "devDependencies": {
-    "@adonisjs/sink": "^1.0.12",
-    "coveralls": "^2.13.1",
-    "cz-conventional-changelog": "^2.0.0",
-    "japa": "^1.0.3",
+    "@adonisjs/sink": "^1.0.13",
+    "coveralls": "^3.0.0",
+    "cz-conventional-changelog": "^2.1.0",
+    "japa": "^1.0.5",
     "japa-cli": "^1.0.1",
-    "nyc": "^11.1.0",
+    "nyc": "^11.2.1",
     "standard": "^10.0.3"
   },
   "dependencies": {
