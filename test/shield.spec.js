@@ -600,7 +600,7 @@ test.group('Shield', () => {
     } catch ({ status, message, code }) {
       assert.equal(status, 500)
       assert.equal(code, 'E_RUNTIME_ERROR')
-      assert.equal(message, 'E_RUNTIME_ERROR: Make sure to install/setup session provider to use shield middleware')
+      assert.match(message, /E_RUNTIME_ERROR: Make sure to install\/setup session provider to use shield middleware/)
     }
   })
 })
