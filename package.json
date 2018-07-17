@@ -1,8 +1,15 @@
 {
   "name": "@adonisjs/shield",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Adonis shield is middleware to standard HTTP websites to protect themselves from common web attacks like xss, csp and csrf",
   "main": "index.js",
+  "files": [
+    "example",
+    "providers",
+    "src",
+    "instructions.js",
+    "instructions.md"
+  ],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
