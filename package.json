@@ -2,22 +2,16 @@
   "name": "@adonisjs/shield",
   "version": "1.0.8",
   "description": "Adonis shield is middleware to standard HTTP websites to protect themselves from common web attacks like xss, csp and csrf",
-  "main": "index.js",
-  "files": [
-    "example",
-    "providers",
-    "src",
-    "instructions.js",
-    "instructions.md"
-  ],
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
-    "test:local": "FORCE_COLOR=true node bin/index.js --local",
-    "test": "nyc node japaFile.js",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "commit": "git-cz",
-    "lint": "standard"
+    "test": "node japaFile.js",
+    "prepublishOnly": "npm run build",
+    "lint": "tslint --project tsconfig.json",
+    "clean": "del build",
+    "compile": "npm run lint && npm run clean && tsc",
+    "build": "npm run compile",
+    "commit": "git-cz"
   },
   "keywords": [
     "adonisjs",
@@ -29,39 +23,22 @@
   "author": "virk",
   "license": "MIT",
   "devDependencies": {
-    "@adonisjs/fold": "^4.0.9",
-    "@adonisjs/mrm-preset": "^1.0.13",
-    "@adonisjs/sink": "^1.0.17",
-    "commitizen": "^2.10.1",
-    "coveralls": "^3.0.2",
-    "cz-conventional-changelog": "^2.1.0",
-    "japa": "^2.0.3",
-    "mrm": "^1.2.1",
-    "nyc": "^13.0.1",
-    "pkg-ok": "^2.2.0",
-    "semver": "^5.5.1",
-    "standard": "^12.0.1"
+    "@adonisjs/mrm-preset": "^2.1.0",
+    "@types/node": "^12.7.5",
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "^3.0.2",
+    "del-cli": "^3.0.0",
+    "doctoc": "^1.4.0",
+    "husky": "^3.0.5",
+    "japa": "^3.0.1",
+    "mrm": "^1.2.2",
+    "pkg-ok": "^2.3.1",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "typescript": "^3.6.3"
   },
-  "dependencies": {
-    "@adonisjs/generic-exceptions": "^2.0.1",
-    "csrf": "^3.0.6",
-    "node-cookie": "^2.1.1",
-    "node-csp": "^1.0.1",
-    "node-guard": "^1.0.0",
-    "uuid": "^3.3.2"
-  },
-  "nyc": {
-    "include": [
-      "src"
-    ],
-    "exclude": [
-      "test"
-    ]
-  },
-  "directories": {
-    "example": "example",
-    "test": "test"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adonisjs/adonis-shield.git"
@@ -70,6 +47,26 @@
     "url": "https://github.com/adonisjs/adonis-shield/issues"
   },
   "homepage": "https://github.com/adonisjs/adonis-shield#readme",
+  "nyc": {
+    "exclude": [
+      "test"
+    ],
+    "extension": [
+      ".ts"
+    ]
+  },
+  "main": "build/index.js",
+  "files": [
+    "build/src",
+    "build/index.d.ts",
+    "build/index.js"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "doctoc README.md --title='## Table of contents' && git add README.md",
+      "commit-msg": "node ./node_modules/@adonisjs/mrm-preset/validateCommit/conventional/validate.js"
+    }
+  },
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
