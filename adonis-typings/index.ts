@@ -25,9 +25,9 @@ declare module '@ioc:Adonis/Addons/Shield' {
   // HTTP Strict Transport Security (HSTS)
   export type HstsOptions = {
     enabled: boolean,
-    maxAge: string | number,
-    includeSubDomains: boolean,
-    preload: boolean,
+    maxAge?: string | number,
+    includeSubDomains?: boolean,
+    preload?: boolean,
   }
 
   // X-XSS-Protection

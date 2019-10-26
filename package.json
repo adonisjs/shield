@@ -39,7 +39,9 @@
     "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.6.3"
   },
-  "dependencies": {},
+  "dependencies": {
+    "ms": "^2.1.2"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adonisjs/adonis-shield.git"
