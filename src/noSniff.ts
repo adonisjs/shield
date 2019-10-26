@@ -11,6 +11,7 @@
 
 import { ContentTypeSniffingOptions } from '@ioc:Adonis/Addons/Shield'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { noop } from './noop'
 
 /**
  * Adds `X-Content-Type-Options` header based upon given
@@ -18,8 +19,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
  */
 export function noSniff (options: ContentTypeSniffingOptions) {
   if (!options.enabled) {
-    return function noSniffMiddlewareFn (_ctx: HttpContextContract) {
-    }
+    return noop
   }
 
   return function noSniffMiddlewareFn ({ response }: HttpContextContract) {

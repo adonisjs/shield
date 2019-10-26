@@ -12,6 +12,7 @@
 import ms from 'ms'
 import { HstsOptions } from '@ioc:Adonis/Addons/Shield'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { noop } from './noop'
 
 const DEFAULT_MAX_AGE = 180 * 24 * 60 * 60
 
@@ -37,8 +38,7 @@ function normalizeMaxAge (maxAge?: string | number): number {
  */
 export function hsts (options: HstsOptions) {
   if (!options.enabled) {
-    return function hstsMiddlewareFn (_ctx: HttpContextContract) {
-    }
+    return noop
   }
 
   const maxAge = normalizeMaxAge(options.maxAge)

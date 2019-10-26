@@ -33,8 +33,9 @@ declare module '@ioc:Adonis/Addons/Shield' {
   // X-XSS-Protection
   export type XSSOptions = {
     enabled: boolean,
-    enableOnOldIE: boolean,
-    reportUri: string,
+    enableOnOldIE?: boolean,
+    reportUri?: string,
+    mode?: 'block' | null,
   }
 
   // X-Download-Options
