@@ -42,4 +42,10 @@ declare module '@ioc:Adonis/Addons/Shield' {
   export type IENoOpenOptions = {
     enabled: boolean,
   }
+
+  // X-DNS-Prefetch-Control
+  export type DnsPrefetchOptions = {
+    enabled: boolean,
+    allow?: boolean,
+  }
 }
