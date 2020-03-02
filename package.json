@@ -23,7 +23,7 @@
   "author": "virk",
   "license": "MIT",
   "devDependencies": {
-    "@adonisjs/http-server": "^1.8.1",
+    "@adonisjs/core": "^5.0.0-preview.2",
     "@adonisjs/mrm-preset": "^2.2.4",
     "@types/node": "^13.7.7",
     "commitizen": "^4.0.3",
