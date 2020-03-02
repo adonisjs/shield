@@ -8,13 +8,13 @@
 */
 
 import test from 'japa'
-import { HttpContext } from '@adonisjs/http-server/build/standalone'
 import { noOpen } from '../src/noOpen'
+import { getCtx } from '../test-helpers'
 
 test.group('No Open', () => {
   test('return noop function when enabled is false', (assert) => {
     const middlewareFn = noOpen({ enabled: false })
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     middlewareFn(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-Download-Options'))
@@ -22,7 +22,7 @@ test.group('No Open', () => {
 
   test('set X-Download-Options header', (assert) => {
     const middlewareFn = noOpen({ enabled: true })
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     middlewareFn(ctx)
 
     assert.equal(ctx.response.getHeader('X-Download-Options'), 'noopen')

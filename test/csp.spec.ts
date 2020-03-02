@@ -8,13 +8,13 @@
 */
 
 import test from 'japa'
-import { HttpContext } from '@adonisjs/http-server/build/standalone'
 import { csp } from '../src/csp'
+import { getCtx } from '../test-helpers'
 
 test.group('Csp', () => {
   test('return noop function when enabled is false', (assert) => {
     const middlewareFn = csp({ enabled: false })
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     middlewareFn(ctx)
 
     assert.isUndefined(ctx.response.getHeader('Content-Security-Policy'))
@@ -24,32 +24,32 @@ test.group('Csp', () => {
     const middlewareFn = csp({
       enabled: true,
       directives: {
-        defaultSrc: [`'self'`],
+        defaultSrc: ['\'self\''],
       },
     })
 
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     middlewareFn(ctx)
 
-    assert.equal(ctx.response.getHeader('Content-Security-Policy'), `default-src 'self'`)
+    assert.equal(ctx.response.getHeader('Content-Security-Policy'), 'default-src \'self\'')
   })
 
   test('transform @nonce keyword on scriptSrc', (assert) => {
     const middlewareFn = csp({
       enabled: true,
       directives: {
-        defaultSrc: [`'self'`],
+        defaultSrc: ['\'self\''],
         scriptSrc: ['@nonce'],
       },
     })
 
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     ctx.response.nonce = '1234'
 
     middlewareFn(ctx)
     assert.equal(
       ctx.response.getHeader('Content-Security-Policy'),
-      `default-src 'self'; script-src 'nonce-1234'`,
+      'default-src \'self\'; script-src \'nonce-1234\'',
     )
   })
 
@@ -57,18 +57,18 @@ test.group('Csp', () => {
     const middlewareFn = csp({
       enabled: true,
       directives: {
-        defaultSrc: [`'self'`],
+        defaultSrc: ['\'self\''],
         styleSrc: ['@nonce'],
       },
     })
 
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     ctx.response.nonce = '1234'
 
     middlewareFn(ctx)
     assert.equal(
       ctx.response.getHeader('Content-Security-Policy'),
-      `default-src 'self'; style-src 'nonce-1234'`,
+      'default-src \'self\'; style-src \'nonce-1234\'',
     )
   })
 })

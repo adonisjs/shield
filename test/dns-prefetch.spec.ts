@@ -8,13 +8,13 @@
 */
 
 import test from 'japa'
-import { HttpContext } from '@adonisjs/http-server/build/standalone'
 import { dnsPrefetch } from '../src/dnsPrefetch'
+import { getCtx } from '../test-helpers'
 
 test.group('Dns Prefetch', () => {
   test('return noop function when enabled is false', (assert) => {
     const middlewareFn = dnsPrefetch({ enabled: false })
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     middlewareFn(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-DNS-Prefetch-Control'))
@@ -22,7 +22,7 @@ test.group('Dns Prefetch', () => {
 
   test('set X-DNS-Prefetch-Control header', (assert) => {
     const middlewareFn = dnsPrefetch({ enabled: true, allow: true })
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     middlewareFn(ctx)
 
     assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'on')
@@ -30,7 +30,7 @@ test.group('Dns Prefetch', () => {
 
   test('set X-DNS-Prefetch-Control header to off', (assert) => {
     const middlewareFn = dnsPrefetch({ enabled: true, allow: false })
-    const ctx = HttpContext.create('/', {}, {}, {}, {})
+    const ctx = getCtx()
     middlewareFn(ctx)
 
     assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'off')
