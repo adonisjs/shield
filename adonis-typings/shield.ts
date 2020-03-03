@@ -54,4 +54,15 @@ declare module '@ioc:Adonis/Addons/Shield' {
   export type CspOptions = {
     enabled: boolean,
   } & HelmetCspOptions
+
+  export type CsrfOptions = {
+    enabled: boolean,
+    filterUris?: string[],
+    cookieOptions?: {
+      httpOnly?: boolean,
+      sameSite?: boolean,
+      path?: string,
+      maxAge?: number
+    }
+  }
 }
