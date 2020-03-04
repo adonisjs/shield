@@ -31,14 +31,18 @@ const sessionConfig: SessionConfigContract = {
   },
 }
 
-export function getCtx (routePath: string = '/', routeParams = {}, request?: IncomingMessage) {
+export function getCtx () {
+  return HttpContext.create('/', {}, logger, profiler.create(''), {} as any) as HttpContextContract
+}
+
+export async function getCtxWithSession (routePath: string = '/', routeParams = {}, request?: IncomingMessage) {
   HttpContext.getter('session', function session () {
     const sessionManager = new SessionManager(new Ioc(), sessionConfig)
 
     return sessionManager.create(this)
-  })
+  }, true)
 
-  return HttpContext.create(
+  const httpContext = HttpContext.create(
     routePath,
     routeParams,
     logger,
@@ -46,15 +50,19 @@ export function getCtx (routePath: string = '/', routeParams = {}, request?: Inc
     {} as any,
     request
   ) as HttpContextContract
+
+  await httpContext.session.initiate(false)
+
+  return httpContext
 }
 
 export function getCtxFromIncomingMessage (headers: IncomingHttpHeaders = {}, routePath = '/', routeParams = {}) {
   const request = new IncomingMessage(new Socket())
   request.headers = headers
 
-  return getCtx(routePath, routeParams, request)
+  return getCtxWithSession(routePath, routeParams, request)
 }
 
-export function getCsrfMiddlewareInstance (options: CsrfOptions, applicationKey: string) {
-  return new CsrfMiddleware(getCtx().session, options, applicationKey)
+export async function getCsrfMiddlewareInstance (options: CsrfOptions, applicationKey: string) {
+  return new CsrfMiddleware((await getCtxWithSession()).session, options, applicationKey)
 }

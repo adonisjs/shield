@@ -12,6 +12,7 @@
 import Tokens from 'csrf'
 import { unpack } from '@poppinss/cookie'
 import { Exception } from '@poppinss/utils'
+import { pathToRegexp } from 'path-to-regexp'
 import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { SessionContract } from '@ioc:Adonis/Addons/Session'
@@ -32,7 +33,7 @@ export class CsrfMiddleware {
    * This would be injected from the
    * http context.
    */
-  private session: SessionContract
+  public session: SessionContract
 
   /**
    * Csrf configurations defined by the
@@ -60,7 +61,7 @@ export class CsrfMiddleware {
    * method is one of the allowed. If not,
    * return false.
    */
-  private requestMethodShouldEnforceCsrf (request: RequestContract) {
+  private requestMethodShouldEnforceCsrf (request: RequestContract): boolean {
     const method = request.method().toLowerCase()
 
     if (! this.options.methods || this.options.methods.length === 0) {
@@ -73,11 +74,23 @@ export class CsrfMiddleware {
   }
 
   /**
+   * Check if the current request url has been
+   * excluded from csrf protection.
+   */
+  private requestUrlShouldEnforceCsrf (request: RequestContract): boolean {
+    if (! this.options.filterUris || this.options.filterUris.length === 0) {
+      return true
+    }
+
+    return ! pathToRegexp(this.options.filterUris).test(request.url())
+  }
+
+  /**
    * Check if csrf secret has been saved to
    * session. If not, generate a new one,
    * save it to session, and return it.
    */
-  public async getCsrfSecret () {
+  public async getCsrfSecret (): Promise<string> {
     let csrfSecret = this.session.get('csrf-secret')
 
     if (! csrfSecret) {
@@ -94,7 +107,7 @@ export class CsrfMiddleware {
    * checking headers and inputs. Decode the
    * token if it was encrypted.
    */
-  private getCsrfTokenFromRequest (request: RequestContract) {
+  private getCsrfTokenFromRequest (request: RequestContract): string|null {
     const token = request.input('_csrf') || request.header('x-csrf-token')
 
     if (token) {
@@ -112,7 +125,7 @@ export class CsrfMiddleware {
    * the csrf secret extracted
    * from session.
    */
-  public generateCsrfToken (csrfSecret) {
+  public generateCsrfToken (csrfSecret): string {
     return Csrf.create(csrfSecret)
   }
 
@@ -122,10 +135,10 @@ export class CsrfMiddleware {
    * verified. Next, attach the newly generated
    * csrf token to the request object.
    */
-  public async handle (request: RequestContract) {
+  public async handle (request: RequestContract): Promise<void> {
     const csrfSecret = await this.getCsrfSecret()
 
-    if (this.requestMethodShouldEnforceCsrf(request)) {
+    if (this.requestMethodShouldEnforceCsrf(request) && this.requestUrlShouldEnforceCsrf(request)) {
       const csrfToken = this.getCsrfTokenFromRequest(request)
 
       if (! csrfToken || ! Csrf.verify(csrfSecret, csrfToken)) {
