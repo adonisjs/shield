@@ -8,7 +8,12 @@
 */
 
 import { Socket } from 'net'
+import { join } from 'path'
+import { Edge } from 'edge.js'
 import { Ioc } from '@adonisjs/fold'
+import { CsrfMiddleware } from '../src/csrf'
+import { Filesystem } from '@poppinss/dev-utils'
+import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
 import { IncomingMessage, IncomingHttpHeaders } from 'http'
 import { FakeLogger } from '@adonisjs/logger/build/standalone'
 import { Profiler } from '@adonisjs/profiler/build/standalone'
@@ -16,8 +21,8 @@ import { SessionConfigContract } from '@ioc:Adonis/Addons/Session'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { HttpContext } from '@adonisjs/http-server/build/standalone'
 import { SessionManager } from '@adonisjs/session/build/src/SessionManager'
-import { CsrfMiddleware } from '../src/csrf'
-import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
+
+export const Fs = new Filesystem(join(__dirname, 'views'))
 
 const logger = new FakeLogger({ level: 'trace', enabled: false, name: 'adonisjs' })
 const profiler = new Profiler(__dirname, logger, {})
@@ -40,6 +45,13 @@ export async function getCtxWithSession (routePath: string = '/', routeParams = 
     const sessionManager = new SessionManager(new Ioc(), sessionConfig)
 
     return sessionManager.create(this)
+  }, true)
+
+  HttpContext.getter('view', function view () {
+    const edge = new Edge()
+
+    edge.mount(Fs.basePath)
+    return edge.share({ request: this.request, route: this.route })
   }, true)
 
   const httpContext = HttpContext.create(

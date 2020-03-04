@@ -10,7 +10,7 @@
 import test from 'japa'
 import Tokens from 'csrf'
 import { csrf } from '../src/csrf'
-import { getCtxWithSession, getCtxFromIncomingMessage, getCsrfMiddlewareInstance } from '../test-helpers'
+import { Fs, getCtxWithSession, getCtxFromIncomingMessage, getCsrfMiddlewareInstance } from '../test-helpers'
 
 const Csrf = new Tokens()
 const APPLICATION_SECRET_KEY = 'secret-key'
@@ -24,8 +24,10 @@ test.group('Csrf', () => {
     assert.isUndefined(ctx.request.csrfToken)
   })
 
-  test('generate new, and valid csrf token for every new request', async (assert) => {
+  test('generate new, and valid csrf token xsrf cookie and view locals for every new request', async (assert) => {
     const csrfMiddleware = await getCsrfMiddlewareInstance({ enabled: true }, APPLICATION_SECRET_KEY)
+    await Fs.add('token.edge', 'Csrf Token: {{ csrfToken }}')
+    await Fs.add('token-function.edge', 'Csrf Field: {{ csrfField() }}')
 
     const TEST_CSRF_SECRET = await csrfMiddleware.getCsrfSecret()
     const TEST_CSRF_TOKEN = csrfMiddleware.generateCsrfToken(TEST_CSRF_SECRET)
@@ -44,6 +46,14 @@ test.group('Csrf', () => {
 
     assert.isDefined(ctx.request.csrfToken)
     assert.isTrue(Csrf.verify(TEST_CSRF_SECRET, ctx.request.csrfToken))
+
+    const xsrfCookie = ctx.response.getHeader('set-cookie') as string
+
+    assert.isDefined(xsrfCookie)
+    assert.match(xsrfCookie, new RegExp('x-xsrf-token'))
+
+    assert.equal(ctx.view.render('token').trim(), `Csrf Token: ${ctx.request.csrfToken}`)
+    assert.equal(ctx.view.render('token-function').trim(), `Csrf Field: <input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`)
   })
 
   test('validate csrf token on a request', async (assert) => {

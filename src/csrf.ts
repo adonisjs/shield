@@ -12,7 +12,6 @@
 import Tokens from 'csrf'
 import { unpack } from '@poppinss/cookie'
 import { Exception } from '@poppinss/utils'
-import { pathToRegexp } from 'path-to-regexp'
 import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { SessionContract } from '@ioc:Adonis/Addons/Session'
@@ -64,7 +63,7 @@ export class CsrfMiddleware {
   private requestMethodShouldEnforceCsrf (request: RequestContract): boolean {
     const method = request.method().toLowerCase()
 
-    if (! this.options.methods || this.options.methods.length === 0) {
+    if (!this.options.methods || this.options.methods.length === 0) {
       return true
     }
 
@@ -77,12 +76,12 @@ export class CsrfMiddleware {
    * Check if the current request url has been
    * excluded from csrf protection.
    */
-  private requestUrlShouldEnforceCsrf (request: RequestContract): boolean {
-    if (! this.options.filterUris || this.options.filterUris.length === 0) {
+  private requestUrlShouldEnforceCsrf (ctx: HttpContextContract): boolean {
+    if (!this.options.filterUris || this.options.filterUris.length === 0) {
       return true
     }
 
-    return ! pathToRegexp(this.options.filterUris).test(request.url())
+    return !this.options.filterUris.includes(ctx.route!.pattern)
   }
 
   /**
@@ -93,7 +92,7 @@ export class CsrfMiddleware {
   public async getCsrfSecret (): Promise<string> {
     let csrfSecret = this.session.get('csrf-secret')
 
-    if (! csrfSecret) {
+    if (!csrfSecret) {
       csrfSecret = await Csrf.secret()
 
       this.session.put('csrf-secret', csrfSecret)
@@ -130,23 +129,59 @@ export class CsrfMiddleware {
   }
 
   /**
+   * Set the xsrf cookie on
+   * response
+   */
+  private setXsrfCookie (ctx: HttpContextContract): void {
+    ctx.response.cookie('x-xsrf-token', ctx.request.csrfToken)
+  }
+
+  /**
+   * Set the csrf token on
+   * request
+   */
+  private setCsrfToken (ctx: HttpContextContract, csrfSecret: string): void {
+    ctx.request.csrfToken = this.generateCsrfToken(csrfSecret)
+  }
+
+  /**
+   * This would make a csrfToken variable available to
+   * the edge view templates. This would also create
+   * a helpful method called csrfField to be used
+   * on the frontend to generate a hidden
+   * field called _csrf
+   */
+  private shareCsrfViewLocals (ctx: HttpContextContract): void {
+    ctx.view.share({
+      csrfToken: ctx.request.csrfToken,
+      csrfField: (compilerContext) => compilerContext.safe(`<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`),
+    })
+  }
+
+  /**
    * Handle csrf verification. First, get the secret,
    * next, check if the request method should be
    * verified. Next, attach the newly generated
    * csrf token to the request object.
    */
-  public async handle (request: RequestContract): Promise<void> {
+  public async handle (ctx: HttpContextContract): Promise<void> {
+    const { request } = ctx
+
     const csrfSecret = await this.getCsrfSecret()
 
-    if (this.requestMethodShouldEnforceCsrf(request) && this.requestUrlShouldEnforceCsrf(request)) {
+    if (this.requestMethodShouldEnforceCsrf(request) && this.requestUrlShouldEnforceCsrf(ctx)) {
       const csrfToken = this.getCsrfTokenFromRequest(request)
 
-      if (! csrfToken || ! Csrf.verify(csrfSecret, csrfToken)) {
+      if (!csrfToken || !Csrf.verify(csrfSecret, csrfToken)) {
         throw new Exception('Invalid CSRF Token', 403, 'E_BAD_CSRF_TOKEN')
       }
     }
 
-    request.csrfToken = this.generateCsrfToken(csrfSecret)
+    this.setCsrfToken(ctx, csrfSecret)
+
+    this.setXsrfCookie(ctx)
+
+    this.shareCsrfViewLocals(ctx)
   }
 }
 
@@ -156,13 +191,13 @@ export class CsrfMiddleware {
  * the next request.
  */
 export function csrf (options: CsrfOptions, applicationKey: string) {
-  if (! options.enabled) {
+  if (!options.enabled) {
     return noop
   }
 
-  return async function csrfMiddlewareFn ({ request, session }: HttpContextContract) {
-    const csrfMiddleware = new CsrfMiddleware(session, options, applicationKey)
+  return async function csrfMiddlewareFn (ctx: HttpContextContract) {
+    const csrfMiddleware = new CsrfMiddleware(ctx.session, options, applicationKey)
 
-    return csrfMiddleware.handle(request)
+    return csrfMiddleware.handle(ctx)
   }
 }
