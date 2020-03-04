@@ -27,6 +27,7 @@ test.group('Csrf', () => {
   test('generate new, and valid csrf token xsrf cookie and view locals for every new request', async (assert) => {
     const csrfMiddleware = await getCsrfMiddlewareInstance({ enabled: true }, APPLICATION_SECRET_KEY)
     await Fs.add('token.edge', 'Csrf Token: {{ csrfToken }}')
+    await Fs.add('token-meta.edge', 'Csrf Meta: {{ csrfMeta() }}')
     await Fs.add('token-function.edge', 'Csrf Field: {{ csrfField() }}')
 
     const TEST_CSRF_SECRET = await csrfMiddleware.getCsrfSecret()
@@ -53,6 +54,7 @@ test.group('Csrf', () => {
     assert.match(xsrfCookie, new RegExp('x-xsrf-token'))
 
     assert.equal(ctx.view.render('token').trim(), `Csrf Token: ${ctx.request.csrfToken}`)
+    assert.equal(ctx.view.render('token-meta').trim(), `Csrf Meta: <meta name='csrf-token' content='${ctx.request.csrfToken}'>`)
     assert.equal(ctx.view.render('token-function').trim(), `Csrf Field: <input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`)
   })
 

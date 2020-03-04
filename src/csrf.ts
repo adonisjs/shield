@@ -154,6 +154,7 @@ export class CsrfMiddleware {
   private shareCsrfViewLocals (ctx: HttpContextContract): void {
     ctx.view.share({
       csrfToken: ctx.request.csrfToken,
+      csrfMeta: (compilerContext) => compilerContext.safe(`<meta name='csrf-token' content='${ctx.request.csrfToken}'>`),
       csrfField: (compilerContext) => compilerContext.safe(`<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`),
     })
   }
