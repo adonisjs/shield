@@ -21,11 +21,30 @@ import { noop } from './noop'
 
 const Csrf = new Tokens()
 
+/**
+ * A wrapper around all the functionality
+ * for handling csrf verification
+ * 
+ */
 export class CsrfMiddleware {
+  /**
+   * The session instance of the application.
+   * This would be injected from the
+   * http context.
+   */
   private session: SessionContract
 
+  /**
+   * Csrf configurations defined by the
+   * user in the shield.js file.
+   */
   private options: CsrfOptions
 
+  /**
+   * The application key defined as APP_SECRET
+   * in environment variables. This would
+   * be injected from the config.
+   */
   private applicationKey: string
 
   constructor (session: SessionContract, options: CsrfOptions, applicationKey: string) {
@@ -34,6 +53,13 @@ export class CsrfMiddleware {
     this.applicationKey = applicationKey
   }
 
+  /**
+   * Get the request method, check if the user defined
+   * methods allowed for csrf verification in the
+   * config. If it did, check if the request
+   * method is one of the allowed. If not,
+   * return false.
+   */
   private requestMethodShouldEnforceCsrf (request: RequestContract) {
     const method = request.method().toLowerCase()
 
@@ -46,6 +72,11 @@ export class CsrfMiddleware {
       .length > 0
   }
 
+  /**
+   * Check if csrf secret has been saved to
+   * session. If not, generate a new one,
+   * save it to session, and return it.
+   */
   public async getCsrfSecret () {
     let csrfSecret = this.session.get('csrf-secret')
 
@@ -58,6 +89,11 @@ export class CsrfMiddleware {
     return csrfSecret
   }
 
+  /**
+   * Extract the csrf token from the request by
+   * checking headers and inputs. Decode the
+   * token if it was encrypted.
+   */
   private getCsrfTokenFromRequest (request: RequestContract) {
     const token = request.input('_csrf') || request.header('x-csrf-token')
 
@@ -71,10 +107,21 @@ export class CsrfMiddleware {
     return unpackedToken ? unpackedToken.value : null
   }
 
+  /**
+   * Generate a new csrf token using
+   * the csrf secret extracted
+   * from session.
+   */
   public generateCsrfToken (csrfSecret) {
     return Csrf.create(csrfSecret)
   }
 
+  /**
+   * Handle csrf verification. First, get the secret,
+   * next, check if the request method should be
+   * verified. Next, attach the newly generated
+   * csrf token to the request object.
+   */
   public async handle (request: RequestContract) {
     const csrfSecret = await this.getCsrfSecret()
 
@@ -90,6 +137,11 @@ export class CsrfMiddleware {
   }
 }
 
+/**
+ * Check if csrf is enabled. If yes, verifies the
+ * old token and generates a new one for
+ * the next request.
+ */
 export function csrf (options: CsrfOptions, applicationKey: string) {
   if (! options.enabled) {
     return noop
