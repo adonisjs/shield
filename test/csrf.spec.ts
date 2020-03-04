@@ -98,7 +98,7 @@ test.group('Csrf', () => {
 
   test('skip csrf token validation on uris white listed', async (assert) => {
     assert.plan(1)
-    const middlewareFn = csrf({ enabled: true, filterUris: ['/users/:id'] }, APPLICATION_SECRET_KEY)
+    const middlewareFn = csrf({ enabled: true, exceptRoutes: ['/users/:id'] }, APPLICATION_SECRET_KEY)
     const ctx = await getCtxWithSession('/users/:id', { id: 12453 })
 
     ctx.request.request.method = 'PATCH'
@@ -110,7 +110,7 @@ test.group('Csrf', () => {
 
   test('enforces csrf token validation on uris not whitelisted', async (assert) => {
     assert.plan(2)
-    const middlewareFn = csrf({ enabled: true, filterUris: ['posts/:post/store'] }, APPLICATION_SECRET_KEY)
+    const middlewareFn = csrf({ enabled: true, exceptRoutes: ['posts/:post/store'] }, APPLICATION_SECRET_KEY)
     const ctx = await getCtxWithSession('/users/:id', { id: 12453 })
 
     ctx.request.request.method = 'PATCH'

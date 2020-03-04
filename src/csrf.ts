@@ -77,11 +77,11 @@ export class CsrfMiddleware {
    * excluded from csrf protection.
    */
   private requestUrlShouldEnforceCsrf (ctx: HttpContextContract): boolean {
-    if (!this.options.filterUris || this.options.filterUris.length === 0) {
+    if (!this.options.exceptRoutes || this.options.exceptRoutes.length === 0) {
       return true
     }
 
-    return !this.options.filterUris.includes(ctx.route!.pattern)
+    return !this.options.exceptRoutes.includes(ctx.route!.pattern)
   }
 
   /**
