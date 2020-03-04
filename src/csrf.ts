@@ -11,55 +11,83 @@
 
 import Tokens from 'csrf'
 import { unpack } from '@poppinss/cookie'
+import { Exception } from '@poppinss/utils'
 import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
-import { HttpException } from '@adonisjs/generic-exceptions'
+import { SessionContract } from '@ioc:Adonis/Addons/Session'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import { noop } from './noop'
 
 const Csrf = new Tokens()
 
-// TODO: Switch this to fetch secret from session once questions have been answered.
-const session: { secret?: string } = {}
+export class CsrfMiddleware {
+  private session: SessionContract
 
-export function getCsrfTokenFromRequest (request: RequestContract, applicationKey: string) {
-  const token = request.input('_csrf') || request.header('x-csrf-token')
+  private options: CsrfOptions
 
-  if (token) {
-    return token
+  private applicationKey: string
+
+  constructor (session: SessionContract, options: CsrfOptions, applicationKey: string) {
+    this.session = session
+    this.options = options
+    this.applicationKey = applicationKey
   }
 
-  const encryptedToken = request.header('x-xsrf-token')
-  const unpackedToken = encryptedToken ? unpack(token, applicationKey) : null
+  private requestMethodShouldEnforceCsrf (request: RequestContract) {
+    const method = request.method().toLowerCase()
 
-  return unpackedToken ? unpackedToken.value : null
-}
+    if (! this.options.methods || this.options.methods.length === 0) {
+      return true
+    }
 
-export async function getCsrfSecret () {
-  let csrfSecret = session.secret
-
-  if (! csrfSecret) {
-    csrfSecret = await Csrf.secret()
-
-    session.secret = csrfSecret
+    return this.options.methods
+      .filter(definedMethod => definedMethod.toLowerCase() === method)
+      .length > 0
   }
 
-  return csrfSecret
-}
+  public async getCsrfSecret () {
+    let csrfSecret = this.session.get('csrf-secret')
 
-export function generateCsrfToken (csrfSecret) {
-  return Csrf.create(csrfSecret)
-}
+    if (! csrfSecret) {
+      csrfSecret = await Csrf.secret()
 
-export function requestMethodShouldEnforceCsrf (request: RequestContract, options: CsrfOptions): boolean {
-  const method = request.method().toLowerCase()
+      this.session.put('csrf-secret', csrfSecret)
+    }
 
-  if (! options.methods || options.methods.length === 0) {
-    return true
+    return csrfSecret
   }
 
-  return options.methods.filter(definedMethod => definedMethod.toLowerCase() === method).length > 0
+  private getCsrfTokenFromRequest (request: RequestContract) {
+    const token = request.input('_csrf') || request.header('x-csrf-token')
+
+    if (token) {
+      return token
+    }
+
+    const encryptedToken = request.header('x-xsrf-token')
+    const unpackedToken = encryptedToken ? unpack(token, this.applicationKey) : null
+
+    return unpackedToken ? unpackedToken.value : null
+  }
+
+  public generateCsrfToken (csrfSecret) {
+    return Csrf.create(csrfSecret)
+  }
+
+  public async handle (request: RequestContract) {
+    const csrfSecret = await this.getCsrfSecret()
+
+    if (this.requestMethodShouldEnforceCsrf(request)) {
+      const csrfToken = this.getCsrfTokenFromRequest(request)
+
+      if (! csrfToken || ! Csrf.verify(csrfSecret, csrfToken)) {
+        throw new Exception('Invalid CSRF Token', 403, 'E_BAD_CSRF_TOKEN')
+      }
+    }
+
+    request.csrfToken = this.generateCsrfToken(csrfSecret)
+  }
 }
 
 export function csrf (options: CsrfOptions, applicationKey: string) {
@@ -67,19 +95,9 @@ export function csrf (options: CsrfOptions, applicationKey: string) {
     return noop
   }
 
-  return async function csrfMiddlewareFn ({ request }: HttpContextContract) {
-    const csrfSecret = await getCsrfSecret()
+  return async function csrfMiddlewareFn ({ request, session }: HttpContextContract) {
+    const csrfMiddleware = new CsrfMiddleware(session, options, applicationKey)
 
-    if (requestMethodShouldEnforceCsrf (request, options)) {
-      // if this request method and uri should be protected by csrf, verify the token
-      const csrfToken = getCsrfTokenFromRequest(request, applicationKey)
-
-      if (! csrfToken || ! Csrf.verify(csrfSecret, csrfToken)) {
-        throw new HttpException('Invalid CSRF Token', 403, 'EBADCSRFTOKEN')
-      }
-    }
-
-    // Generate a new csrf token based on the secret from session.
-    request.csrfToken = generateCsrfToken(csrfSecret)
+    return csrfMiddleware.handle(request)
   }
 }

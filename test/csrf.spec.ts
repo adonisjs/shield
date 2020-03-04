@@ -9,8 +9,8 @@
 
 import test from 'japa'
 import Tokens from 'csrf'
-import { getCtx, getCtxFromIncomingMessage } from '../test-helpers'
-import { csrf, getCsrfSecret, generateCsrfToken } from '../src/csrf'
+import { csrf } from '../src/csrf'
+import { getCtx, getCtxFromIncomingMessage, getCsrfMiddlewareInstance } from '../test-helpers'
 
 const Csrf = new Tokens()
 const APPLICATION_SECRET_KEY = 'secret-key'
@@ -25,13 +25,16 @@ test.group('Csrf', () => {
   })
 
   test('generate new, and valid csrf token for every new request', async (assert) => {
-    const TEST_CSRF_SECRET = await getCsrfSecret()
-    const TEST_CSRF_TOKEN = generateCsrfToken(TEST_CSRF_SECRET)
+    const csrfMiddleware = getCsrfMiddlewareInstance({ enabled: true }, APPLICATION_SECRET_KEY)
 
-    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
+    const TEST_CSRF_SECRET = await csrfMiddleware.getCsrfSecret()
+    const TEST_CSRF_TOKEN = csrfMiddleware.generateCsrfToken(TEST_CSRF_SECRET)
+
     const ctx = getCtxFromIncomingMessage({
       'x-csrf-token': TEST_CSRF_TOKEN,
     })
+
+    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
 
     ctx.request.request.method = 'GET'
 

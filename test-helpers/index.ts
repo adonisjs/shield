@@ -8,16 +8,44 @@
 */
 
 import { Socket } from 'net'
+import { Ioc } from '@adonisjs/fold'
 import { IncomingMessage, IncomingHttpHeaders } from 'http'
 import { FakeLogger } from '@adonisjs/logger/build/standalone'
 import { Profiler } from '@adonisjs/profiler/build/standalone'
+import { SessionConfigContract } from '@ioc:Adonis/Addons/Session'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { HttpContext } from '@adonisjs/http-server/build/standalone'
+import { SessionManager } from '@adonisjs/session/build/src/SessionManager'
+import { CsrfMiddleware } from '../src/csrf'
+import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
 
 const logger = new FakeLogger({ level: 'trace', enabled: false, name: 'adonisjs' })
 const profiler = new Profiler(__dirname, logger, {})
+const sessionConfig: SessionConfigContract = {
+  driver: 'cookie',
+  cookieName: 'adonis-session',
+  clearWithBrowser: false,
+  age: '2h',
+  cookie: {
+    path: '/',
+  },
+}
 
 export function getCtx (routePath: string = '/', routeParams = {}, request?: IncomingMessage) {
-  return HttpContext.create(routePath, routeParams, logger, profiler.create(''), {} as any, request)
+  HttpContext.getter('session', function session () {
+    const sessionManager = new SessionManager(new Ioc(), sessionConfig)
+
+    return sessionManager.create(this)
+  })
+
+  return HttpContext.create(
+    routePath,
+    routeParams,
+    logger,
+    profiler.create(''),
+    {} as any,
+    request
+  ) as HttpContextContract
 }
 
 export function getCtxFromIncomingMessage (headers: IncomingHttpHeaders = {}, routePath = '/', routeParams = {}) {
@@ -25,4 +53,8 @@ export function getCtxFromIncomingMessage (headers: IncomingHttpHeaders = {}, ro
   request.headers = headers
 
   return getCtx(routePath, routeParams, request)
+}
+
+export function getCsrfMiddlewareInstance (options: CsrfOptions, applicationKey: string) {
+  return new CsrfMiddleware(getCtx().session, options, applicationKey)
 }
