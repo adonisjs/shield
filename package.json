@@ -20,6 +20,9 @@
     "csrf",
     "csp"
   ],
+  "peerDependencies": {
+    "@adonisjs/session": "^2.x.x"
+  },
   "author": "virk",
   "license": "MIT",
   "devDependencies": {
