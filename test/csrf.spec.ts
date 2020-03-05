@@ -9,60 +9,34 @@
 
 import test from 'japa'
 import Tokens from 'csrf'
-import { csrf } from '../src/csrf'
-import { Fs, getCtxWithSession, getCtxFromIncomingMessage, getCsrfMiddlewareInstance } from '../test-helpers'
+import { pack } from '@poppinss/cookie'
+
+import { csrf, CsrfFactory } from '../src/csrf'
+import { fs, getCtx } from '../test-helpers'
 
 const Csrf = new Tokens()
-const APPLICATION_SECRET_KEY = 'secret-key'
+const APPLICATION_SECRET_KEY = 'verylongrandom32characterssecret'
 
-test.group('Csrf', () => {
-  test('return noop function when enabled is false', async (assert) => {
-    const middlewareFn = csrf({ enabled: false }, APPLICATION_SECRET_KEY)
-    const ctx = await getCtxWithSession()
-    middlewareFn(ctx)
-
-    assert.isUndefined(ctx.request.csrfToken)
+test.group('Csrf', (group) => {
+  group.afterEach(async () => {
+    await fs.cleanup()
   })
 
-  test('generate new, and valid csrf token xsrf cookie and view locals for every new request', async (assert) => {
-    const csrfMiddleware = await getCsrfMiddlewareInstance({ enabled: true }, APPLICATION_SECRET_KEY)
-    await Fs.add('token.edge', 'Csrf Token: {{ csrfToken }}')
-    await Fs.add('token-meta.edge', 'Csrf Meta: {{ csrfMeta() }}')
-    await Fs.add('token-function.edge', 'Csrf Field: {{ csrfField() }}')
+  test('return noop function when enabled is false', async (assert) => {
+    const middlewareFn = csrf({ enabled: false }, APPLICATION_SECRET_KEY)
+    const ctx = getCtx()
+    await ctx.session.initiate(false)
 
-    const TEST_CSRF_SECRET = await csrfMiddleware.getCsrfSecret()
-    const TEST_CSRF_TOKEN = csrfMiddleware.generateCsrfToken(TEST_CSRF_SECRET)
-
-    const ctx = await getCtxFromIncomingMessage({
-      'x-csrf-token': TEST_CSRF_TOKEN,
-    })
-
-    ctx.session.put('csrf-secret', csrfMiddleware.session.get('csrf-secret'))
-
-    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
-
-    ctx.request.request.method = 'GET'
-
-    await middlewareFn(ctx)
-
-    assert.isDefined(ctx.request.csrfToken)
-    assert.isTrue(Csrf.verify(TEST_CSRF_SECRET, ctx.request.csrfToken))
-
-    const xsrfCookie = ctx.response.getHeader('set-cookie') as string
-
-    assert.isDefined(xsrfCookie)
-    assert.match(xsrfCookie, new RegExp('xsrf-token'))
-
-    assert.equal(ctx.view.render('token').trim(), `Csrf Token: ${ctx.request.csrfToken}`)
-    assert.equal(ctx.view.render('token-meta').trim(), `Csrf Meta: <meta name='csrf-token' content='${ctx.request.csrfToken}'>`)
-    assert.equal(ctx.view.render('token-function').trim(), `Csrf Field: <input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`)
+    middlewareFn(ctx)
+    assert.isUndefined(ctx.request.csrfToken)
   })
 
   test('validate csrf token on a request', async (assert) => {
     assert.plan(1)
 
     const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
-    const ctx = await getCtxWithSession()
+    const ctx = getCtx()
+    await ctx.session.initiate(false)
 
     ctx.request.request.method = 'POST'
 
@@ -73,9 +47,10 @@ test.group('Csrf', () => {
     }
   })
 
-  test('skip csrf token validation on methods white listed', async (assert) => {
+  test('skip validation when request method is not one of whitelisted methods', async (assert) => {
     const middlewareFn = csrf({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, APPLICATION_SECRET_KEY)
-    const ctx = await getCtxWithSession('/users/:id', { id: 12453 })
+    const ctx = await getCtx('/users/:id', { id: 12453 })
+    await ctx.session.initiate(false)
 
     ctx.request.request.method = 'PUT'
 
@@ -84,10 +59,11 @@ test.group('Csrf', () => {
     assert.isDefined(ctx.request.csrfToken)
   })
 
-  test('enforces csrf token validation on methods not whitelisted', async (assert) => {
+  test('enforce validation request method is part of whitelisted methods', async (assert) => {
     assert.plan(1)
     const middlewareFn = csrf({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, APPLICATION_SECRET_KEY)
-    const ctx = await getCtxWithSession('/users/:id', { id: 12453 })
+    const ctx = getCtx('/users/:id', { id: 12453 })
+    await ctx.session.initiate(false)
 
     ctx.request.request.method = 'PATCH'
 
@@ -98,22 +74,23 @@ test.group('Csrf', () => {
     }
   })
 
-  test('skip csrf token validation on uris white listed', async (assert) => {
+  test('skip validation when request route is inside the exceptRoutes list', async (assert) => {
     assert.plan(1)
     const middlewareFn = csrf({ enabled: true, exceptRoutes: ['/users/:id'] }, APPLICATION_SECRET_KEY)
-    const ctx = await getCtxWithSession('/users/:id', { id: 12453 })
+    const ctx = getCtx('/users/:id', { id: 12453 })
+    await ctx.session.initiate(false)
 
     ctx.request.request.method = 'PATCH'
 
     await middlewareFn(ctx)
-
     assert.isDefined(ctx.request.csrfToken)
   })
 
-  test('enforces csrf token validation on uris not whitelisted', async (assert) => {
+  test('skip validation when request route is not inside the exceptRoutes list', async (assert) => {
     assert.plan(2)
     const middlewareFn = csrf({ enabled: true, exceptRoutes: ['posts/:post/store'] }, APPLICATION_SECRET_KEY)
-    const ctx = await getCtxWithSession('/users/:id', { id: 12453 })
+    const ctx = getCtx('/users/:id', { id: 12453 })
+    await ctx.session.initiate(false)
 
     ctx.request.request.method = 'PATCH'
 
@@ -123,5 +100,164 @@ test.group('Csrf', () => {
       assert.isUndefined(ctx.request.csrfToken)
       assert.equal(error.message, 'E_BAD_CSRF_TOKEN: Invalid CSRF Token')
     }
+  })
+
+  test('work fine when csrf token is provided as an input', async () => {
+    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
+    const ctx = getCtx('/')
+    await ctx.session.initiate(false)
+
+    const csrfMiddleware = new CsrfFactory(ctx.session, { enabled: true }, APPLICATION_SECRET_KEY)
+    const csrfSecret = await csrfMiddleware.getCsrfSecret()
+    const csrfToken = csrfMiddleware.generateCsrfToken(csrfSecret)
+
+    ctx.request.request.method = 'PATCH'
+    ctx.request.updateBody({ _csrf: csrfToken })
+
+    await middlewareFn(ctx)
+  })
+
+  test('work fine when csrf token is provided as a header', async () => {
+    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
+    const ctx = getCtx('/')
+    await ctx.session.initiate(false)
+
+    const csrfMiddleware = new CsrfFactory(ctx.session, { enabled: true }, APPLICATION_SECRET_KEY)
+    const csrfSecret = await csrfMiddleware.getCsrfSecret()
+    const csrfToken = csrfMiddleware.generateCsrfToken(csrfSecret)
+
+    ctx.request.request.method = 'PATCH'
+    ctx.request.request.headers = {
+      'x-csrf-token': csrfToken,
+    }
+
+    await middlewareFn(ctx)
+  })
+
+  test('work fine when csrf token is provided as an encrypted token', async () => {
+    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
+    const ctx = getCtx('/')
+    await ctx.session.initiate(false)
+
+    const csrfMiddleware = new CsrfFactory(ctx.session, { enabled: true }, APPLICATION_SECRET_KEY)
+    const csrfSecret = await csrfMiddleware.getCsrfSecret()
+    const csrfToken = csrfMiddleware.generateCsrfToken(csrfSecret)
+
+    ctx.request.request.method = 'PATCH'
+    ctx.request.request.headers = {
+      'x-xsrf-token': pack(csrfToken, APPLICATION_SECRET_KEY)!,
+    }
+
+    await middlewareFn(ctx)
+  })
+
+  test('fail when csrf input value is incorrect', async (assert) => {
+    assert.plan(1)
+
+    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
+    const ctx = getCtx()
+    await ctx.session.initiate(false)
+
+    ctx.request.request.method = 'POST'
+    ctx.request.updateBody({ _csrf: 'hello world' })
+
+    try {
+      await middlewareFn(ctx)
+    } catch (error) {
+      assert.equal(error.message, 'E_BAD_CSRF_TOKEN: Invalid CSRF Token')
+    }
+  })
+
+  test('fail when csrf header value is incorrect', async (assert) => {
+    assert.plan(1)
+
+    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
+    const ctx = getCtx()
+    await ctx.session.initiate(false)
+
+    ctx.request.request.method = 'POST'
+    ctx.request.request.headers = {
+      'x-csrf-token': 'hello world',
+    }
+
+    try {
+      await middlewareFn(ctx)
+    } catch (error) {
+      assert.equal(error.message, 'E_BAD_CSRF_TOKEN: Invalid CSRF Token')
+    }
+  })
+
+  test('fail when csrf encrypted header value is incorrect', async (assert) => {
+    assert.plan(1)
+
+    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
+    const ctx = getCtx()
+    await ctx.session.initiate(false)
+
+    ctx.request.request.method = 'POST'
+    ctx.request.request.headers = {
+      'x-xsrf-token': 'hello world',
+    }
+
+    try {
+      await middlewareFn(ctx)
+    } catch (error) {
+      assert.equal(error.message, 'E_BAD_CSRF_TOKEN: Invalid CSRF Token')
+    }
+  })
+
+  test('fail when csrf secret session is missing', async (assert) => {
+    assert.plan(1)
+
+    const middlewareFn = csrf({ enabled: true }, APPLICATION_SECRET_KEY)
+    const ctx = getCtx()
+    await ctx.session.initiate(false)
+
+    const csrfMiddleware = new CsrfFactory(ctx.session, { enabled: true }, APPLICATION_SECRET_KEY)
+    const csrfSecret = await csrfMiddleware.getCsrfSecret()
+    const csrfToken = csrfMiddleware.generateCsrfToken(csrfSecret)
+
+    ctx.request.request.method = 'PATCH'
+    ctx.request.updateBody({ _csrf: csrfToken })
+    ctx.session.forget('csrf-secret')
+
+    try {
+      await middlewareFn(ctx)
+    } catch (error) {
+      assert.equal(error.message, 'E_BAD_CSRF_TOKEN: Invalid CSRF Token')
+    }
+  })
+
+  test('generate csrf token and share it with request, cookie, and views', async (assert) => {
+    await fs.add('token.edge', '{{ csrfToken }}')
+    await fs.add('token-meta.edge', '{{ csrfMeta() }}')
+    await fs.add('token-function.edge', '{{ csrfField() }}')
+
+    const ctx = getCtx()
+    await ctx.session.initiate(false)
+    ctx.request.request.method = 'GET'
+
+    const config = { enabled: true, exceptRoutes: ['/'] }
+
+    const csrfMiddleware = new CsrfFactory(ctx.session, config, APPLICATION_SECRET_KEY)
+    await csrfMiddleware.handle(ctx)
+
+    assert.isDefined(ctx.request.csrfToken)
+    Csrf.verify(ctx.session.get('csrf-secret'), ctx.request.csrfToken)
+
+    assert.equal(
+      ctx.view.render('token').trim(),
+      ctx.request.csrfToken
+    )
+
+    assert.equal(
+      ctx.view.render('token-meta').trim(),
+      `<meta name='csrf-token' content='${ctx.request.csrfToken}'>`,
+    )
+
+    assert.equal(
+      ctx.view.render('token-function').trim(),
+      `<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`,
+    )
   })
 })

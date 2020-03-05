@@ -7,13 +7,10 @@
 * file that was distributed with this source code.
 */
 
-import { Socket } from 'net'
 import { join } from 'path'
 import { Ioc } from '@adonisjs/fold'
-import { CsrfMiddleware } from '../src/csrf'
+import { IncomingMessage } from 'http'
 import { Filesystem } from '@poppinss/dev-utils'
-import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
-import { IncomingMessage, IncomingHttpHeaders } from 'http'
 import { FakeLogger } from '@adonisjs/logger/build/standalone'
 import { Profiler } from '@adonisjs/profiler/build/standalone'
 import { SessionConfigContract } from '@ioc:Adonis/Addons/Session'
@@ -22,7 +19,7 @@ import { HttpContext } from '@adonisjs/http-server/build/standalone'
 import ViewProvider from '@adonisjs/view/build/providers/ViewProvider'
 import { SessionManager } from '@adonisjs/session/build/src/SessionManager'
 
-export const Fs = new Filesystem(join(__dirname, 'views'))
+export const fs = new Filesystem(join(__dirname, 'views'))
 
 const logger = new FakeLogger({ level: 'trace', enabled: false, name: 'adonisjs' })
 const profiler = new Profiler(__dirname, logger, {})
@@ -36,42 +33,37 @@ const sessionConfig: SessionConfigContract = {
   },
 }
 
-export function getCtx () {
-  return HttpContext.create('/', {}, logger, profiler.create(''), {} as any) as HttpContextContract
-}
+const ioc = new Ioc()
+const viewProvider = new ViewProvider(ioc)
 
-function getContainerWithViews () {
-  const container = new Ioc()
+ioc.bind('Adonis/Core/Env', () => ({
+  get () {
+    return true
+  },
+}))
 
-  const viewProvider = new ViewProvider(container)
+ioc.bind('Adonis/Core/Application', () => ({
+  viewsPath () {
+    return fs.basePath
+  },
+}))
+viewProvider.register()
 
-  viewProvider.register()
-
-  container.bind('Adonis/Core/Env', () => ({
-    get () {
-      return true
-    },
-  }))
-
-  container.bind('Adonis/Core/Application', () => ({
-    viewsPath () {
-      return Fs.basePath
-    },
-  }))
-
-  return container
-}
-
-export async function getCtxWithSession (routePath: string = '/', routeParams = {}, request?: IncomingMessage) {
-  const container = getContainerWithViews()
+/**
+ * Returns HTTP context instance
+ */
+export function getCtx (
+  routePath: string = '/',
+  routeParams = {},
+  request?: IncomingMessage,
+) {
   HttpContext.getter('session', function session () {
-    const sessionManager = new SessionManager(container, sessionConfig)
-
+    const sessionManager = new SessionManager(ioc, sessionConfig)
     return sessionManager.create(this)
   }, true)
 
   HttpContext.getter('view', function view () {
-    return container.use('Adonis/Core/View').share({ request: this.request, route: this.route })
+    return ioc.use('Adonis/Core/View').share({ request: this.request, route: this.route })
   }, true)
 
   const httpContext = HttpContext.create(
@@ -83,18 +75,5 @@ export async function getCtxWithSession (routePath: string = '/', routeParams = 
     request
   ) as HttpContextContract
 
-  await httpContext.session.initiate(false)
-
   return httpContext
-}
-
-export function getCtxFromIncomingMessage (headers: IncomingHttpHeaders = {}, routePath = '/', routeParams = {}) {
-  const request = new IncomingMessage(new Socket())
-  request.headers = headers
-
-  return getCtxWithSession(routePath, routeParams, request)
-}
-
-export async function getCsrfMiddlewareInstance (options: CsrfOptions, applicationKey: string) {
-  return new CsrfMiddleware((await getCtxWithSession()).session, options, applicationKey)
 }

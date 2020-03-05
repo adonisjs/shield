@@ -1,7 +1,7 @@
 /*
  * @adonisjs/shield
  *
- * (c) ? (Please advice before merge. Thanks !)
+ * (c) Harminder Virk <virk@adonisjs.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,11 +22,10 @@ import { noop } from './noop'
 const Csrf = new Tokens()
 
 /**
- * A wrapper around all the functionality
- * for handling csrf verification
- * 
+ * A wrapper around all the functionality for handling
+ * csrf verification
  */
-export class CsrfMiddleware {
+export class CsrfFactory {
   /**
    * The session instance of the application.
    * This would be injected from the
@@ -94,7 +93,6 @@ export class CsrfMiddleware {
 
     if (!csrfSecret) {
       csrfSecret = await Csrf.secret()
-
       this.session.put('csrf-secret', csrfSecret)
     }
 
@@ -114,18 +112,9 @@ export class CsrfMiddleware {
     }
 
     const encryptedToken = request.header('x-xsrf-token')
-    const unpackedToken = encryptedToken ? unpack(token, this.applicationKey) : null
+    const unpackedToken = encryptedToken ? unpack(encryptedToken, this.applicationKey) : null
 
     return unpackedToken ? unpackedToken.value : null
-  }
-
-  /**
-   * Generate a new csrf token using
-   * the csrf secret extracted
-   * from session.
-   */
-  public generateCsrfToken (csrfSecret): string {
-    return Csrf.create(csrfSecret)
   }
 
   /**
@@ -164,6 +153,15 @@ export class CsrfMiddleware {
   }
 
   /**
+   * Generate a new csrf token using
+   * the csrf secret extracted
+   * from session.
+   */
+  public generateCsrfToken (csrfSecret: string): string {
+    return Csrf.create(csrfSecret)
+  }
+
+  /**
    * Handle csrf verification. First, get the secret,
    * next, check if the request method should be
    * verified. Next, attach the newly generated
@@ -171,21 +169,17 @@ export class CsrfMiddleware {
    */
   public async handle (ctx: HttpContextContract): Promise<void> {
     const { request } = ctx
-
     const csrfSecret = await this.getCsrfSecret()
 
     if (this.requestMethodShouldEnforceCsrf(request) && this.requestUrlShouldEnforceCsrf(ctx)) {
       const csrfToken = this.getCsrfTokenFromRequest(request)
-
       if (!csrfToken || !Csrf.verify(csrfSecret, csrfToken)) {
         throw new Exception('Invalid CSRF Token', 403, 'E_BAD_CSRF_TOKEN')
       }
     }
 
     this.setCsrfToken(ctx, csrfSecret)
-
     this.setXsrfCookie(ctx)
-
     this.shareCsrfViewLocals(ctx)
   }
 }
@@ -201,8 +195,7 @@ export function csrf (options: CsrfOptions, applicationKey: string) {
   }
 
   return async function csrfMiddlewareFn (ctx: HttpContextContract) {
-    const csrfMiddleware = new CsrfMiddleware(ctx.session, options, applicationKey)
-
+    const csrfMiddleware = new CsrfFactory(ctx.session, options, applicationKey)
     return csrfMiddleware.handle(ctx)
   }
 }
