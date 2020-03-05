@@ -133,7 +133,7 @@ export class CsrfMiddleware {
    * response
    */
   private setXsrfCookie (ctx: HttpContextContract): void {
-    ctx.response.cookie('x-xsrf-token', ctx.request.csrfToken)
+    ctx.response.cookie('xsrf-token', ctx.request.csrfToken)
   }
 
   /**
@@ -152,6 +152,10 @@ export class CsrfMiddleware {
    * field called _csrf
    */
   private shareCsrfViewLocals (ctx: HttpContextContract): void {
+    if (! ctx.view) {
+      return
+    }
+
     ctx.view.share({
       csrfToken: ctx.request.csrfToken,
       csrfMeta: (compilerContext) => compilerContext.safe(`<meta name='csrf-token' content='${ctx.request.csrfToken}'>`),

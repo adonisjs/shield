@@ -51,7 +51,7 @@ test.group('Csrf', () => {
     const xsrfCookie = ctx.response.getHeader('set-cookie') as string
 
     assert.isDefined(xsrfCookie)
-    assert.match(xsrfCookie, new RegExp('x-xsrf-token'))
+    assert.match(xsrfCookie, new RegExp('xsrf-token'))
 
     assert.equal(ctx.view.render('token').trim(), `Csrf Token: ${ctx.request.csrfToken}`)
     assert.equal(ctx.view.render('token-meta').trim(), `Csrf Meta: <meta name='csrf-token' content='${ctx.request.csrfToken}'>`)
