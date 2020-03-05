@@ -12,3 +12,9 @@ declare module '@ioc:Adonis/Core/Response' {
     nonce: string,
   }
 }
+
+declare module '@ioc:Adonis/Core/Request' {
+  interface RequestContract {
+    csrfToken: string
+  }
+}
