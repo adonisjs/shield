@@ -9,7 +9,6 @@
 
 import { Socket } from 'net'
 import { join } from 'path'
-import { Edge } from 'edge.js'
 import { Ioc } from '@adonisjs/fold'
 import { CsrfMiddleware } from '../src/csrf'
 import { Filesystem } from '@poppinss/dev-utils'
@@ -20,6 +19,7 @@ import { Profiler } from '@adonisjs/profiler/build/standalone'
 import { SessionConfigContract } from '@ioc:Adonis/Addons/Session'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { HttpContext } from '@adonisjs/http-server/build/standalone'
+import ViewProvider from '@adonisjs/view/build/providers/ViewProvider'
 import { SessionManager } from '@adonisjs/session/build/src/SessionManager'
 
 export const Fs = new Filesystem(join(__dirname, 'views'))
@@ -40,18 +40,38 @@ export function getCtx () {
   return HttpContext.create('/', {}, logger, profiler.create(''), {} as any) as HttpContextContract
 }
 
+function getContainerWithViews () {
+  const container = new Ioc()
+
+  const viewProvider = new ViewProvider(container)
+
+  viewProvider.register()
+
+  container.bind('Adonis/Core/Env', () => ({
+    get () {
+      return true
+    },
+  }))
+
+  container.bind('Adonis/Core/Application', () => ({
+    viewsPath () {
+      return Fs.basePath
+    },
+  }))
+
+  return container
+}
+
 export async function getCtxWithSession (routePath: string = '/', routeParams = {}, request?: IncomingMessage) {
+  const container = getContainerWithViews()
   HttpContext.getter('session', function session () {
-    const sessionManager = new SessionManager(new Ioc(), sessionConfig)
+    const sessionManager = new SessionManager(container, sessionConfig)
 
     return sessionManager.create(this)
   }, true)
 
   HttpContext.getter('view', function view () {
-    const edge = new Edge()
-
-    edge.mount(Fs.basePath)
-    return edge.share({ request: this.request, route: this.route })
+    return container.use('Adonis/Core/View').share({ request: this.request, route: this.route })
   }, true)
 
   const httpContext = HttpContext.create(

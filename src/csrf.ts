@@ -152,7 +152,7 @@ export class CsrfMiddleware {
    * field called _csrf
    */
   private shareCsrfViewLocals (ctx: HttpContextContract): void {
-    if (! ctx.view) {
+    if (!ctx.view) {
       return
     }
 
