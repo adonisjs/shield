@@ -77,15 +77,23 @@ export class Csrf {
    * - Or `x-xsrf-token` header. The header value must be set by
    *   reading the `xsrf-token` cookie.
    */
-  private getCsrfTokenFromRequest (request: RequestContract): string|null {
+  private getCsrfTokenFromRequest (request: RequestContract): string | null {
     const token = request.input('_csrf', request.header('x-csrf-token'))
     if (token) {
       return token
     }
 
+    /**
+     * Only entertain header based on cookie value, when `enableXsrfCookie`
+     * is enabled
+     */
+    if (!this.options.enableXsrfCookie) {
+      return null
+    }
+
     const encryptedToken = request.header('x-xsrf-token')
     const unpackedToken = encryptedToken ? unpack(encryptedToken, this.applicationKey) : null
-    return unpackedToken ? unpackedToken.value : null
+    return unpackedToken && unpackedToken.signed ? unpackedToken.value : null
   }
 
   /**
@@ -157,7 +165,12 @@ export class Csrf {
     /**
      * Set it as a cookie
      */
-    ctx.response.cookie('xsrf-token', ctx.request.csrfToken, this.options.cookieOptions)
+    if (this.options.enableXsrfCookie) {
+      const cookieOptions = Object.assign({}, this.options.cookieOptions, {
+        httpOnly: false,
+      })
+      ctx.response.cookie('xsrf-token', ctx.request.csrfToken, cookieOptions)
+    }
 
     /**
      * Share with the view engine

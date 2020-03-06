@@ -14,7 +14,7 @@ import { dnsPrefetchFactory } from '../src/dnsPrefetch'
 test.group('Dns Prefetch', () => {
   test('return noop function when enabled is false', (assert) => {
     const dnsPrefetch = dnsPrefetchFactory({ enabled: false })
-    const ctx = getCtx()
+    const ctx = getCtx('')
     dnsPrefetch(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-DNS-Prefetch-Control'))
@@ -22,7 +22,7 @@ test.group('Dns Prefetch', () => {
 
   test('set X-DNS-Prefetch-Control header', (assert) => {
     const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: true })
-    const ctx = getCtx()
+    const ctx = getCtx('')
     dnsPrefetch(ctx)
 
     assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'on')
@@ -30,7 +30,7 @@ test.group('Dns Prefetch', () => {
 
   test('set X-DNS-Prefetch-Control header to off', (assert) => {
     const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: false })
-    const ctx = getCtx()
+    const ctx = getCtx('')
     dnsPrefetch(ctx)
 
     assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'off')

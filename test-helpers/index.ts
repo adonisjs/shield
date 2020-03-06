@@ -66,6 +66,7 @@ export function setup () {
  * Returns HTTP context instance
  */
 export function getCtx (
+  secret: string,
   routePath: string = '/',
   routeParams = {},
   request?: IncomingMessage,
@@ -78,6 +79,8 @@ export function getCtx (
     logger,
     profiler.create(''),
     {} as any,
-    request
+    request,
+    undefined,
+    { secret } as any,
   ) as HttpContextContract
 }

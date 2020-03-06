@@ -76,6 +76,7 @@ declare module '@ioc:Adonis/Addons/Shield' {
   export type CsrfOptions = {
     enabled: boolean,
     exceptRoutes?: string[],
+    enableXsrfCookie?: boolean,
     methods?: ReadonlyArray<string>,
     cookieOptions?: Partial<CookieOptions>,
   }

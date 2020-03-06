@@ -9,7 +9,7 @@
 
 import test from 'japa'
 import Tokens from 'csrf'
-import { pack } from '@poppinss/cookie'
+import { pack, unpack } from '@poppinss/cookie'
 import { Filesystem } from '@poppinss/dev-utils'
 
 import { csrfFactory } from '../src/csrf'
@@ -26,7 +26,7 @@ test.group('Csrf', (group) => {
 
   test('return noop function when enabled is false', async (assert) => {
     const csrf = csrfFactory({ enabled: false }, SECRET)
-    const ctx = getCtx()
+    const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
     csrf(ctx)
@@ -38,7 +38,7 @@ test.group('Csrf', (group) => {
 
     const csrf = csrfFactory({ enabled: true }, SECRET)
 
-    const ctx = getCtx()
+    const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
     ctx.request.request.method = 'POST'
 
@@ -52,7 +52,7 @@ test.group('Csrf', (group) => {
   test('skip validation when request method is not one of whitelisted methods', async (assert) => {
     const csrf = csrfFactory({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, SECRET)
 
-    const ctx = await getCtx('/users/:id', { id: 12453 })
+    const ctx = getCtx(SECRET, '/users/:id', { id: 12453 })
     await ctx.session.initiate(false)
     ctx.request.request.method = 'PUT'
 
@@ -65,7 +65,7 @@ test.group('Csrf', (group) => {
 
     const csrf = csrfFactory({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, SECRET)
 
-    const ctx = getCtx('/users/:id', { id: 12453 })
+    const ctx = getCtx(SECRET, '/users/:id', { id: 12453 })
     await ctx.session.initiate(false)
     ctx.request.request.method = 'PATCH'
 
@@ -81,7 +81,7 @@ test.group('Csrf', (group) => {
 
     const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/users/:id'] }, SECRET)
 
-    const ctx = getCtx('/users/:id', { id: 12453 })
+    const ctx = getCtx(SECRET, '/users/:id', { id: 12453 })
     await ctx.session.initiate(false)
     ctx.request.request.method = 'PATCH'
 
@@ -94,7 +94,7 @@ test.group('Csrf', (group) => {
 
     const csrf = csrfFactory({ enabled: true, exceptRoutes: ['posts/:post/store'] }, SECRET)
 
-    const ctx = getCtx('/users/:id', { id: 12453 })
+    const ctx = getCtx(SECRET, '/users/:id', { id: 12453 })
     await ctx.session.initiate(false)
     ctx.request.request.method = 'PATCH'
 
@@ -109,7 +109,7 @@ test.group('Csrf', (group) => {
   test('work fine when csrf token is provided as an input', async () => {
     const csrf = csrfFactory({ enabled: true }, SECRET)
 
-    const ctx = getCtx('/')
+    const ctx = getCtx(SECRET, '/')
     await ctx.session.initiate(false)
 
     const secret = await tokens.secret()
@@ -125,7 +125,7 @@ test.group('Csrf', (group) => {
   test('work fine when csrf token is provided as a header', async () => {
     const csrf = csrfFactory({ enabled: true }, SECRET)
 
-    const ctx = getCtx('/')
+    const ctx = getCtx(SECRET, '/')
     await ctx.session.initiate(false)
 
     const secret = await tokens.secret()
@@ -141,9 +141,9 @@ test.group('Csrf', (group) => {
   })
 
   test('work fine when csrf token is provided as an encrypted token', async () => {
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: true }, SECRET)
 
-    const ctx = getCtx('/')
+    const ctx = getCtx(SECRET, '/')
     await ctx.session.initiate(false)
 
     const secret = await tokens.secret()
@@ -162,7 +162,7 @@ test.group('Csrf', (group) => {
     assert.plan(1)
 
     const csrf = csrfFactory({ enabled: true }, SECRET)
-    const ctx = getCtx()
+    const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
     ctx.request.request.method = 'POST'
@@ -179,7 +179,7 @@ test.group('Csrf', (group) => {
     assert.plan(1)
 
     const csrf = csrfFactory({ enabled: true }, SECRET)
-    const ctx = getCtx()
+    const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
     ctx.request.request.method = 'POST'
@@ -198,7 +198,7 @@ test.group('Csrf', (group) => {
     assert.plan(1)
 
     const csrf = csrfFactory({ enabled: true }, SECRET)
-    const ctx = getCtx()
+    const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
     ctx.request.request.method = 'POST'
@@ -213,11 +213,57 @@ test.group('Csrf', (group) => {
     }
   })
 
+  test('fail when csrf encrypted header is not a signed cookie', async (assert) => {
+    assert.plan(1)
+
+    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const ctx = getCtx(SECRET, '/')
+    await ctx.session.initiate(false)
+
+    const secret = await tokens.secret()
+    ctx.session.put('csrf-secret', secret)
+    const csrfToken = tokens.create(secret)
+
+    ctx.request.request.method = 'PATCH'
+    ctx.request.request.headers = {
+      'x-xsrf-token': pack(csrfToken)!,
+    }
+
+    try {
+      await csrf(ctx)
+    } catch (error) {
+      assert.equal(error.message, 'E_BAD_CSRF_TOKEN: Invalid CSRF Token')
+    }
+  })
+
+  test('fail when csrf encrypted header is valid but cookie feature is disabled', async (assert) => {
+    assert.plan(1)
+
+    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const ctx = getCtx(SECRET, '/')
+    await ctx.session.initiate(false)
+
+    const secret = await tokens.secret()
+    ctx.session.put('csrf-secret', secret)
+    const csrfToken = tokens.create(secret)
+
+    ctx.request.request.method = 'PATCH'
+    ctx.request.request.headers = {
+      'x-xsrf-token': pack(csrfToken, SECRET)!,
+    }
+
+    try {
+      await csrf(ctx)
+    } catch (error) {
+      assert.equal(error.message, 'E_BAD_CSRF_TOKEN: Invalid CSRF Token')
+    }
+  })
+
   test('fail when csrf secret session is missing', async (assert) => {
     assert.plan(1)
 
     const csrf = csrfFactory({ enabled: true }, SECRET)
-    const ctx = getCtx()
+    const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
     const secret = await tokens.secret()
@@ -235,12 +281,12 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('generate csrf token and share it with request, cookie, and views', async (assert) => {
+  test('generate csrf token and share it with request and views', async (assert) => {
     await fs.add('token.edge', '{{ csrfToken }}')
     await fs.add('token-meta.edge', '{{ csrfMeta() }}')
     await fs.add('token-function.edge', '{{ csrfField() }}')
 
-    const ctx = getCtx()
+    const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
     ctx.request.request.method = 'GET'
 
@@ -264,5 +310,24 @@ test.group('Csrf', (group) => {
       ctx.view.render('token-function').trim(),
       `<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`,
     )
+  })
+
+  test('generate csrf token and share as a cookie when enableXsrfCookie is true', async (assert) => {
+    await fs.add('token.edge', '{{ csrfToken }}')
+    await fs.add('token-meta.edge', '{{ csrfMeta() }}')
+    await fs.add('token-function.edge', '{{ csrfField() }}')
+
+    const ctx = getCtx(SECRET)
+    await ctx.session.initiate(false)
+    ctx.request.request.method = 'GET'
+
+    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/'], enableXsrfCookie: true }, SECRET)
+    await csrf(ctx)
+
+    const cookie = decodeURIComponent(String(ctx.response.getHeader('set-cookie')))
+
+    assert.isDefined(ctx.request.csrfToken)
+    tokens.verify(ctx.session.get('csrf-secret'), ctx.request.csrfToken)
+    assert.equal(unpack(cookie.replace('xsrf-token=', '').trim(), SECRET)!.value, ctx.request.csrfToken)
   })
 })

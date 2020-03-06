@@ -14,7 +14,7 @@ import { getCtx } from '../test-helpers'
 test.group('Xss Protection', () => {
   test('return noop function when enabled is false', (assert) => {
     const xss = xssFactory({ enabled: false })
-    const ctx = getCtx()
+    const ctx = getCtx('')
     xss(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-XSS-Protection'))
@@ -22,7 +22,7 @@ test.group('Xss Protection', () => {
 
   test('set X-XSS-Protection header', (assert) => {
     const xss = xssFactory({ enabled: true })
-    const ctx = getCtx()
+    const ctx = getCtx('')
     xss(ctx)
 
     assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1; mode=block')
@@ -30,7 +30,7 @@ test.group('Xss Protection', () => {
 
   test('disable block mode', (assert) => {
     const xss = xssFactory({ enabled: true, mode: null })
-    const ctx = getCtx()
+    const ctx = getCtx('')
     xss(ctx)
 
     assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1')
@@ -38,7 +38,7 @@ test.group('Xss Protection', () => {
 
   test('set report uri', (assert) => {
     const xss = xssFactory({ enabled: true, reportUri: '/' })
-    const ctx = getCtx()
+    const ctx = getCtx('')
     xss(ctx)
 
     assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1; mode=block; report=/')
