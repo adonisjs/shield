@@ -130,6 +130,22 @@ export const csrf: ShieldConfig['csrf'] = {
 
   /*
   |--------------------------------------------------------------------------
+  | Enable Sharing Token Via Cookie
+  |--------------------------------------------------------------------------
+  |
+  | When the following flag is enabled, AdonisJS will drop `XSRF-TOKEN`
+  | cookie that frontend frameworks can read and return back as a
+  | `X-XSRF-TOKEN` header.
+  |
+  | The cookie has `httpOnly` flag set to false, so it is little insecure and
+  | can be turned off when you are not using a frontend framework making
+  | AJAX requests.
+  |
+  */
+  enableXsrfCookie: true,
+
+  /*
+  |--------------------------------------------------------------------------
   | Methods to Validate
   |--------------------------------------------------------------------------
   |
