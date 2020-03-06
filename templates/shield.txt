@@ -21,8 +21,11 @@ export const csp: ShieldConfig['csp'] = {
   |--------------------------------------------------------------------------
   | Enable/disable CSP
   |--------------------------------------------------------------------------
+  |
+  | The CSP rules are disabled by default for seamless onboarding.
+  |
   */
-  enabled: true,
+  enabled: false,
 
   /*
   |--------------------------------------------------------------------------
