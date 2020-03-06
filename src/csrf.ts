@@ -14,131 +14,82 @@ import { unpack } from '@poppinss/cookie'
 import { Exception } from '@poppinss/utils'
 import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
-import { SessionContract } from '@ioc:Adonis/Addons/Session'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import { noop } from './noop'
 
-const Csrf = new Tokens()
-
 /**
- * A wrapper around all the functionality for handling
- * csrf verification
+ * A class to encapsulate the logic of verifying and generating
+ * CSRF tokens.
  */
-export class CsrfFactory {
+export class Csrf {
   /**
-   * The session instance of the application.
-   * This would be injected from the
-   * http context.
+   * Factory for generate csrf secrets and tokens
    */
-  public session: SessionContract
+  private tokens = new Tokens()
 
   /**
-   * Csrf configurations defined by the
-   * user in the shield.js file.
+   * An array of methods on which the CSRF validation should be enforced.
    */
-  private options: CsrfOptions
+  private whitelistedMethods = (this.options.methods || []).map((method) => method.toLowerCase())
 
   /**
-   * The application key defined as APP_SECRET
-   * in environment variables. This would
-   * be injected from the config.
+   * An array of routes to be ignored from CSRF validation
    */
-  private applicationKey: string
+  private routesToIgnore = (this.options.exceptRoutes || [])
 
-  constructor (session: SessionContract, options: CsrfOptions, applicationKey: string) {
-    this.session = session
-    this.options = options
-    this.applicationKey = applicationKey
+  /**
+   * Name of the csrf section key stored inside the session store
+   */
+  private secretSessionKey = 'csrf-secret'
+
+  constructor (private options: CsrfOptions, private applicationKey: string) {
   }
 
   /**
-   * Get the request method, check if the user defined
-   * methods allowed for csrf verification in the
-   * config. If it did, check if the request
-   * method is one of the allowed. If not,
-   * return false.
+   * Find if a request should be validated or not
    */
-  private requestMethodShouldEnforceCsrf (request: RequestContract): boolean {
-    const method = request.method().toLowerCase()
-
-    if (!this.options.methods || this.options.methods.length === 0) {
-      return true
+  private shouldValidateRequest ({ request, route }: HttpContextContract) {
+    /**
+     * Do not validate when whitelisted methods are defined and current
+     * method is not part of the white list
+     */
+    if (this.whitelistedMethods.length && !this.whitelistedMethods.includes(request.method().toLowerCase())) {
+      return false
     }
 
-    return this.options.methods
-      .filter(definedMethod => definedMethod.toLowerCase() === method)
-      .length > 0
-  }
-
-  /**
-   * Check if the current request url has been
-   * excluded from csrf protection.
-   */
-  private requestUrlShouldEnforceCsrf (ctx: HttpContextContract): boolean {
-    if (!this.options.exceptRoutes || this.options.exceptRoutes.length === 0) {
-      return true
+    /**
+     * Do not validate when current request route is ignored inside `routesToIgnore`
+     * array
+     */
+    if (this.routesToIgnore.includes(route!.pattern)) {
+      return false
     }
 
-    return !this.options.exceptRoutes.includes(ctx.route!.pattern)
+    return true
   }
 
   /**
-   * Check if csrf secret has been saved to
-   * session. If not, generate a new one,
-   * save it to session, and return it.
-   */
-  public async getCsrfSecret (): Promise<string> {
-    let csrfSecret = this.session.get('csrf-secret')
-
-    if (!csrfSecret) {
-      csrfSecret = await Csrf.secret()
-      this.session.put('csrf-secret', csrfSecret)
-    }
-
-    return csrfSecret
-  }
-
-  /**
-   * Extract the csrf token from the request by
-   * checking headers and inputs. Decode the
-   * token if it was encrypted.
+   * Read csrf token from one of the following sources.
+   *
+   * - `_csrf` input
+   * - `x-csrf-token` header
+   * - Or `x-xsrf-token` header. The header value must be set by
+   *   reading the `xsrf-token` cookie.
    */
   private getCsrfTokenFromRequest (request: RequestContract): string|null {
-    const token = request.input('_csrf') || request.header('x-csrf-token')
-
+    const token = request.input('_csrf', request.header('x-csrf-token'))
     if (token) {
       return token
     }
 
     const encryptedToken = request.header('x-xsrf-token')
     const unpackedToken = encryptedToken ? unpack(encryptedToken, this.applicationKey) : null
-
     return unpackedToken ? unpackedToken.value : null
   }
 
   /**
-   * Set the xsrf cookie on
-   * response
-   */
-  private setXsrfCookie (ctx: HttpContextContract): void {
-    ctx.response.cookie('xsrf-token', ctx.request.csrfToken)
-  }
-
-  /**
-   * Set the csrf token on
-   * request
-   */
-  private setCsrfToken (ctx: HttpContextContract, csrfSecret: string): void {
-    ctx.request.csrfToken = this.generateCsrfToken(csrfSecret)
-  }
-
-  /**
-   * This would make a csrfToken variable available to
-   * the edge view templates. This would also create
-   * a helpful method called csrfField to be used
-   * on the frontend to generate a hidden
-   * field called _csrf
+   * Share csrf helper methods with the view engine.
    */
   private shareCsrfViewLocals (ctx: HttpContextContract): void {
     if (!ctx.view) {
@@ -147,18 +98,36 @@ export class CsrfFactory {
 
     ctx.view.share({
       csrfToken: ctx.request.csrfToken,
-      csrfMeta: (compilerContext) => compilerContext.safe(`<meta name='csrf-token' content='${ctx.request.csrfToken}'>`),
-      csrfField: (compilerContext) => compilerContext.safe(`<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`),
+      csrfMeta: (compilerContext) => {
+        return compilerContext.safe(`<meta name='csrf-token' content='${ctx.request.csrfToken}'>`)
+      },
+      csrfField: (compilerContext) => {
+        return compilerContext.safe(`<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`)
+      },
     })
   }
 
   /**
-   * Generate a new csrf token using
-   * the csrf secret extracted
-   * from session.
+   * Generate a new csrf token using the csrf secret extracted from session.
    */
   public generateCsrfToken (csrfSecret: string): string {
-    return Csrf.create(csrfSecret)
+    return this.tokens.create(csrfSecret)
+  }
+
+  /**
+   * Return the existing CSRF secret from the session or create a
+   * new one. Newly created secret is persisted to session at
+   * the same time
+   */
+  public async getCsrfSecret (ctx: HttpContextContract): Promise<string> {
+    let csrfSecret = ctx.session.get(this.secretSessionKey)
+
+    if (!csrfSecret) {
+      csrfSecret = await this.tokens.secret()
+      ctx.session.put(this.secretSessionKey, csrfSecret)
+    }
+
+    return csrfSecret
   }
 
   /**
@@ -168,34 +137,44 @@ export class CsrfFactory {
    * csrf token to the request object.
    */
   public async handle (ctx: HttpContextContract): Promise<void> {
-    const { request } = ctx
-    const csrfSecret = await this.getCsrfSecret()
+    const csrfSecret = await this.getCsrfSecret(ctx)
 
-    if (this.requestMethodShouldEnforceCsrf(request) && this.requestUrlShouldEnforceCsrf(ctx)) {
-      const csrfToken = this.getCsrfTokenFromRequest(request)
-      if (!csrfToken || !Csrf.verify(csrfSecret, csrfToken)) {
+    /**
+     * Validate current request before moving forward
+     */
+    if (this.shouldValidateRequest(ctx)) {
+      const csrfToken = this.getCsrfTokenFromRequest(ctx.request)
+      if (!csrfToken || !this.tokens.verify(csrfSecret, csrfToken)) {
         throw new Exception('Invalid CSRF Token', 403, 'E_BAD_CSRF_TOKEN')
       }
     }
 
-    this.setCsrfToken(ctx, csrfSecret)
-    this.setXsrfCookie(ctx)
+    /**
+     * Add csrf token on the request
+     */
+    ctx.request.csrfToken = this.generateCsrfToken(csrfSecret)
+
+    /**
+     * Set it as a cookie
+     */
+    ctx.response.cookie('xsrf-token', ctx.request.csrfToken, this.options.cookieOptions)
+
+    /**
+     * Share with the view engine
+     */
     this.shareCsrfViewLocals(ctx)
   }
 }
 
 /**
- * Check if csrf is enabled. If yes, verifies the
- * old token and generates a new one for
- * the next request.
+ * A factory function that returns a new function to enforce CSRF
+ * protection
  */
-export function csrf (options: CsrfOptions, applicationKey: string) {
+export function csrfFactory (options: CsrfOptions, applicationKey: string) {
   if (!options.enabled) {
     return noop
   }
 
-  return async function csrfMiddlewareFn (ctx: HttpContextContract) {
-    const csrfMiddleware = new CsrfFactory(ctx.session, options, applicationKey)
-    return csrfMiddleware.handle(ctx)
-  }
+  const csrfMiddleware = new Csrf(options, applicationKey)
+  return csrfMiddleware.handle.bind(csrfMiddleware)
 }

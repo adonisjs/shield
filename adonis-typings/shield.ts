@@ -8,8 +8,12 @@
 */
 
 declare module '@ioc:Adonis/Addons/Shield' {
+  import { CookieOptions } from '@poppinss/cookie'
   import { CspOptions as HelmetCspOptions } from 'helmet-csp/dist/lib/types'
 
+  /**
+   * Config for `X-Frame-Options` header
+   */
   export type XFrameOptions = {
     enabled: boolean,
     action?: 'DENY' | 'SAMEORIGIN',
@@ -19,12 +23,16 @@ declare module '@ioc:Adonis/Addons/Shield' {
     domain: string,
   }
 
-  // X-Content-Type-Options
+  /**
+   * Config for X-Content-Type-Options
+   */
   export type ContentTypeSniffingOptions = {
     enabled: boolean,
   }
 
-  // HTTP Strict Transport Security (HSTS)
+  /**
+   * Config for HTTP Strict Transport Security (HSTS)
+   */
   export type HstsOptions = {
     enabled: boolean,
     maxAge?: string | number,
@@ -32,7 +40,9 @@ declare module '@ioc:Adonis/Addons/Shield' {
     preload?: boolean,
   }
 
-  // X-XSS-Protection
+  /**
+   * Config for X-XSS-Protection
+   */
   export type XSSOptions = {
     enabled: boolean,
     enableOnOldIE?: boolean,
@@ -40,30 +50,47 @@ declare module '@ioc:Adonis/Addons/Shield' {
     mode?: 'block' | null,
   }
 
-  // X-Download-Options
+  /**
+   * Config for X-Download-Options
+   */
   export type IENoOpenOptions = {
     enabled: boolean,
   }
 
-  // X-DNS-Prefetch-Control
+  /**
+   * Config for X-DNS-Prefetch-Control
+   */
   export type DnsPrefetchOptions = {
     enabled: boolean,
     allow?: boolean,
   }
 
-  export type CspOptions = {
-    enabled: boolean,
-  } & HelmetCspOptions
+  /**
+   * Config for working with CSP
+   */
+  export type CspOptions = { enabled: boolean } & HelmetCspOptions
 
+  /**
+   * Config for working with CSRF options
+   */
   export type CsrfOptions = {
     enabled: boolean,
     exceptRoutes?: string[],
     methods?: ReadonlyArray<string>,
-    cookieOptions?: {
-      httpOnly?: boolean,
-      sameSite?: boolean,
-      path?: string,
-      maxAge?: number
-    }
+    cookieOptions?: Partial<CookieOptions>,
+  }
+
+  /**
+   * Shield config file types
+   */
+  export type ShieldConfig = {
+    xFrame: XFrameOptions,
+    contentTypeSniffing: ContentTypeSniffingOptions,
+    hsts: HstsOptions,
+    xss: XSSOptions,
+    noOpen: IENoOpenOptions,
+    dnsPrefetch: DnsPrefetchOptions,
+    csp: CspOptions,
+    csrf: CsrfOptions,
   }
 }

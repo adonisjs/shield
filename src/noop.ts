@@ -8,5 +8,5 @@
 */
 
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-export function noop (_ctx: HttpContextContract) {
+export function noop (_: HttpContextContract) {
 }

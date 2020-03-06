@@ -10,7 +10,6 @@
 import { join } from 'path'
 import { Ioc } from '@adonisjs/fold'
 import { IncomingMessage } from 'http'
-import { Filesystem } from '@poppinss/dev-utils'
 import { FakeLogger } from '@adonisjs/logger/build/standalone'
 import { Profiler } from '@adonisjs/profiler/build/standalone'
 import { SessionConfigContract } from '@ioc:Adonis/Addons/Session'
@@ -19,10 +18,10 @@ import { HttpContext } from '@adonisjs/http-server/build/standalone'
 import ViewProvider from '@adonisjs/view/build/providers/ViewProvider'
 import { SessionManager } from '@adonisjs/session/build/src/SessionManager'
 
-export const fs = new Filesystem(join(__dirname, 'views'))
-
+const ioc = new Ioc()
 const logger = new FakeLogger({ level: 'trace', enabled: false, name: 'adonisjs' })
 const profiler = new Profiler(__dirname, logger, {})
+
 const sessionConfig: SessionConfigContract = {
   driver: 'cookie',
   cookieName: 'adonis-session',
@@ -33,21 +32,35 @@ const sessionConfig: SessionConfigContract = {
   },
 }
 
-const ioc = new Ioc()
-const viewProvider = new ViewProvider(ioc)
+export const viewsDir = join(__dirname, 'views')
 
-ioc.bind('Adonis/Core/Env', () => ({
-  get () {
-    return true
-  },
-}))
+/**
+ * Perform container bindings setup
+ */
+export function setup () {
+  ioc.bind('Adonis/Core/Env', () => ({
+    get () {
+      return true
+    },
+  }))
 
-ioc.bind('Adonis/Core/Application', () => ({
-  viewsPath () {
-    return fs.basePath
-  },
-}))
-viewProvider.register()
+  ioc.bind('Adonis/Core/Application', () => ({
+    viewsPath () {
+      return viewsDir
+    },
+  }))
+
+  new ViewProvider(ioc).register()
+
+  HttpContext.getter('session', function session () {
+    const sessionManager = new SessionManager(ioc, sessionConfig)
+    return sessionManager.create(this)
+  }, true)
+
+  HttpContext.getter('view', function view () {
+    return ioc.use('Adonis/Core/View').share({ request: this.request, route: this.route })
+  }, true)
+}
 
 /**
  * Returns HTTP context instance
@@ -57,16 +70,9 @@ export function getCtx (
   routeParams = {},
   request?: IncomingMessage,
 ) {
-  HttpContext.getter('session', function session () {
-    const sessionManager = new SessionManager(ioc, sessionConfig)
-    return sessionManager.create(this)
-  }, true)
+  setup()
 
-  HttpContext.getter('view', function view () {
-    return ioc.use('Adonis/Core/View').share({ request: this.request, route: this.route })
-  }, true)
-
-  const httpContext = HttpContext.create(
+  return HttpContext.create(
     routePath,
     routeParams,
     logger,
@@ -74,6 +80,4 @@ export function getCtx (
     {} as any,
     request
   ) as HttpContextContract
-
-  return httpContext
 }

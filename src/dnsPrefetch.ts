@@ -14,17 +14,16 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { noop } from './noop'
 
 /**
- * Adds `X-Content-Type-Options` header based upon given
- * user options
+ * Factory that returns a function to set `X-DNS-Prefetch-Control` header.
  */
-export function dnsPrefetch (options: DnsPrefetchOptions) {
+export function dnsPrefetchFactory (options: DnsPrefetchOptions) {
   if (!options.enabled) {
     return noop
   }
 
   const value = options.allow ? 'on' : 'off'
 
-  return function dnsPrefetchMiddlewareFn ({ response }: HttpContextContract) {
+  return function dnsPrefetch ({ response }: HttpContextContract) {
     response.header('X-DNS-Prefetch-Control', value)
   }
 }

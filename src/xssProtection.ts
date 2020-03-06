@@ -26,10 +26,10 @@ function isOldIE (userAgent?: string) {
 }
 
 /**
- * Adds `X-Content-Type-Options` header based upon given
- * user options
+ * Factory function that returns a new function to add `X-Content-Type-Options`
+ * header based upon given user options.
  */
-export function xssProtection (options: XSSOptions) {
+export function xssFactory (options: XSSOptions) {
   if (!options.enabled) {
     return noop
   }
@@ -52,7 +52,7 @@ export function xssProtection (options: XSSOptions) {
    * Returned when `X-XSS-Protection` is enabled on all browser
    */
   if (options.enableOnOldIE) {
-    return function xssProtectionMiddlewareFn ({ response }: HttpContextContract) {
+    return function xss ({ response }: HttpContextContract) {
       response.header('X-XSS-Protection', value)
     }
   }
@@ -60,7 +60,7 @@ export function xssProtection (options: XSSOptions) {
   /**
    * Returned when disabled for IE < 9 needs
    */
-  return function xssProtectionMiddlewareFn ({ request, response }: HttpContextContract) {
+  return function xss ({ request, response }: HttpContextContract) {
     if (isOldIE(request.header('user-agent'))) {
       response.header('X-XSS-Protection', '0')
     } else {

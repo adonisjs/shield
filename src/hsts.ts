@@ -26,17 +26,17 @@ function normalizeMaxAge (maxAge?: string | number): number {
 
   maxAge = (typeof (maxAge) === 'string' ? ms(maxAge) : maxAge) as number
   if (maxAge < 0) {
-    throw new Error('Max age for shield.hsts cannot be a negative value')
+    throw new Error('Max age for "shield.hsts" cannot be a negative value')
   }
 
   return maxAge
 }
 
 /**
- * Adds `Strict-Transport-Security` header based upon given
- * user options
+ * Factory function that returns a new function to Add `Strict-Transport-Security`
+ * header based upon given user options.
  */
-export function hsts (options: HstsOptions) {
+export function hstsFactory (options: HstsOptions) {
   if (!options.enabled) {
     return noop
   }
@@ -52,7 +52,7 @@ export function hsts (options: HstsOptions) {
     value += '; preload'
   }
 
-  return function hstsMiddlewareFn ({ response }: HttpContextContract) {
+  return function hsts ({ response }: HttpContextContract) {
     response.header('Strict-Transport-Security', value)
   }
 }

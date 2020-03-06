@@ -8,22 +8,22 @@
 */
 
 import test from 'japa'
-import { noSniff } from '../src/noSniff'
 import { getCtx } from '../test-helpers'
+import { noSniffFactory } from '../src/noSniff'
 
 test.group('No Sniff', () => {
   test('return noop function when enabled is false', (assert) => {
-    const middlewareFn = noSniff({ enabled: false })
+    const noSniff = noSniffFactory({ enabled: false })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    noSniff(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-Content-Type-Options'))
   })
 
   test('set X-Content-Type-Options header', (assert) => {
-    const middlewareFn = noSniff({ enabled: true })
+    const noSniff = noSniffFactory({ enabled: true })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    noSniff(ctx)
 
     assert.equal(ctx.response.getHeader('X-Content-Type-Options'), 'nosniff')
   })

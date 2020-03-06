@@ -14,15 +14,15 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { noop } from './noop'
 
 /**
- * Adds `X-Content-Type-Options` header based upon given
- * user options
+ * Factory function that returns a function to Add `X-Content-Type-Options`
+ * header based upon given user options.
  */
-export function noSniff (options: ContentTypeSniffingOptions) {
+export function noSniffFactory (options: ContentTypeSniffingOptions) {
   if (!options.enabled) {
     return noop
   }
 
-  return function noSniffMiddlewareFn ({ response }: HttpContextContract) {
+  return function noSniff ({ response }: HttpContextContract) {
     response.header('X-Content-Type-Options', 'nosniff')
   }
 }

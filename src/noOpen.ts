@@ -14,15 +14,15 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { noop } from './noop'
 
 /**
- * Adds `X-Download-Options` header based upon given
- * user options
+ * Factory function that returns a function to add `X-Download-Options`
+ * header based upon given user options.
  */
-export function noOpen (options: ContentTypeSniffingOptions) {
+export function noOpenFactory (options: ContentTypeSniffingOptions) {
   if (!options.enabled) {
     return noop
   }
 
-  return function noOpenMiddlewareFn ({ response }: HttpContextContract) {
+  return function noOpen ({ response }: HttpContextContract) {
     response.header('X-Download-Options', 'noopen')
   }
 }

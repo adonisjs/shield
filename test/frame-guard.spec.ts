@@ -8,35 +8,40 @@
 */
 
 import test from 'japa'
-import { frameGuard } from '../src/frameGuard'
 import { getCtx } from '../test-helpers'
+import { frameGuardFactory } from '../src/frameGuard'
 
 test.group('FrameGuard', () => {
   test('return noop function when enabled is false', (assert) => {
-    const middlewareFn = frameGuard({ enabled: false })
+    const frameGuard = frameGuardFactory({ enabled: false })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    frameGuard(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-Frame-Options'))
   })
 
   test('raise error when action type is incorrect', (assert) => {
-    const middlewareFn = () => frameGuard({ enabled: true, action: 'FOO' } as any)
-    assert.throw(middlewareFn, 'Action must be one of "DENY", "ALLOW-FROM" or "SAMEORGIGIN"')
+    const frameGuard = () => frameGuardFactory({ enabled: true, action: 'FOO' } as any)
+    assert.throw(frameGuard, 'frameGuard: Action must be one of "DENY", "ALLOW-FROM" or "SAMEORGIGIN"')
+  })
+
+  test('raise error when action type is ALLOW-FROM and domain is not defined', (assert) => {
+    const frameGuard = () => frameGuardFactory({ enabled: true, action: 'ALLOW-FROM' } as any)
+    assert.throw(frameGuard, 'frameGuard: Domain value is required when using action as "ALLOW-FROM"')
   })
 
   test('set X-Frame-Options header', (assert) => {
-    const middlewareFn = frameGuard({ enabled: true })
+    const frameGuard = frameGuardFactory({ enabled: true })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    frameGuard(ctx)
 
     assert.equal(ctx.response.getHeader('X-Frame-Options'), 'SAMEORIGIN')
   })
 
   test('set X-Frame-Options header for allow from action', (assert) => {
-    const middlewareFn = frameGuard({ enabled: true, action: 'ALLOW-FROM', domain: 'foo.com' })
+    const frameGuard = frameGuardFactory({ enabled: true, action: 'ALLOW-FROM', domain: 'foo.com' })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    frameGuard(ctx)
 
     assert.equal(ctx.response.getHeader('X-Frame-Options'), 'ALLOW-FROM foo.com')
   })

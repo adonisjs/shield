@@ -8,30 +8,30 @@
 */
 
 import test from 'japa'
-import { dnsPrefetch } from '../src/dnsPrefetch'
 import { getCtx } from '../test-helpers'
+import { dnsPrefetchFactory } from '../src/dnsPrefetch'
 
 test.group('Dns Prefetch', () => {
   test('return noop function when enabled is false', (assert) => {
-    const middlewareFn = dnsPrefetch({ enabled: false })
+    const dnsPrefetch = dnsPrefetchFactory({ enabled: false })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    dnsPrefetch(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-DNS-Prefetch-Control'))
   })
 
   test('set X-DNS-Prefetch-Control header', (assert) => {
-    const middlewareFn = dnsPrefetch({ enabled: true, allow: true })
+    const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: true })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    dnsPrefetch(ctx)
 
     assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'on')
   })
 
   test('set X-DNS-Prefetch-Control header to off', (assert) => {
-    const middlewareFn = dnsPrefetch({ enabled: true, allow: false })
+    const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: false })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    dnsPrefetch(ctx)
 
     assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'off')
   })

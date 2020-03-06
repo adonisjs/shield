@@ -8,20 +8,20 @@
 */
 
 import test from 'japa'
-import { csp } from '../src/csp'
+import { cspFactory } from '../src/csp'
 import { getCtx } from '../test-helpers'
 
 test.group('Csp', () => {
   test('return noop function when enabled is false', (assert) => {
-    const middlewareFn = csp({ enabled: false })
+    const csp = cspFactory({ enabled: false })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    csp(ctx)
 
     assert.isUndefined(ctx.response.getHeader('Content-Security-Policy'))
   })
 
   test('set Content-Security-Policy header', (assert) => {
-    const middlewareFn = csp({
+    const csp = cspFactory({
       enabled: true,
       directives: {
         defaultSrc: ['\'self\''],
@@ -29,13 +29,13 @@ test.group('Csp', () => {
     })
 
     const ctx = getCtx()
-    middlewareFn(ctx)
+    csp(ctx)
 
     assert.equal(ctx.response.getHeader('Content-Security-Policy'), 'default-src \'self\'')
   })
 
   test('transform @nonce keyword on scriptSrc', (assert) => {
-    const middlewareFn = csp({
+    const csp = cspFactory({
       enabled: true,
       directives: {
         defaultSrc: ['\'self\''],
@@ -46,7 +46,7 @@ test.group('Csp', () => {
     const ctx = getCtx()
     ctx.response.nonce = '1234'
 
-    middlewareFn(ctx)
+    csp(ctx)
     assert.equal(
       ctx.response.getHeader('Content-Security-Policy'),
       'default-src \'self\'; script-src \'nonce-1234\'',
@@ -54,7 +54,7 @@ test.group('Csp', () => {
   })
 
   test('transform @nonce keyword on styleSrc', (assert) => {
-    const middlewareFn = csp({
+    const csp = cspFactory({
       enabled: true,
       directives: {
         defaultSrc: ['\'self\''],
@@ -65,7 +65,7 @@ test.group('Csp', () => {
     const ctx = getCtx()
     ctx.response.nonce = '1234'
 
-    middlewareFn(ctx)
+    csp(ctx)
     assert.equal(
       ctx.response.getHeader('Content-Security-Policy'),
       'default-src \'self\'; style-src \'nonce-1234\'',

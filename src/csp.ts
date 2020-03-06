@@ -14,14 +14,15 @@ import { SourceListDirective } from 'helmet-csp/dist/lib/types'
 
 import { CspOptions } from '@ioc:Adonis/Addons/Shield'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+
 import { noop } from './noop'
 
 /**
  * Reads `nonce` from the ServerResponse and returns appropriate
  * string
  */
-function nonceFn (_req, res) {
-  return `'nonce-${res['nonce']}'`
+function nonceFn (_: any, response: HttpContextContract['response']['response']) {
+  return `'nonce-${response['nonce']}'`
 }
 
 /**
@@ -42,9 +43,10 @@ function transformNonceKeywords (directive: SourceListDirective): SourceListDire
 }
 
 /**
- * Adds `Content-Security-Policy` header based upon given user options
+ * Factory that returns a function to set the `Content-Security-Policy` header based upon
+ * the user config
  */
-export function csp (options: CspOptions) {
+export function cspFactory (options: CspOptions) {
   if (!options.enabled) {
     return noop
   }
@@ -60,7 +62,11 @@ export function csp (options: CspOptions) {
   }
 
   const helmetCspMiddleware = helmetCsp(options)
-  return function cspMiddlewareFn ({ response }: HttpContextContract) {
+
+  return function csp ({ response }: HttpContextContract) {
+    /**
+     * Helmet csp needs the `nonce` property on the HTTP ServerResponse
+     */
     response.response['nonce'] = response.nonce
     helmetCspMiddleware(response.request, response.response, () => {})
   }

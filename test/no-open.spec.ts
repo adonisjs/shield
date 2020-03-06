@@ -8,22 +8,22 @@
 */
 
 import test from 'japa'
-import { noOpen } from '../src/noOpen'
 import { getCtx } from '../test-helpers'
+import { noOpenFactory } from '../src/noOpen'
 
 test.group('No Open', () => {
   test('return noop function when enabled is false', (assert) => {
-    const middlewareFn = noOpen({ enabled: false })
+    const noOpen = noOpenFactory({ enabled: false })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    noOpen(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-Download-Options'))
   })
 
   test('set X-Download-Options header', (assert) => {
-    const middlewareFn = noOpen({ enabled: true })
+    const noOpen = noOpenFactory({ enabled: true })
     const ctx = getCtx()
-    middlewareFn(ctx)
+    noOpen(ctx)
 
     assert.equal(ctx.response.getHeader('X-Download-Options'), 'noopen')
   })
