@@ -43,7 +43,7 @@ export class Csrf {
    */
   private secretSessionKey = 'csrf-secret'
 
-  constructor (private options: CsrfOptions, private applicationKey: string) {
+  constructor (private options: CsrfOptions, private appKey: string) {
   }
 
   /**
@@ -92,7 +92,7 @@ export class Csrf {
     }
 
     const encryptedToken = request.header('x-xsrf-token')
-    const unpackedToken = encryptedToken ? unpack(encryptedToken, this.applicationKey) : null
+    const unpackedToken = encryptedToken ? unpack(decodeURIComponent(encryptedToken), this.appKey) : null
     return unpackedToken && unpackedToken.signed ? unpackedToken.value : null
   }
 
@@ -183,11 +183,11 @@ export class Csrf {
  * A factory function that returns a new function to enforce CSRF
  * protection
  */
-export function csrfFactory (options: CsrfOptions, applicationKey: string) {
+export function csrfFactory (options: CsrfOptions, appKey: string) {
   if (!options.enabled) {
     return noop
   }
 
-  const csrfMiddleware = new Csrf(options, applicationKey)
+  const csrfMiddleware = new Csrf(options, appKey)
   return csrfMiddleware.handle.bind(csrfMiddleware)
 }

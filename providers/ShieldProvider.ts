@@ -16,7 +16,8 @@ export default class ShieldProvider {
     this.container.singleton('Adonis/Addons/ShieldMiddleware', () => {
       const Config = this.container.use('Adonis/Core/Config')
       const shieldConfig = Config.get('shield', {})
-      return new (require('../src/ShieldMiddleware').ShieldMiddleware)(shieldConfig)
+      const appKey = Config.get('app.appKey')
+      return new (require('../src/ShieldMiddleware').ShieldMiddleware)(shieldConfig, appKey)
     })
   }
 
