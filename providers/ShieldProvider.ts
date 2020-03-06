@@ -9,20 +9,20 @@
 
 import { IocContract } from '@adonisjs/fold'
 
-export class ShieldProvider {
+export default class ShieldProvider {
   constructor (protected container: IocContract) {}
 
   public register () {
     this.container.singleton('Adonis/Addons/ShieldMiddleware', () => {
       const Config = this.container.use('Adonis/Core/Config')
       const shieldConfig = Config.get('shield', {})
-      new (require('../src/ShieldMiddleware').ShieldMiddleware)(shieldConfig)
+      return new (require('../src/ShieldMiddleware').ShieldMiddleware)(shieldConfig)
     })
   }
 
   public boot () {
     this.container.with(['Adonis/Core/Response'], (Response) => {
-      require('../src/Bindings/Response').responseBinding(Response)
+      require('../src/Bindings/Response').default(Response)
     })
   }
 }
