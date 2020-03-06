@@ -2,6 +2,15 @@
   "name": "@adonisjs/shield",
   "version": "1.0.8",
   "description": "Adonis shield is middleware to standard HTTP websites to protect themselves from common web attacks like xss, csp and csrf",
+  "main": "build/providers/ShieldProvider.js",
+  "files": [
+    "build/adonis-typings",
+    "build/providers",
+    "build/src",
+    "build/standalone.d.ts",
+    "build/standalone.js"
+  ],
+  "typings": "./build/adonis-typings/index.d.ts",
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
@@ -21,16 +30,17 @@
     "csp"
   ],
   "peerDependencies": {
-    "@adonisjs/session": "^2.x.x"
+    "@adonisjs/session": "^2.0.0",
+    "@adonisjs/core": ">=5.0.0-preview"
   },
   "author": "virk",
   "license": "MIT",
   "devDependencies": {
-    "@adonisjs/core": "^5.0.0-preview.2",
+    "@adonisjs/core": "^5.0.0-preview.4",
     "@adonisjs/fold": "^6.3.4",
     "@adonisjs/mrm-preset": "^2.2.4",
     "@adonisjs/session": "^2.3.3",
-    "@adonisjs/view": "^1.0.10",
+    "@adonisjs/view": "^1.0.11",
     "@poppinss/dev-utils": "^1.0.4",
     "@types/csrf": "^1.3.2",
     "@types/node": "^13.7.7",
@@ -69,12 +79,6 @@
       ".ts"
     ]
   },
-  "main": "build/index.js",
-  "files": [
-    "build/src",
-    "build/index.d.ts",
-    "build/index.js"
-  ],
   "husky": {
     "hooks": {
       "pre-commit": "doctoc README.md --title='## Table of contents' && git add README.md",
@@ -84,6 +88,17 @@
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
+    }
+  },
+  "adonisjs": {
+    "types": "@adonisjs/shield",
+    "providers": [
+      "@adonisjs/shield"
+    ],
+    "templates": {
+      "config": [
+        "shield.txt"
+      ]
     }
   }
 }
