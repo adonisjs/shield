@@ -2,38 +2,72 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 ## Table of contents
 
-- [@adonisjs/shield](#adonisjsshield)
-  - [Change log](#change-log)
-  - [Contributing](#contributing)
-  - [Authors & License](#authors--license)
+- [Shield](#shield)
+- [
+    
+      Website
+    
+     | 
+    
+      Guides
+    
+     | 
+    
+      Contributing
+    
+  ](#website%0A----%0A------%0A----%0A------guides%0A----%0A------%0A----%0A------contributing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# @adonisjs/shield
+<div align="center">
+  <img src="https://res.cloudinary.com/adonisjs/image/upload/q_100/v1558612869/adonis-readme_zscycu.jpg" width="600px">
+</div>
 
-[![circleci-image]][circleci-url]
-[![npm-image]][npm-url]
-![](https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript)
+<br />
 
-## Change log
+<div align="center">
+  <h3>Shield</h3>
+  <p>
+    A package to keep AdonisJS applications safe from common Web attacks like <strong>XSS</strong>, <strong>CSRF Protection</strong> and a lot more.
+  </p>
+</div>
 
-The change log can be found in the [CHANGELOG.md](CHANGELOG.md) file.
+<br />
 
-## Contributing
+<div align="center">
 
-Everyone is welcome to contribute. Please go through the following guides, before getting started.
+[![circleci-image]][circleci-url] [![typescript-image]][typescript-url] [![npm-image]][npm-url] [![license-image]][license-url]
 
-1. [Contributing](https://adonisjs.com/contributing)
-2. [Code of conduct](https://adonisjs.com/code-of-conduct)
+</div>
 
+<div align="center">
+  <h3>
+    <a href="https://adonisjs.com">
+      Website
+    </a>
+    <span> | </span>
+    <a href="https://adonisjs.com/guides/basics/web-security">
+      Guides
+    </a>
+    <span> | </span>
+    <a href="CONTRIBUTING.md">
+      Contributing
+    </a>
+  </h3>
+</div>
 
-## Authors & License
-[Harminder virk](https://github.com/Harminder virk) and [contributors](https://github.com/adonisjs/adonis-shield/graphs/contributors).
+<div align="center">
+  <sub>Built with ❤︎ by <a href="https://github.com/thetutlage">Harminder Virk</a>
+</div>
 
-MIT License, see the included [MIT](LICENSE.md) file.
+[circleci-image]: https://img.shields.io/circleci/build/github/adonisjs/shield/master.svg?style=for-the-badge&logo=circleci
+[circleci-url]: https://circleci.com/gh/adonisjs/shield "circleci"
 
-[circleci-image]: https://img.shields.io/circleci/project/github/adonisjs/adonis-shield/master.svg?style=for-the-badge&logo=circleci
-[circleci-url]: https://circleci.com/gh/adonisjs/adonis-shield "circleci"
+[typescript-image]: https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript
+[typescript-url]:  "typescript"
 
-[npm-image]: https://img.shields.io/npm/v/@adonisjs/shield.svg?style=for-the-badge&logo=npm
-[npm-url]: https://npmjs.org/package/@adonisjs/shield "npm"
+[npm-image]: https://img.shields.io/npm/v/@adonisjs/shield/alpha.svg?style=for-the-badge&logo=npm
+[npm-url]: https://www.npmjs.com/package/@adonisjs/shield/v/alpha "npm"
+
+[license-image]: https://img.shields.io/npm/l/@adonisjs/shield?color=blueviolet&style=for-the-badge
+[license-url]: LICENSE.md "license"
