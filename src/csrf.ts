@@ -43,7 +43,11 @@ export class Csrf {
    */
   private secretSessionKey = 'csrf-secret'
 
-  constructor (private options: CsrfOptions, private appKey: string) {
+  constructor (
+    private options: CsrfOptions,
+    private appKey: string,
+    private viewProvider?: any,
+  ) {
   }
 
   /**
@@ -100,18 +104,18 @@ export class Csrf {
    * Share csrf helper methods with the view engine.
    */
   private shareCsrfViewLocals (ctx: HttpContextContract): void {
-    if (!ctx.view) {
+    if (!ctx.view || !this.viewProvider) {
       return
     }
 
     ctx.view.share({
       csrfToken: ctx.request.csrfToken,
-      csrfMeta: (compilerContext) => {
-        return compilerContext.safe(`<meta name='csrf-token' content='${ctx.request.csrfToken}'>`)
-      },
-      csrfField: (compilerContext) => {
-        return compilerContext.safe(`<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`)
-      },
+      csrfMeta: this.viewProvider.utils.withCtx((viewCtx) => {
+        return viewCtx.safe(`<meta name='csrf-token' content='${ctx.request.csrfToken}'>`)
+      }),
+      csrfField: this.viewProvider.utils.withCtx((viewCtx) => {
+        return viewCtx.safe(`<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`)
+      }),
     })
   }
 
@@ -183,11 +187,11 @@ export class Csrf {
  * A factory function that returns a new function to enforce CSRF
  * protection
  */
-export function csrfFactory (options: CsrfOptions, appKey: string) {
+export function csrfFactory (options: CsrfOptions, appKey: string, viewProvider?: any) {
   if (!options.enabled) {
     return noop
   }
 
-  const csrfMiddleware = new Csrf(options, appKey)
+  const csrfMiddleware = new Csrf(options, appKey, viewProvider)
   return csrfMiddleware.handle.bind(csrfMiddleware)
 }

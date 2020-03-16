@@ -17,7 +17,15 @@ export default class ShieldProvider {
       const Config = this.container.use('Adonis/Core/Config')
       const shieldConfig = Config.get('shield', {})
       const appKey = Config.get('app.appKey')
-      return new (require('../src/ShieldMiddleware').ShieldMiddleware)(shieldConfig, appKey)
+      const viewProvider = this.container.hasBinding('Adonis/Core/View')
+        ? this.container.use('Adonis/Core/View')
+        : undefined
+
+      return new (require('../src/ShieldMiddleware').ShieldMiddleware)(
+        shieldConfig,
+        appKey,
+        viewProvider,
+      )
     })
   }
 

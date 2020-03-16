@@ -21,7 +21,7 @@ export class ShieldMiddleware {
    * Actions to be performed
    */
   private actions = [
-    shield.csrfFactory(this.config.csrf || {}, this.appKey),
+    shield.csrfFactory(this.config.csrf || {}, this.appKey, this.viewProvider),
     shield.cspFactory(this.config.csp || {}),
     shield.dnsPrefetchFactory(this.config.dnsPrefetch || {}),
     shield.frameGuardFactory(this.config.xFrame || {}),
@@ -31,7 +31,11 @@ export class ShieldMiddleware {
     shield.xssFactory(this.config.xss || {}),
   ]
 
-  constructor (private config: ShieldConfig, private appKey: string) {
+  constructor (
+    private config: ShieldConfig,
+    private appKey: string,
+    private viewProvider?: any,
+  ) {
   }
 
   /**

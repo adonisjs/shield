@@ -13,7 +13,7 @@ import { pack, unpack } from '@poppinss/cookie'
 import { Filesystem } from '@poppinss/dev-utils'
 
 import { csrfFactory } from '../src/csrf'
-import { getCtx, viewsDir } from '../test-helpers'
+import { getCtx, viewsDir, getView } from '../test-helpers'
 
 const tokens = new Tokens()
 const fs = new Filesystem(viewsDir)
@@ -25,7 +25,7 @@ test.group('Csrf', (group) => {
   })
 
   test('return noop function when enabled is false', async (assert) => {
-    const csrf = csrfFactory({ enabled: false }, SECRET)
+    const csrf = csrfFactory({ enabled: false }, SECRET, getView())
     const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
@@ -36,7 +36,7 @@ test.group('Csrf', (group) => {
   test('validate csrf token on a request', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
 
     const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
@@ -50,7 +50,7 @@ test.group('Csrf', (group) => {
   })
 
   test('skip validation when request method is not one of whitelisted methods', async (assert) => {
-    const csrf = csrfFactory({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, SECRET)
+    const csrf = csrfFactory({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, SECRET, getView())
 
     const ctx = getCtx(SECRET, '/users/:id', { id: 12453 })
     await ctx.session.initiate(false)
@@ -63,7 +63,7 @@ test.group('Csrf', (group) => {
   test('enforce validation request method is part of whitelisted methods', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, SECRET)
+    const csrf = csrfFactory({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, SECRET, getView())
 
     const ctx = getCtx(SECRET, '/users/:id', { id: 12453 })
     await ctx.session.initiate(false)
@@ -79,7 +79,7 @@ test.group('Csrf', (group) => {
   test('skip validation when request route is inside the exceptRoutes list', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/users/:id'] }, SECRET)
+    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/users/:id'] }, SECRET, getView())
 
     const ctx = getCtx(SECRET, '/users/:id', { id: 12453 })
     await ctx.session.initiate(false)
@@ -92,7 +92,7 @@ test.group('Csrf', (group) => {
   test('skip validation when request route is not inside the exceptRoutes list', async (assert) => {
     assert.plan(2)
 
-    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['posts/:post/store'] }, SECRET)
+    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['posts/:post/store'] }, SECRET, getView())
 
     const ctx = getCtx(SECRET, '/users/:id', { id: 12453 })
     await ctx.session.initiate(false)
@@ -107,7 +107,7 @@ test.group('Csrf', (group) => {
   })
 
   test('work fine when csrf token is provided as an input', async () => {
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
 
     const ctx = getCtx(SECRET, '/')
     await ctx.session.initiate(false)
@@ -123,7 +123,7 @@ test.group('Csrf', (group) => {
   })
 
   test('work fine when csrf token is provided as a header', async () => {
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
 
     const ctx = getCtx(SECRET, '/')
     await ctx.session.initiate(false)
@@ -141,7 +141,7 @@ test.group('Csrf', (group) => {
   })
 
   test('work fine when csrf token is provided as an encrypted token', async () => {
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: true }, SECRET, getView())
 
     const ctx = getCtx(SECRET, '/')
     await ctx.session.initiate(false)
@@ -161,7 +161,7 @@ test.group('Csrf', (group) => {
   test('fail when csrf input value is incorrect', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
     const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
@@ -178,7 +178,7 @@ test.group('Csrf', (group) => {
   test('fail when csrf header value is incorrect', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
     const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
@@ -197,7 +197,7 @@ test.group('Csrf', (group) => {
   test('fail when csrf encrypted header value is incorrect', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
     const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
@@ -216,7 +216,7 @@ test.group('Csrf', (group) => {
   test('fail when csrf encrypted header is not a signed cookie', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
     const ctx = getCtx(SECRET, '/')
     await ctx.session.initiate(false)
 
@@ -239,7 +239,7 @@ test.group('Csrf', (group) => {
   test('fail when csrf encrypted header is valid but cookie feature is disabled', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
     const ctx = getCtx(SECRET, '/')
     await ctx.session.initiate(false)
 
@@ -262,7 +262,7 @@ test.group('Csrf', (group) => {
   test('fail when csrf secret session is missing', async (assert) => {
     assert.plan(1)
 
-    const csrf = csrfFactory({ enabled: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true }, SECRET, getView())
     const ctx = getCtx(SECRET)
     await ctx.session.initiate(false)
 
@@ -290,7 +290,7 @@ test.group('Csrf', (group) => {
     await ctx.session.initiate(false)
     ctx.request.request.method = 'GET'
 
-    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/'] }, SECRET)
+    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/'] }, SECRET, getView())
     await csrf(ctx)
 
     assert.isDefined(ctx.request.csrfToken)
@@ -321,7 +321,7 @@ test.group('Csrf', (group) => {
     await ctx.session.initiate(false)
     ctx.request.request.method = 'GET'
 
-    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/'], enableXsrfCookie: true }, SECRET)
+    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/'], enableXsrfCookie: true }, SECRET, getView())
     await csrf(ctx)
 
     const cookie = decodeURIComponent(String(ctx.response.getHeader('set-cookie')))

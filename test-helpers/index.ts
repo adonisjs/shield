@@ -62,6 +62,10 @@ export function setup () {
   }, true)
 }
 
+export function getView () {
+  return ioc.use('Adonis/Core/View')
+}
+
 /**
  * Returns HTTP context instance
  */
