@@ -58,7 +58,6 @@
     "copyfiles": "^2.2.0",
     "cz-conventional-changelog": "^3.1.0",
     "del-cli": "^3.0.0",
-    "edge.js": "^1.1.4",
     "eslint": "^6.8.0",
     "eslint-plugin-adonis": "^1.0.9",
     "husky": "^4.2.5",
