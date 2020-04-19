@@ -8,7 +8,7 @@
 */
 
 declare module '@ioc:Adonis/Addons/Shield' {
-  import { CookieOptions } from '@poppinss/cookie'
+  import { CookieOptions } from '@ioc:Adonis/Core/Response'
   import { CspOptions as HelmetCspOptions } from 'helmet-csp/dist/lib/types'
 
   /**

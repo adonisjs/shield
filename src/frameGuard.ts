@@ -33,10 +33,7 @@ export function frameGuardFactory (options: XFrameOptions) {
     throw new Error('frameGuard: Domain value is required when using action as "ALLOW-FROM"')
   }
 
-  const result = action === 'ALLOW-FROM'
-    ? `${action} ${options['domain']}`
-    : action
-
+  const result = action === 'ALLOW-FROM' ? `${action} ${options['domain']}` : action
   return function frameGuard ({ response }: HttpContextContract) {
     response.header('X-Frame-Options', result)
   }

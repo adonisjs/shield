@@ -14,7 +14,7 @@ import { hstsFactory } from '../src/hsts'
 test.group('Hsts', () => {
   test('return noop function when enabled is false', (assert) => {
     const hsts = hstsFactory({ enabled: false })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     hsts(ctx)
 
     assert.isUndefined(ctx.response.getHeader('Strict-Transport-Security'))
@@ -22,7 +22,7 @@ test.group('Hsts', () => {
 
   test('set Strict-Transport-Security header with defined maxAge', (assert) => {
     const hsts = hstsFactory({ enabled: true, maxAge: 100 })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     hsts(ctx)
 
     assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=100')
@@ -30,7 +30,7 @@ test.group('Hsts', () => {
 
   test('handle string based max-age', (assert) => {
     const hsts = hstsFactory({ enabled: true, maxAge: '1s' })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     hsts(ctx)
 
     assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=1000')
@@ -38,7 +38,7 @@ test.group('Hsts', () => {
 
   test('entertain includeSubDomains flag', (assert) => {
     const hsts = hstsFactory({ enabled: true, maxAge: '1s', includeSubDomains: true })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     hsts(ctx)
 
     assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=1000; includeSubDomains')
@@ -46,7 +46,7 @@ test.group('Hsts', () => {
 
   test('entertain preload flag', (assert) => {
     const hsts = hstsFactory({ enabled: true, maxAge: '1s', includeSubDomains: true, preload: true })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     hsts(ctx)
 
     assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=1000; includeSubDomains; preload')

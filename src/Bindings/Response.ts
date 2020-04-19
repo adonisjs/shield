@@ -7,11 +7,14 @@
  * file that was distributed with this source code.
 */
 
-import crypto from 'crypto'
+import { randomString } from '@poppinss/utils'
 import { ResponseConstructorContract } from '@ioc:Adonis/Core/Response'
 
+/**
+ * Sharing CSP nonce with the response
+ */
 export default function responseBinding (Response: ResponseConstructorContract) {
   Response.getter('nonce', () => {
-    return crypto.randomBytes(16).toString('hex')
+    return randomString(16)
   }, true)
 }

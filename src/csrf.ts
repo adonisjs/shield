@@ -10,10 +10,11 @@
 /// <reference path="../adonis-typings/index.ts" />
 
 import Tokens from 'csrf'
-import { unpack } from '@poppinss/cookie'
 import { Exception } from '@poppinss/utils'
+import { ViewContract } from '@ioc:Adonis/Core/View'
 import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
 import { RequestContract } from '@ioc:Adonis/Core/Request'
+import { EncryptionContract } from '@ioc:Adonis/Core/Encryption'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import { noop } from './noop'
@@ -45,8 +46,8 @@ export class Csrf {
 
   constructor (
     private options: CsrfOptions,
-    private appKey: string,
-    private viewProvider?: any,
+    private encryption: EncryptionContract,
+    private viewProvider?: ViewContract,
   ) {
   }
 
@@ -96,8 +97,11 @@ export class Csrf {
     }
 
     const encryptedToken = request.header('x-xsrf-token')
-    const unpackedToken = encryptedToken ? unpack(decodeURIComponent(encryptedToken), this.appKey) : null
-    return unpackedToken && unpackedToken.signed ? unpackedToken.value : null
+    if (typeof (encryptedToken) !== 'string' || !encryptedToken) {
+      return null
+    }
+
+    return this.encryption.decrypt(decodeURIComponent(encryptedToken).slice(2), 'xsrf-token')
   }
 
   /**
@@ -110,19 +114,19 @@ export class Csrf {
 
     ctx.view.share({
       csrfToken: ctx.request.csrfToken,
-      csrfMeta: this.viewProvider.utils.withCtx((viewCtx) => {
-        return viewCtx.safe(`<meta name='csrf-token' content='${ctx.request.csrfToken}'>`)
-      }),
-      csrfField: this.viewProvider.utils.withCtx((viewCtx) => {
-        return viewCtx.safe(`<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`)
-      }),
+      csrfMeta: () => {
+        return this.viewProvider!.GLOBALS.safe(`<meta name='csrf-token' content='${ctx.request.csrfToken}'>`)
+      },
+      csrfField: () => {
+        return this.viewProvider!.GLOBALS.safe(`<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`)
+      },
     })
   }
 
   /**
    * Generate a new csrf token using the csrf secret extracted from session.
    */
-  public generateCsrfToken (csrfSecret: string): string {
+  private generateCsrfToken (csrfSecret: string): string {
     return this.tokens.create(csrfSecret)
   }
 
@@ -131,7 +135,7 @@ export class Csrf {
    * new one. Newly created secret is persisted to session at
    * the same time
    */
-  public async getCsrfSecret (ctx: HttpContextContract): Promise<string> {
+  private async getCsrfSecret (ctx: HttpContextContract): Promise<string> {
     let csrfSecret = ctx.session.get(this.secretSessionKey)
 
     if (!csrfSecret) {
@@ -173,7 +177,7 @@ export class Csrf {
       const cookieOptions = Object.assign({}, this.options.cookieOptions, {
         httpOnly: false,
       })
-      ctx.response.cookie('xsrf-token', ctx.request.csrfToken, cookieOptions)
+      ctx.response.encryptedCookie('xsrf-token', ctx.request.csrfToken, cookieOptions)
     }
 
     /**
@@ -187,11 +191,11 @@ export class Csrf {
  * A factory function that returns a new function to enforce CSRF
  * protection
  */
-export function csrfFactory (options: CsrfOptions, appKey: string, viewProvider?: any) {
+export function csrfFactory (options: CsrfOptions, encryption: EncryptionContract, viewProvider?: ViewContract) {
   if (!options.enabled) {
     return noop
   }
 
-  const csrfMiddleware = new Csrf(options, appKey, viewProvider)
+  const csrfMiddleware = new Csrf(options, encryption, viewProvider)
   return csrfMiddleware.handle.bind(csrfMiddleware)
 }

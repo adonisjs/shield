@@ -14,7 +14,7 @@ import { getCtx } from '../test-helpers'
 test.group('Csp', () => {
   test('return noop function when enabled is false', (assert) => {
     const csp = cspFactory({ enabled: false })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     csp(ctx)
 
     assert.isUndefined(ctx.response.getHeader('Content-Security-Policy'))
@@ -28,7 +28,7 @@ test.group('Csp', () => {
       },
     })
 
-    const ctx = getCtx('')
+    const ctx = getCtx()
     csp(ctx)
 
     assert.equal(ctx.response.getHeader('Content-Security-Policy'), 'default-src \'self\'')
@@ -43,7 +43,7 @@ test.group('Csp', () => {
       },
     })
 
-    const ctx = getCtx('')
+    const ctx = getCtx()
     ctx.response.nonce = '1234'
 
     csp(ctx)
@@ -62,7 +62,7 @@ test.group('Csp', () => {
       },
     })
 
-    const ctx = getCtx('')
+    const ctx = getCtx()
     ctx.response.nonce = '1234'
 
     csp(ctx)

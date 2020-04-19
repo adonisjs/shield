@@ -7,7 +7,9 @@
 * file that was distributed with this source code.
 */
 
+import { ViewContract } from '@ioc:Adonis/Core/View'
 import { ShieldConfig } from '@ioc:Adonis/Addons/Shield'
+import { EncryptionContract } from '@ioc:Adonis/Core/Encryption'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import * as shield from '../../standalone'
@@ -21,7 +23,7 @@ export class ShieldMiddleware {
    * Actions to be performed
    */
   private actions = [
-    shield.csrfFactory(this.config.csrf || {}, this.appKey, this.viewProvider),
+    shield.csrfFactory(this.config.csrf || {}, this.encryption, this.viewProvider),
     shield.cspFactory(this.config.csp || {}),
     shield.dnsPrefetchFactory(this.config.dnsPrefetch || {}),
     shield.frameGuardFactory(this.config.xFrame || {}),
@@ -33,8 +35,8 @@ export class ShieldMiddleware {
 
   constructor (
     private config: ShieldConfig,
-    private appKey: string,
-    private viewProvider?: any,
+    private encryption: EncryptionContract,
+    private viewProvider?: ViewContract,
   ) {
   }
 

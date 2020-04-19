@@ -9,22 +9,24 @@
 
 import { IocContract } from '@adonisjs/fold'
 
+/**
+ * Provider to register shield middleware
+ */
 export default class ShieldProvider {
   constructor (protected container: IocContract) {}
 
   public register () {
     this.container.singleton('Adonis/Addons/ShieldMiddleware', () => {
       const Config = this.container.use('Adonis/Core/Config')
-      const shieldConfig = Config.get('shield', {})
-      const appKey = Config.get('app.appKey')
-      const viewProvider = this.container.hasBinding('Adonis/Core/View')
+      const Encryption = this.container.use('Adonis/Core/Encryption')
+      const View = this.container.hasBinding('Adonis/Core/View')
         ? this.container.use('Adonis/Core/View')
         : undefined
 
       return new (require('../src/ShieldMiddleware').ShieldMiddleware)(
-        shieldConfig,
-        appKey,
-        viewProvider,
+        Config.get('shield', {}),
+        Encryption,
+        View,
       )
     })
   }

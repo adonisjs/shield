@@ -14,7 +14,7 @@ import { frameGuardFactory } from '../src/frameGuard'
 test.group('FrameGuard', () => {
   test('return noop function when enabled is false', (assert) => {
     const frameGuard = frameGuardFactory({ enabled: false })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     frameGuard(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-Frame-Options'))
@@ -32,7 +32,7 @@ test.group('FrameGuard', () => {
 
   test('set X-Frame-Options header', (assert) => {
     const frameGuard = frameGuardFactory({ enabled: true })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     frameGuard(ctx)
 
     assert.equal(ctx.response.getHeader('X-Frame-Options'), 'SAMEORIGIN')
@@ -40,7 +40,7 @@ test.group('FrameGuard', () => {
 
   test('set X-Frame-Options header for allow from action', (assert) => {
     const frameGuard = frameGuardFactory({ enabled: true, action: 'ALLOW-FROM', domain: 'foo.com' })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     frameGuard(ctx)
 
     assert.equal(ctx.response.getHeader('X-Frame-Options'), 'ALLOW-FROM foo.com')

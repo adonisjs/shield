@@ -14,7 +14,7 @@ import { noSniffFactory } from '../src/noSniff'
 test.group('No Sniff', () => {
   test('return noop function when enabled is false', (assert) => {
     const noSniff = noSniffFactory({ enabled: false })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     noSniff(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-Content-Type-Options'))
@@ -22,7 +22,7 @@ test.group('No Sniff', () => {
 
   test('set X-Content-Type-Options header', (assert) => {
     const noSniff = noSniffFactory({ enabled: true })
-    const ctx = getCtx('')
+    const ctx = getCtx()
     noSniff(ctx)
 
     assert.equal(ctx.response.getHeader('X-Content-Type-Options'), 'nosniff')

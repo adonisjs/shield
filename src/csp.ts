@@ -10,9 +10,8 @@
 /// <reference path="../adonis-typings/index.ts" />
 
 import helmetCsp from 'helmet-csp'
-import { SourceListDirective } from 'helmet-csp/dist/lib/types'
-
 import { CspOptions } from '@ioc:Adonis/Addons/Shield'
+import { SourceListDirective } from 'helmet-csp/dist/lib/types'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import { noop } from './noop'
