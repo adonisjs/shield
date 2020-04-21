@@ -9,7 +9,8 @@
     "build/src",
     "build/templates",
     "build/standalone.d.ts",
-    "build/standalone.js"
+    "build/standalone.js",
+    "build/instructions.md"
   ],
   "typings": "./build/adonis-typings/index.d.ts",
   "scripts": {
@@ -19,7 +20,8 @@
     "prepublishOnly": "npm run build",
     "lint": "eslint . --ext=.ts",
     "clean": "del build",
-    "copy:files": "copyfiles \"templates/**/*.txt\" build",
+    "copy:files": "copyfiles \"templates/**/*.txt\" build && npm run copy:instructions_md",
+    "copy:instructions_md": "copyfiles \"instructions.md\" build",
     "compile": "npm run lint && npm run clean && tsc && npm run copy:files",
     "build": "npm run compile",
     "commit": "git-cz",
@@ -100,6 +102,7 @@
     }
   },
   "adonisjs": {
+    "instructionsMd": "./build/instructions.md",
     "types": "@adonisjs/shield",
     "providers": [
       "@adonisjs/shield"
