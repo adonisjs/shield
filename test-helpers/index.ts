@@ -11,11 +11,12 @@ import { join } from 'path'
 import { Ioc } from '@adonisjs/fold'
 import { IncomingMessage } from 'http'
 import { Edge, GLOBALS } from 'edge.js'
+import { RouterContract } from '@ioc:Adonis/Core/Route'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { FakeLogger } from '@adonisjs/logger/build/standalone'
 import { Profiler } from '@adonisjs/profiler/build/standalone'
 import { Encryption } from '@adonisjs/encryption/build/standalone'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { HttpContext } from '@adonisjs/http-server/build/standalone'
+import { HttpContext, Router } from '@adonisjs/http-server/build/standalone'
 import { SessionManager } from '@adonisjs/session/build/src/SessionManager'
 
 const logger = new FakeLogger({ level: 'trace', enabled: false, name: 'adonisjs' })
@@ -55,6 +56,18 @@ export async function setup () {
  */
 export function getCtx (routePath: string = '/', routeParams = {}, req?: IncomingMessage) {
   const httpRow = profiler.create('http:request')
+  const router = new Router(encryption) as unknown as RouterContract
+
   return HttpContext
-    .create(routePath, routeParams, logger, httpRow, encryption, req, undefined, {} as any) as HttpContextContract
+    .create(
+      routePath,
+      routeParams,
+      logger,
+      httpRow,
+      encryption ,
+      router,
+      req,
+      undefined,
+      {} as any
+    ) as HttpContextContract
 }
