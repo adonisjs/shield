@@ -5,7 +5,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
-*/
+ */
 
 /// <reference path="../adonis-typings/index.ts" />
 
@@ -17,12 +17,12 @@ import { noop } from './noop'
  * Factory function that returns a function to add `X-Download-Options`
  * header based upon given user options.
  */
-export function noOpenFactory (options: ContentTypeSniffingOptions) {
-  if (!options.enabled) {
-    return noop
-  }
+export function noOpenFactory(options: ContentTypeSniffingOptions) {
+	if (!options.enabled) {
+		return noop
+	}
 
-  return function noOpen ({ response }: HttpContextContract) {
-    response.header('X-Download-Options', 'noopen')
-  }
+	return function noOpen({ response }: HttpContextContract) {
+		response.header('X-Download-Options', 'noopen')
+	}
 }

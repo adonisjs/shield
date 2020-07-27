@@ -1,11 +1,11 @@
 /*
-* @adonisjs/shield
-*
-* (c) Harminder Virk <virk@adonisjs.com>
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * @adonisjs/shield
+ *
+ * (c) Harminder Virk <virk@adonisjs.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 import { join } from 'path'
 import { Ioc } from '@adonisjs/fold'
@@ -29,45 +29,52 @@ export const view = new Edge()
 /**
  * Setup
  */
-export async function setup () {
-  view.mount(viewsDir)
-  Object.keys(GLOBALS).forEach((key) => view.global(key, GLOBALS[key]))
+export async function setup() {
+	view.mount(viewsDir)
+	Object.keys(GLOBALS).forEach((key) => view.global(key, GLOBALS[key]))
 
-  HttpContext.getter('session', function session () {
-    const sessionManager = new SessionManager(new Ioc(), {
-      driver: 'cookie',
-      cookieName: 'adonis-session',
-      clearWithBrowser: false,
-      age: '2h',
-      cookie: {
-        path: '/',
-      },
-    })
-    return sessionManager.create(this)
-  }, true)
+	HttpContext.getter(
+		'session',
+		function session() {
+			const sessionManager = new SessionManager(new Ioc(), {
+				driver: 'cookie',
+				cookieName: 'adonis-session',
+				clearWithBrowser: false,
+				age: '2h',
+				cookie: {
+					path: '/',
+				},
+			})
+			return sessionManager.create(this)
+		},
+		true
+	)
 
-  HttpContext.getter('view', function () {
-    return view.share({ request: this.request, route: this.route })
-  }, true)
+	HttpContext.getter(
+		'view',
+		function () {
+			return view.share({ request: this.request, route: this.route })
+		},
+		true
+	)
 }
 
 /**
  * Returns HTTP context instance
  */
-export function getCtx (routePath: string = '/', routeParams = {}, req?: IncomingMessage) {
-  const httpRow = profiler.create('http:request')
-  const router = new Router(encryption) as unknown as RouterContract
+export function getCtx(routePath: string = '/', routeParams = {}, req?: IncomingMessage) {
+	const httpRow = profiler.create('http:request')
+	const router = (new Router(encryption) as unknown) as RouterContract
 
-  return HttpContext
-    .create(
-      routePath,
-      routeParams,
-      logger,
-      httpRow,
-      encryption ,
-      router,
-      req,
-      undefined,
-      {} as any
-    ) as HttpContextContract
+	return HttpContext.create(
+		routePath,
+		routeParams,
+		logger,
+		httpRow,
+		encryption,
+		router,
+		req,
+		undefined,
+		{} as any
+	) as HttpContextContract
 }

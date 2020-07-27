@@ -8,13 +8,13 @@
  */
 
 declare module '@ioc:Adonis/Core/Response' {
-  interface ResponseContract {
-    nonce: string,
-  }
+	interface ResponseContract {
+		nonce: string
+	}
 }
 
 declare module '@ioc:Adonis/Core/Request' {
-  interface RequestContract {
-    csrfToken: string
-  }
+	interface RequestContract {
+		csrfToken: string
+	}
 }
