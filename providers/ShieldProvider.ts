@@ -8,7 +8,6 @@
  */
 
 import { IocContract } from '@adonisjs/fold'
-import { ShieldMiddleware } from '../src/ShieldMiddleware'
 
 /**
  * Provider to register shield middleware
@@ -24,6 +23,7 @@ export default class ShieldProvider {
 				? this.container.use('Adonis/Core/View')
 				: undefined
 
+			const { ShieldMiddleware } = require('../src/ShieldMiddleware')
 			return new ShieldMiddleware(Config.get('shield', {}), Encryption, View)
 		})
 	}
