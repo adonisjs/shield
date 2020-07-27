@@ -5,7 +5,7 @@
 <br />
 
 <div align="center">
-  <h3>Shield</h3>
+  <h3>Shield Provider</h3>
   <p>
     A package to keep AdonisJS applications safe from common Web attacks like <strong>XSS</strong>, <strong>CSRF Protection</strong> and a lot more.
   </p>
@@ -15,17 +15,17 @@
 
 <div align="center">
 
-[![circleci-image]][circleci-url] [![typescript-image]][typescript-url] [![npm-image]][npm-url] [![license-image]][license-url]
+[![circleci-image]][circleci-url] [![typescript-image]][typescript-url] [![npm-image]][npm-url] [![license-image]][license-url] [![audit-report-image]][audit-report-url]
 
 </div>
 
 <div align="center">
   <h3>
-    <a href="https://adonisjs.com">
+    <a href="https://preview.adonisjs.com">
       Website
     </a>
     <span> | </span>
-    <a href="https://adonisjs.com/guides/basics/web-security">
+    <a href="https://preview.adonisjs.com/guides/security/introduction">
       Guides
     </a>
     <span> | </span>
@@ -36,7 +36,7 @@
 </div>
 
 <div align="center">
-  <sub>Built with ❤︎ by <a href="https://github.com/thetutlage">Harminder Virk</a>
+  <sub>Built with ❤︎ by <a href="https://twitter.com/AmanVirk1">Harminder Virk</a>
 </div>
 
 [circleci-image]: https://img.shields.io/circleci/build/github/adonisjs/shield/master.svg?style=for-the-badge&logo=circleci
@@ -50,3 +50,6 @@
 
 [license-image]: https://img.shields.io/npm/l/@adonisjs/shield?color=blueviolet&style=for-the-badge
 [license-url]: LICENSE.md "license"
+
+[audit-report-image]: https://img.shields.io/badge/-Audit%20Report-blueviolet?style=for-the-badge
+[audit-report-url]: https://htmlpreview.github.io/?https://github.com/adonisjs/shield/blob/develop/npm-audit.html "audit-report"
