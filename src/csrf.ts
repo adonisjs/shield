@@ -167,7 +167,7 @@ export class Csrf {
 		if (this.shouldValidateRequest(ctx)) {
 			const csrfToken = this.getCsrfTokenFromRequest(ctx.request)
 			if (!csrfToken || !this.tokens.verify(csrfSecret, csrfToken)) {
-				throw new Exception('Invalid CSRF Token', 403, 'E_BAD_CSRF_TOKEN')
+				throw new Exception('Invalid CSRF Token', this.options.errorStatus || 406, 'E_BAD_CSRF_TOKEN')
 			}
 		}
 
