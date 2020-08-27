@@ -9,10 +9,11 @@
 
 /// <reference path="../adonis-typings/index.ts" />
 
-import helmetCsp from 'helmet-csp'
 import { CspOptions } from '@ioc:Adonis/Addons/Shield'
-import { SourceListDirective } from 'helmet-csp/dist/lib/types'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import helmetCsp, { ContentSecurityPolicyOptions } from 'helmet-csp'
+
+type ValueOf<T> = T[keyof T]
 
 import { noop } from './noop'
 
@@ -27,7 +28,9 @@ function nonceFn(_: any, response: HttpContextContract['response']['response']) 
 /**
  * Transform `@nonce` keywords for a given directive
  */
-function transformNonceKeywords(directive: SourceListDirective): SourceListDirective {
+function transformNonceKeywords(
+	directive: ValueOf<Exclude<ContentSecurityPolicyOptions['directives'], undefined>>
+): ValueOf<Exclude<ContentSecurityPolicyOptions['directives'], undefined>> {
 	/**
 	 * Transform array values. There should be only one `@nonce` keyword
 	 */

@@ -49,7 +49,7 @@ test.group('Csp', () => {
 		csp(ctx)
 		assert.equal(
 			ctx.response.getHeader('Content-Security-Policy'),
-			"default-src 'self'; script-src 'nonce-1234'"
+			"default-src 'self';script-src 'nonce-1234'"
 		)
 	})
 
@@ -68,7 +68,7 @@ test.group('Csp', () => {
 		csp(ctx)
 		assert.equal(
 			ctx.response.getHeader('Content-Security-Policy'),
-			"default-src 'self'; style-src 'nonce-1234'"
+			"default-src 'self';style-src 'nonce-1234'"
 		)
 	})
 })

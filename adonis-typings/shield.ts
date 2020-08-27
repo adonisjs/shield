@@ -9,7 +9,7 @@
 
 declare module '@ioc:Adonis/Addons/Shield' {
 	import { CookieOptions } from '@ioc:Adonis/Core/Response'
-	import { CspOptions as HelmetCspOptions } from 'helmet-csp/dist/lib/types'
+	import { ContentSecurityPolicyOptions } from 'helmet-csp'
 
 	/**
 	 * Config for `X-Frame-Options` header
@@ -70,7 +70,7 @@ declare module '@ioc:Adonis/Addons/Shield' {
 	/**
 	 * Config for working with CSP
 	 */
-	export type CspOptions = { enabled: boolean } & HelmetCspOptions
+	export type CspOptions = { enabled: boolean } & ContentSecurityPolicyOptions
 
 	/**
 	 * Config for working with CSRF options
