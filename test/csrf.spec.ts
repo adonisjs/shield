@@ -350,4 +350,24 @@ test.group('Csrf', (group) => {
 			ctx.request.csrfToken
 		)
 	})
+
+	test('skip validation when except routes callback returns true', async (assert) => {
+		assert.plan(1)
+
+		const csrf = csrfFactory(
+			{
+				enabled: true,
+				exceptRoutes: ({ request }) => request.url().startsWith('/users'),
+			},
+			encryption,
+			view
+		)
+
+		const ctx = getCtx('/users/:id', { id: 12453 })
+		await ctx.session.initiate(false)
+		ctx.request.request.method = 'PATCH'
+
+		await csrf(ctx)
+		assert.isDefined(ctx.request.csrfToken)
+	})
 })

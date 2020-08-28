@@ -53,23 +53,30 @@ export class Csrf {
 	/**
 	 * Find if a request should be validated or not
 	 */
-	private shouldValidateRequest({ request, route }: HttpContextContract) {
+	private shouldValidateRequest(ctx: HttpContextContract) {
 		/**
 		 * Do not validate when whitelisted methods are defined and current
 		 * method is not part of the white list
 		 */
 		if (
 			this.whitelistedMethods.length &&
-			!this.whitelistedMethods.includes(request.method().toLowerCase())
+			!this.whitelistedMethods.includes(ctx.request.method().toLowerCase())
 		) {
 			return false
+		}
+
+		/**
+		 * Invoke callback when defined
+		 */
+		if (typeof this.routesToIgnore === 'function') {
+			return !this.routesToIgnore(ctx)
 		}
 
 		/**
 		 * Do not validate when current request route is ignored inside `routesToIgnore`
 		 * array
 		 */
-		if (this.routesToIgnore.includes(route!.pattern)) {
+		if (this.routesToIgnore.includes(ctx.route!.pattern)) {
 			return false
 		}
 

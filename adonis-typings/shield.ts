@@ -10,6 +10,7 @@
 declare module '@ioc:Adonis/Addons/Shield' {
 	import { CookieOptions } from '@ioc:Adonis/Core/Response'
 	import { ContentSecurityPolicyOptions } from 'helmet-csp'
+	import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 	/**
 	 * Config for `X-Frame-Options` header
@@ -77,7 +78,7 @@ declare module '@ioc:Adonis/Addons/Shield' {
 	 */
 	export type CsrfOptions = {
 		enabled: boolean
-		exceptRoutes?: string[]
+		exceptRoutes?: string[] | ((ctx: HttpContextContract) => boolean)
 		enableXsrfCookie?: boolean
 		methods?: ReadonlyArray<string>
 		cookieOptions?: Partial<CookieOptions>
