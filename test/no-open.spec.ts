@@ -8,21 +8,29 @@
  */
 
 import test from 'japa'
-import { getCtx } from '../test-helpers'
+import { setup, fs } from '../test-helpers'
 import { noOpenFactory } from '../src/noOpen'
 
-test.group('No Open', () => {
-	test('return noop function when enabled is false', (assert) => {
+test.group('No Open', (group) => {
+	group.afterEach(async () => {
+		await fs.cleanup()
+	})
+
+	test('return noop function when enabled is false', async (assert) => {
 		const noOpen = noOpenFactory({ enabled: false })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		noOpen(ctx)
 
 		assert.isUndefined(ctx.response.getHeader('X-Download-Options'))
 	})
 
-	test('set X-Download-Options header', (assert) => {
+	test('set X-Download-Options header', async (assert) => {
 		const noOpen = noOpenFactory({ enabled: true })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		noOpen(ctx)
 
 		assert.equal(ctx.response.getHeader('X-Download-Options'), 'noopen')

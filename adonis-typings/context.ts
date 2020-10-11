@@ -9,7 +9,7 @@
 
 declare module '@ioc:Adonis/Core/Response' {
 	interface ResponseContract {
-		nonce: string
+		readonly nonce: string
 	}
 }
 

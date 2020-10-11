@@ -8,37 +8,47 @@
  */
 
 import test from 'japa'
+import { setup, fs } from '../test-helpers'
 import { xssFactory } from '../src/xssProtection'
-import { getCtx } from '../test-helpers'
 
-test.group('Xss Protection', () => {
-	test('return noop function when enabled is false', (assert) => {
+test.group('Xss Protection', (group) => {
+	group.afterEach(async () => {
+		await fs.cleanup()
+	})
+
+	test('return noop function when enabled is false', async (assert) => {
 		const xss = xssFactory({ enabled: false })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		xss(ctx)
 
 		assert.isUndefined(ctx.response.getHeader('X-XSS-Protection'))
 	})
 
-	test('set X-XSS-Protection header', (assert) => {
+	test('set X-XSS-Protection header', async (assert) => {
 		const xss = xssFactory({ enabled: true })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		xss(ctx)
 
 		assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1; mode=block')
 	})
 
-	test('disable block mode', (assert) => {
+	test('disable block mode', async (assert) => {
 		const xss = xssFactory({ enabled: true, mode: null })
-		const ctx = getCtx()
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		xss(ctx)
 
 		assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1')
 	})
 
-	test('set report uri', (assert) => {
+	test('set report uri', async (assert) => {
 		const xss = xssFactory({ enabled: true, reportUri: '/' })
-		const ctx = getCtx()
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		xss(ctx)
 
 		assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1; mode=block; report=/')

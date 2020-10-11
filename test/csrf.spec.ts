@@ -3,19 +3,17 @@
  *
  * (c) ? (Please advice before merge, thanks!)
  *
- * For the full copyright and license information, please view the LICENSE
+ * For the full copyright and license information, please app.container.use('Adonis/Core/View') the LICENSE
  * file that was distributed with this source code.
  */
 
 import test from 'japa'
 import Tokens from 'csrf'
-import { Filesystem } from '@poppinss/dev-utils'
 
 import { csrfFactory } from '../src/csrf'
-import { getCtx, viewsDir, view, encryption, setup } from '../test-helpers'
+import { fs, setup } from '../test-helpers'
 
 const tokens = new Tokens()
-const fs = new Filesystem(viewsDir)
 
 test.group('Csrf', (group) => {
 	group.before(async () => {
@@ -27,8 +25,14 @@ test.group('Csrf', (group) => {
 	})
 
 	test('return noop function when enabled is false', async (assert) => {
-		const csrf = csrfFactory({ enabled: false }, encryption, view)
-		const ctx = getCtx()
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+
+		const csrf = csrfFactory(
+			{ enabled: false },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
 		await ctx.session.initiate(false)
 
 		csrf(ctx)
@@ -38,8 +42,14 @@ test.group('Csrf', (group) => {
 	test('validate csrf token on a request', async (assert) => {
 		assert.plan(1)
 
-		const csrf = csrfFactory({ enabled: true }, encryption, view)
-		const ctx = getCtx()
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+
+		const csrf = csrfFactory(
+			{ enabled: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
 
 		await ctx.session.initiate(false)
 		ctx.request.request.method = 'POST'
@@ -52,13 +62,15 @@ test.group('Csrf', (group) => {
 	})
 
 	test('skip validation when request method is not one of whitelisted methods', async (assert) => {
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/users/:id', { id: 12453 })
+
 		const csrf = csrfFactory(
 			{ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] },
-			encryption,
-			view
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
 		)
 
-		const ctx = getCtx('/users/:id', { id: 12453 })
 		await ctx.session.initiate(false)
 		ctx.request.request.method = 'PUT'
 
@@ -68,14 +80,15 @@ test.group('Csrf', (group) => {
 
 	test('enforce validation request method is part of whitelisted methods', async (assert) => {
 		assert.plan(1)
+		const app = await setup()
 
 		const csrf = csrfFactory(
 			{ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] },
-			encryption,
-			view
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
 		)
 
-		const ctx = getCtx('/users/:id', { id: 12453 })
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/users/:id', { id: 12453 })
 		await ctx.session.initiate(false)
 		ctx.request.request.method = 'PATCH'
 
@@ -88,10 +101,16 @@ test.group('Csrf', (group) => {
 
 	test('skip validation when request route is inside the exceptRoutes list', async (assert) => {
 		assert.plan(1)
+		const app = await setup()
 
-		const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/users/:id'] }, encryption, view)
+		const csrf = csrfFactory(
+			{ enabled: true, exceptRoutes: ['/users/:id'] },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
 
-		const ctx = getCtx('/users/:id', { id: 12453 })
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/users/:id', { id: 12453 })
+
 		await ctx.session.initiate(false)
 		ctx.request.request.method = 'PATCH'
 
@@ -101,14 +120,16 @@ test.group('Csrf', (group) => {
 
 	test('validate when request route is not inside the exceptRoutes list', async (assert) => {
 		assert.plan(2)
+		const app = await setup()
 
 		const csrf = csrfFactory(
 			{ enabled: true, exceptRoutes: ['posts/:post/store'] },
-			encryption,
-			view
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
 		)
 
-		const ctx = getCtx('/users/:id', { id: 12453 })
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/users/:id', { id: 12453 })
+
 		await ctx.session.initiate(false)
 		ctx.request.request.method = 'PATCH'
 
@@ -121,9 +142,15 @@ test.group('Csrf', (group) => {
 	})
 
 	test('work fine when csrf token is provided as an input', async () => {
-		const csrf = csrfFactory({ enabled: true }, encryption, view)
+		const app = await setup()
+		const csrf = csrfFactory(
+			{ enabled: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
 
-		const ctx = getCtx('/')
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+
 		await ctx.session.initiate(false)
 
 		const secret = await tokens.secret()
@@ -137,9 +164,14 @@ test.group('Csrf', (group) => {
 	})
 
 	test('work fine when csrf token is provided as a header', async () => {
-		const csrf = csrfFactory({ enabled: true }, encryption, view)
+		const app = await setup()
+		const csrf = csrfFactory(
+			{ enabled: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
 
-		const ctx = getCtx('/')
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 
 		const secret = await tokens.secret()
@@ -155,9 +187,14 @@ test.group('Csrf', (group) => {
 	})
 
 	test('work fine when csrf token is provided as an encrypted token', async () => {
-		const csrf = csrfFactory({ enabled: true, enableXsrfCookie: true }, encryption, view)
+		const app = await setup()
+		const csrf = csrfFactory(
+			{ enabled: true, enableXsrfCookie: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
 
-		const ctx = getCtx('/')
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 
 		const secret = await tokens.secret()
@@ -166,7 +203,9 @@ test.group('Csrf', (group) => {
 
 		ctx.request.request.method = 'PATCH'
 		ctx.request.request.headers = {
-			'x-xsrf-token': `e:${encryption.encrypt(csrfToken, undefined, 'xsrf-token')!}`,
+			'x-xsrf-token': `e:${app.container
+				.use('Adonis/Core/Encryption')
+				.encrypt(csrfToken, undefined, 'xsrf-token')!}`,
 		}
 
 		await csrf(ctx)
@@ -175,8 +214,13 @@ test.group('Csrf', (group) => {
 	test('fail when csrf input value is incorrect', async (assert) => {
 		assert.plan(1)
 
-		const csrf = csrfFactory({ enabled: true }, encryption, view)
-		const ctx = getCtx()
+		const app = await setup()
+		const csrf = csrfFactory(
+			{ enabled: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 
 		ctx.request.request.method = 'POST'
@@ -192,8 +236,14 @@ test.group('Csrf', (group) => {
 	test('fail when csrf header value is incorrect', async (assert) => {
 		assert.plan(1)
 
-		const csrf = csrfFactory({ enabled: true }, encryption, view)
-		const ctx = getCtx()
+		const app = await setup()
+		const csrf = csrfFactory(
+			{ enabled: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
+
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 
 		ctx.request.request.method = 'POST'
@@ -211,8 +261,14 @@ test.group('Csrf', (group) => {
 	test('fail when csrf encrypted header value is incorrect', async (assert) => {
 		assert.plan(1)
 
-		const csrf = csrfFactory({ enabled: true }, encryption, view)
-		const ctx = getCtx()
+		const app = await setup()
+		const csrf = csrfFactory(
+			{ enabled: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
+
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 
 		ctx.request.request.method = 'POST'
@@ -230,8 +286,14 @@ test.group('Csrf', (group) => {
 	test('fail when csrf encrypted header is not an encrypted cookie', async (assert) => {
 		assert.plan(1)
 
-		const csrf = csrfFactory({ enabled: true }, encryption, view)
-		const ctx = getCtx('/')
+		const app = await setup()
+		const csrf = csrfFactory(
+			{ enabled: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
+
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 
 		const secret = await tokens.secret()
@@ -253,8 +315,15 @@ test.group('Csrf', (group) => {
 	test('fail when csrf encrypted header is valid but cookie feature is disabled', async (assert) => {
 		assert.plan(1)
 
-		const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encryption, view)
-		const ctx = getCtx('/')
+		const app = await setup()
+
+		const csrf = csrfFactory(
+			{ enabled: true, enableXsrfCookie: false },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
+
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 
 		const secret = await tokens.secret()
@@ -263,7 +332,9 @@ test.group('Csrf', (group) => {
 
 		ctx.request.request.method = 'PATCH'
 		ctx.request.request.headers = {
-			'x-xsrf-token': `e:${encryption.encrypt(csrfToken, undefined, 'xsrf-token')}`,
+			'x-xsrf-token': `e:${app.container
+				.use('Adonis/Core/Encryption')
+				.encrypt(csrfToken, undefined, 'xsrf-token')}`,
 		}
 
 		try {
@@ -276,8 +347,14 @@ test.group('Csrf', (group) => {
 	test('fail when csrf secret session is missing', async (assert) => {
 		assert.plan(1)
 
-		const csrf = csrfFactory({ enabled: true }, encryption, view)
-		const ctx = getCtx()
+		const app = await setup()
+
+		const csrf = csrfFactory(
+			{ enabled: true },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 
 		const secret = await tokens.secret()
@@ -293,16 +370,21 @@ test.group('Csrf', (group) => {
 		}
 	})
 
-	test('generate csrf token and share it with request and views', async (assert) => {
-		await fs.add('token.edge', '{{ csrfToken }}')
-		await fs.add('token-meta.edge', '{{ csrfMeta() }}')
-		await fs.add('token-function.edge', '{{ csrfField() }}')
+	test('generate csrf token and share it with request and view', async (assert) => {
+		await fs.add('resources/views/token.edge', '{{ csrfToken }}')
+		await fs.add('resources/views/token-meta.edge', '{{ csrfMeta() }}')
+		await fs.add('resources/views/token-function.edge', '{{ csrfField() }}')
 
-		const ctx = getCtx()
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 		ctx.request.request.method = 'GET'
 
-		const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/'] }, encryption, view)
+		const csrf = csrfFactory(
+			{ enabled: true, exceptRoutes: ['/'] },
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
+		)
 		await csrf(ctx)
 
 		assert.isDefined(ctx.request.csrfToken)
@@ -326,7 +408,8 @@ test.group('Csrf', (group) => {
 		await fs.add('token-meta.edge', '{{ csrfMeta() }}')
 		await fs.add('token-function.edge', '{{ csrfField() }}')
 
-		const ctx = getCtx()
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		await ctx.session.initiate(false)
 		ctx.request.request.method = 'GET'
 
@@ -336,8 +419,8 @@ test.group('Csrf', (group) => {
 				exceptRoutes: ['/'],
 				enableXsrfCookie: true,
 			},
-			encryption,
-			view
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
 		)
 
 		await csrf(ctx)
@@ -346,7 +429,9 @@ test.group('Csrf', (group) => {
 		assert.isDefined(ctx.request.csrfToken)
 		tokens.verify(ctx.session.get('csrf-secret'), ctx.request.csrfToken)
 		assert.equal(
-			encryption.decrypt(cookie.replace('xsrf-token=e:', ''), 'xsrf-token'),
+			app.container
+				.use('Adonis/Core/Encryption')
+				.decrypt(cookie.replace('xsrf-token=e:', ''), 'xsrf-token'),
 			ctx.request.csrfToken
 		)
 	})
@@ -354,16 +439,18 @@ test.group('Csrf', (group) => {
 	test('skip validation when except routes callback returns true', async (assert) => {
 		assert.plan(1)
 
+		const app = await setup()
 		const csrf = csrfFactory(
 			{
 				enabled: true,
 				exceptRoutes: ({ request }) => request.url().startsWith('/users'),
 			},
-			encryption,
-			view
+			app.container.use('Adonis/Core/Encryption'),
+			app.container.use('Adonis/Core/View')
 		)
 
-		const ctx = getCtx('/users/:id', { id: 12453 })
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/users/:id', { id: 12453 })
+
 		await ctx.session.initiate(false)
 		ctx.request.request.method = 'PATCH'
 

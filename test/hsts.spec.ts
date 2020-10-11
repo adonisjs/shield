@@ -8,37 +8,49 @@
  */
 
 import test from 'japa'
-import { getCtx } from '../test-helpers'
+import { setup, fs } from '../test-helpers'
 import { hstsFactory } from '../src/hsts'
 
-test.group('Hsts', () => {
-	test('return noop function when enabled is false', (assert) => {
+test.group('Hsts', (group) => {
+	group.afterEach(async () => {
+		await fs.cleanup()
+	})
+
+	test('return noop function when enabled is false', async (assert) => {
 		const hsts = hstsFactory({ enabled: false })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		hsts(ctx)
 
 		assert.isUndefined(ctx.response.getHeader('Strict-Transport-Security'))
 	})
 
-	test('set Strict-Transport-Security header with defined maxAge', (assert) => {
+	test('set Strict-Transport-Security header with defined maxAge', async (assert) => {
 		const hsts = hstsFactory({ enabled: true, maxAge: 100 })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		hsts(ctx)
 
 		assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=100')
 	})
 
-	test('handle string based max-age', (assert) => {
+	test('handle string based max-age', async (assert) => {
 		const hsts = hstsFactory({ enabled: true, maxAge: '1s' })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		hsts(ctx)
 
 		assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=1000')
 	})
 
-	test('entertain includeSubDomains flag', (assert) => {
+	test('entertain includeSubDomains flag', async (assert) => {
 		const hsts = hstsFactory({ enabled: true, maxAge: '1s', includeSubDomains: true })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		hsts(ctx)
 
 		assert.equal(
@@ -47,14 +59,16 @@ test.group('Hsts', () => {
 		)
 	})
 
-	test('entertain preload flag', (assert) => {
+	test('entertain preload flag', async (assert) => {
 		const hsts = hstsFactory({
 			enabled: true,
 			maxAge: '1s',
 			includeSubDomains: true,
 			preload: true,
 		})
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		hsts(ctx)
 
 		assert.equal(
@@ -63,7 +77,7 @@ test.group('Hsts', () => {
 		)
 	})
 
-	test('raise error when maxAge is in negative', (assert) => {
+	test('raise error when maxAge is in negative', async (assert) => {
 		const fn = () => hstsFactory({ enabled: true, maxAge: -1 })
 		assert.throw(fn, 'Max age for "shield.hsts" cannot be a negative value')
 	})

@@ -9,18 +9,26 @@
 
 import test from 'japa'
 import { cspFactory } from '../src/csp'
-import { getCtx } from '../test-helpers'
+import { setup, fs } from '../test-helpers'
 
-test.group('Csp', () => {
-	test('return noop function when enabled is false', (assert) => {
+test.group('Csp', (group) => {
+	group.afterEach(async () => {
+		await fs.cleanup()
+	})
+
+	test('return noop function when enabled is false', async (assert) => {
+		const app = await setup()
 		const csp = cspFactory({ enabled: false })
-		const ctx = getCtx()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		csp(ctx)
 
 		assert.isUndefined(ctx.response.getHeader('Content-Security-Policy'))
 	})
 
-	test('set Content-Security-Policy header', (assert) => {
+	test('set Content-Security-Policy header', async (assert) => {
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+
 		const csp = cspFactory({
 			enabled: true,
 			directives: {
@@ -28,13 +36,15 @@ test.group('Csp', () => {
 			},
 		})
 
-		const ctx = getCtx()
 		csp(ctx)
 
 		assert.equal(ctx.response.getHeader('Content-Security-Policy'), "default-src 'self'")
 	})
 
-	test('transform @nonce keyword on scriptSrc', (assert) => {
+	test('transform @nonce keyword on scriptSrc', async (assert) => {
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+
 		const csp = cspFactory({
 			enabled: true,
 			directives: {
@@ -43,17 +53,17 @@ test.group('Csp', () => {
 			},
 		})
 
-		const ctx = getCtx()
-		ctx.response.nonce = '1234'
-
 		csp(ctx)
 		assert.equal(
 			ctx.response.getHeader('Content-Security-Policy'),
-			"default-src 'self';script-src 'nonce-1234'"
+			`default-src 'self';script-src 'nonce-${ctx.response.nonce}'`
 		)
 	})
 
-	test('transform @nonce keyword on styleSrc', (assert) => {
+	test('transform @nonce keyword on styleSrc', async (assert) => {
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+
 		const csp = cspFactory({
 			enabled: true,
 			directives: {
@@ -62,13 +72,10 @@ test.group('Csp', () => {
 			},
 		})
 
-		const ctx = getCtx()
-		ctx.response.nonce = '1234'
-
 		csp(ctx)
 		assert.equal(
 			ctx.response.getHeader('Content-Security-Policy'),
-			"default-src 'self';style-src 'nonce-1234'"
+			`default-src 'self';style-src 'nonce-${ctx.response.nonce}'`
 		)
 	})
 })

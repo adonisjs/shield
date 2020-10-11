@@ -8,19 +8,25 @@
  */
 
 import test from 'japa'
-import { getCtx } from '../test-helpers'
+import { setup, fs } from '../test-helpers'
 import { frameGuardFactory } from '../src/frameGuard'
 
-test.group('FrameGuard', () => {
-	test('return noop function when enabled is false', (assert) => {
+test.group('FrameGuard', (group) => {
+	group.afterEach(async () => {
+		await fs.cleanup()
+	})
+
+	test('return noop function when enabled is false', async (assert) => {
 		const frameGuard = frameGuardFactory({ enabled: false })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		frameGuard(ctx)
 
 		assert.isUndefined(ctx.response.getHeader('X-Frame-Options'))
 	})
 
-	test('raise error when action type is incorrect', (assert) => {
+	test('raise error when action type is incorrect', async (assert) => {
 		const frameGuard = () => frameGuardFactory({ enabled: true, action: 'FOO' } as any)
 		assert.throw(
 			frameGuard,
@@ -28,7 +34,7 @@ test.group('FrameGuard', () => {
 		)
 	})
 
-	test('raise error when action type is ALLOW-FROM and domain is not defined', (assert) => {
+	test('raise error when action type is ALLOW-FROM and domain is not defined', async (assert) => {
 		const frameGuard = () => frameGuardFactory({ enabled: true, action: 'ALLOW-FROM' } as any)
 		assert.throw(
 			frameGuard,
@@ -36,17 +42,21 @@ test.group('FrameGuard', () => {
 		)
 	})
 
-	test('set X-Frame-Options header', (assert) => {
+	test('set X-Frame-Options header', async (assert) => {
 		const frameGuard = frameGuardFactory({ enabled: true })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		frameGuard(ctx)
 
 		assert.equal(ctx.response.getHeader('X-Frame-Options'), 'SAMEORIGIN')
 	})
 
-	test('set X-Frame-Options header for allow from action', (assert) => {
+	test('set X-Frame-Options header for allow from action', async (assert) => {
 		const frameGuard = frameGuardFactory({ enabled: true, action: 'ALLOW-FROM', domain: 'foo.com' })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		frameGuard(ctx)
 
 		assert.equal(ctx.response.getHeader('X-Frame-Options'), 'ALLOW-FROM foo.com')

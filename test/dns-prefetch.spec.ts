@@ -8,29 +8,38 @@
  */
 
 import test from 'japa'
-import { getCtx } from '../test-helpers'
+import { setup, fs } from '../test-helpers'
 import { dnsPrefetchFactory } from '../src/dnsPrefetch'
 
-test.group('Dns Prefetch', () => {
-	test('return noop function when enabled is false', (assert) => {
+test.group('Dns Prefetch', (group) => {
+	group.afterEach(async () => {
+		await fs.cleanup()
+	})
+
+	test('return noop function when enabled is false', async (assert) => {
 		const dnsPrefetch = dnsPrefetchFactory({ enabled: false })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		dnsPrefetch(ctx)
 
 		assert.isUndefined(ctx.response.getHeader('X-DNS-Prefetch-Control'))
 	})
 
-	test('set X-DNS-Prefetch-Control header', (assert) => {
+	test('set X-DNS-Prefetch-Control header', async (assert) => {
 		const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: true })
-		const ctx = getCtx()
+
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		dnsPrefetch(ctx)
 
 		assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'on')
 	})
 
-	test('set X-DNS-Prefetch-Control header to off', (assert) => {
+	test('set X-DNS-Prefetch-Control header to off', async (assert) => {
 		const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: false })
-		const ctx = getCtx()
+		const app = await setup()
+		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 		dnsPrefetch(ctx)
 
 		assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'off')
