@@ -8,4 +8,4 @@ Server.middleware.register([
 ])
 ```
 
-**The middleware must be right after `BodyParserMiddleware`.**
+**The middleware must be right after the `BodyParserMiddleware`.**
