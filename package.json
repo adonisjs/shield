@@ -121,7 +121,7 @@
     }
   },
   "publishConfig": {
-    "tag": "next",
+    "tag": "alpha",
     "access": "public"
   },
   "np": {
