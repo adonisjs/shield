@@ -83,12 +83,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adonisjs/adonis-shield.git"
+    "url": "git+https://github.com/adonisjs/shield.git"
   },
   "bugs": {
-    "url": "https://github.com/adonisjs/adonis-shield/issues"
+    "url": "https://github.com/adonisjs/shield/issues"
   },
-  "homepage": "https://github.com/adonisjs/adonis-shield#readme",
+  "homepage": "https://github.com/adonisjs/shield#readme",
   "nyc": {
     "exclude": [
       "test"
