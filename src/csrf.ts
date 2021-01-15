@@ -89,7 +89,7 @@ export class Csrf {
 	 * - `_csrf` input
 	 * - `x-csrf-token` header
 	 * - Or `x-xsrf-token` header. The header value must be set by
-	 *   reading the `xsrf-token` cookie.
+	 *   reading the `XSRF-TOKEN` cookie.
 	 */
 	private getCsrfTokenFromRequest(request: RequestContract): string | null {
 		const token = request.input('_csrf', request.header('x-csrf-token'))
@@ -110,7 +110,7 @@ export class Csrf {
 			return null
 		}
 
-		return this.encryption.decrypt(decodeURIComponent(encryptedToken).slice(2), 'xsrf-token')
+		return this.encryption.decrypt(decodeURIComponent(encryptedToken).slice(2), 'XSRF-TOKEN')
 	}
 
 	/**
@@ -190,7 +190,7 @@ export class Csrf {
 			const cookieOptions = Object.assign({}, this.options.cookieOptions, {
 				httpOnly: false,
 			})
-			ctx.response.encryptedCookie('xsrf-token', ctx.request.csrfToken, cookieOptions)
+			ctx.response.encryptedCookie('XSRF-TOKEN', ctx.request.csrfToken, cookieOptions)
 		}
 
 		/**

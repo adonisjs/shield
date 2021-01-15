@@ -205,7 +205,7 @@ test.group('Csrf', (group) => {
 		ctx.request.request.headers = {
 			'x-xsrf-token': `e:${app.container
 				.use('Adonis/Core/Encryption')
-				.encrypt(csrfToken, undefined, 'xsrf-token')!}`,
+				.encrypt(csrfToken, undefined, 'XSRF-TOKEN')!}`,
 		}
 
 		await csrf(ctx)
@@ -334,7 +334,7 @@ test.group('Csrf', (group) => {
 		ctx.request.request.headers = {
 			'x-xsrf-token': `e:${app.container
 				.use('Adonis/Core/Encryption')
-				.encrypt(csrfToken, undefined, 'xsrf-token')}`,
+				.encrypt(csrfToken, undefined, 'XSRF-TOKEN')}`,
 		}
 
 		try {
@@ -431,7 +431,7 @@ test.group('Csrf', (group) => {
 		assert.equal(
 			app.container
 				.use('Adonis/Core/Encryption')
-				.decrypt(cookie.replace('xsrf-token=e:', ''), 'xsrf-token'),
+				.decrypt(cookie.replace('XSRF-TOKEN=e:', ''), 'XSRF-TOKEN'),
 			ctx.request.csrfToken
 		)
 	})
