@@ -12,27 +12,27 @@ import { setup, fs } from '../test-helpers'
 import { noOpenFactory } from '../src/noOpen'
 
 test.group('No Open', (group) => {
-	group.afterEach(async () => {
-		await fs.cleanup()
-	})
+  group.afterEach(async () => {
+    await fs.cleanup()
+  })
 
-	test('return noop function when enabled is false', async (assert) => {
-		const noOpen = noOpenFactory({ enabled: false })
+  test('return noop function when enabled is false', async (assert) => {
+    const noOpen = noOpenFactory({ enabled: false })
 
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		noOpen(ctx)
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    noOpen(ctx)
 
-		assert.isUndefined(ctx.response.getHeader('X-Download-Options'))
-	})
+    assert.isUndefined(ctx.response.getHeader('X-Download-Options'))
+  })
 
-	test('set X-Download-Options header', async (assert) => {
-		const noOpen = noOpenFactory({ enabled: true })
+  test('set X-Download-Options header', async (assert) => {
+    const noOpen = noOpenFactory({ enabled: true })
 
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		noOpen(ctx)
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    noOpen(ctx)
 
-		assert.equal(ctx.response.getHeader('X-Download-Options'), 'noopen')
-	})
+    assert.equal(ctx.response.getHeader('X-Download-Options'), 'noopen')
+  })
 })

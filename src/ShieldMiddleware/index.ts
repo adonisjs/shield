@@ -19,34 +19,34 @@ import * as shield from '../../standalone'
  * web attacks
  */
 export class ShieldMiddleware {
-	/**
-	 * Actions to be performed
-	 */
-	private actions = [
-		shield.csrfFactory(this.config.csrf || {}, this.encryption, this.viewProvider),
-		shield.cspFactory(this.config.csp || {}),
-		shield.dnsPrefetchFactory(this.config.dnsPrefetch || {}),
-		shield.frameGuardFactory(this.config.xFrame || {}),
-		shield.hstsFactory(this.config.hsts || {}),
-		shield.noOpenFactory(this.config.noOpen || {}),
-		shield.noSniffFactory(this.config.contentTypeSniffing || {}),
-		shield.xssFactory(this.config.xss || {}),
-	]
+  /**
+   * Actions to be performed
+   */
+  private actions = [
+    shield.csrfFactory(this.config.csrf || {}, this.encryption, this.viewProvider),
+    shield.cspFactory(this.config.csp || {}),
+    shield.dnsPrefetchFactory(this.config.dnsPrefetch || {}),
+    shield.frameGuardFactory(this.config.xFrame || {}),
+    shield.hstsFactory(this.config.hsts || {}),
+    shield.noOpenFactory(this.config.noOpen || {}),
+    shield.noSniffFactory(this.config.contentTypeSniffing || {}),
+    shield.xssFactory(this.config.xss || {}),
+  ]
 
-	constructor(
-		private config: ShieldConfig,
-		private encryption: EncryptionContract,
-		private viewProvider?: ViewContract
-	) {}
+  constructor(
+    private config: ShieldConfig,
+    private encryption: EncryptionContract,
+    private viewProvider?: ViewContract
+  ) {}
 
-	/**
-	 * Handle request
-	 */
-	public async handle(ctx: HttpContextContract, next: () => Promise<void>) {
-		for (let action of this.actions) {
-			await action(ctx)
-		}
+  /**
+   * Handle request
+   */
+  public async handle(ctx: HttpContextContract, next: () => Promise<void>) {
+    for (let action of this.actions) {
+      await action(ctx)
+    }
 
-		await next()
-	}
+    await next()
+  }
 }

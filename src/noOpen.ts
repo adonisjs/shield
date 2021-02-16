@@ -18,11 +18,11 @@ import { noop } from './noop'
  * header based upon given user options.
  */
 export function noOpenFactory(options: ContentTypeSniffingOptions) {
-	if (!options.enabled) {
-		return noop
-	}
+  if (!options.enabled) {
+    return noop
+  }
 
-	return function noOpen({ response }: HttpContextContract) {
-		response.header('X-Download-Options', 'noopen')
-	}
+  return function noOpen({ response }: HttpContextContract) {
+    response.header('X-Download-Options', 'noopen')
+  }
 }

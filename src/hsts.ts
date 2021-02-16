@@ -20,16 +20,16 @@ const DEFAULT_MAX_AGE = 180 * 24 * 60 * 60
  * Normalizes the max age to a valid number
  */
 function normalizeMaxAge(maxAge?: string | number): number {
-	if (maxAge === null || maxAge === undefined) {
-		return DEFAULT_MAX_AGE
-	}
+  if (maxAge === null || maxAge === undefined) {
+    return DEFAULT_MAX_AGE
+  }
 
-	maxAge = (typeof maxAge === 'string' ? string.toMs(maxAge) : maxAge) as number
-	if (maxAge < 0) {
-		throw new Error('Max age for "shield.hsts" cannot be a negative value')
-	}
+  maxAge = (typeof maxAge === 'string' ? string.toMs(maxAge) : maxAge) as number
+  if (maxAge < 0) {
+    throw new Error('Max age for "shield.hsts" cannot be a negative value')
+  }
 
-	return maxAge
+  return maxAge
 }
 
 /**
@@ -37,22 +37,22 @@ function normalizeMaxAge(maxAge?: string | number): number {
  * header based upon given user options.
  */
 export function hstsFactory(options: HstsOptions) {
-	if (!options.enabled) {
-		return noop
-	}
+  if (!options.enabled) {
+    return noop
+  }
 
-	const maxAge = normalizeMaxAge(options.maxAge)
+  const maxAge = normalizeMaxAge(options.maxAge)
 
-	let value = `max-age=${maxAge}`
-	if (options.includeSubDomains) {
-		value += '; includeSubDomains'
-	}
+  let value = `max-age=${maxAge}`
+  if (options.includeSubDomains) {
+    value += '; includeSubDomains'
+  }
 
-	if (options.preload) {
-		value += '; preload'
-	}
+  if (options.preload) {
+    value += '; preload'
+  }
 
-	return function hsts({ response }: HttpContextContract) {
-		response.header('Strict-Transport-Security', value)
-	}
+  return function hsts({ response }: HttpContextContract) {
+    response.header('Strict-Transport-Security', value)
+  }
 }

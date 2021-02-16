@@ -14,11 +14,11 @@ import { ResponseConstructorContract } from '@ioc:Adonis/Core/Response'
  * Sharing CSP nonce with the response
  */
 export default function responseBinding(Response: ResponseConstructorContract) {
-	Response.getter(
-		'nonce',
-		() => {
-			return string.generateRandom(16)
-		},
-		true
-	)
+  Response.getter(
+    'nonce',
+    () => {
+      return string.generateRandom(16)
+    },
+    true
+  )
 }

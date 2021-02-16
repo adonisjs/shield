@@ -18,11 +18,11 @@ import { noop } from './noop'
  * header based upon given user options.
  */
 export function noSniffFactory(options: ContentTypeSniffingOptions) {
-	if (!options.enabled) {
-		return noop
-	}
+  if (!options.enabled) {
+    return noop
+  }
 
-	return function noSniff({ response }: HttpContextContract) {
-		response.header('X-Content-Type-Options', 'nosniff')
-	}
+  return function noSniff({ response }: HttpContextContract) {
+    response.header('X-Content-Type-Options', 'nosniff')
+  }
 }

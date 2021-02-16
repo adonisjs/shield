@@ -12,36 +12,36 @@ import { setup, fs } from '../test-helpers'
 import { dnsPrefetchFactory } from '../src/dnsPrefetch'
 
 test.group('Dns Prefetch', (group) => {
-	group.afterEach(async () => {
-		await fs.cleanup()
-	})
+  group.afterEach(async () => {
+    await fs.cleanup()
+  })
 
-	test('return noop function when enabled is false', async (assert) => {
-		const dnsPrefetch = dnsPrefetchFactory({ enabled: false })
+  test('return noop function when enabled is false', async (assert) => {
+    const dnsPrefetch = dnsPrefetchFactory({ enabled: false })
 
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		dnsPrefetch(ctx)
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    dnsPrefetch(ctx)
 
-		assert.isUndefined(ctx.response.getHeader('X-DNS-Prefetch-Control'))
-	})
+    assert.isUndefined(ctx.response.getHeader('X-DNS-Prefetch-Control'))
+  })
 
-	test('set X-DNS-Prefetch-Control header', async (assert) => {
-		const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: true })
+  test('set X-DNS-Prefetch-Control header', async (assert) => {
+    const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: true })
 
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		dnsPrefetch(ctx)
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    dnsPrefetch(ctx)
 
-		assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'on')
-	})
+    assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'on')
+  })
 
-	test('set X-DNS-Prefetch-Control header to off', async (assert) => {
-		const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: false })
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		dnsPrefetch(ctx)
+  test('set X-DNS-Prefetch-Control header to off', async (assert) => {
+    const dnsPrefetch = dnsPrefetchFactory({ enabled: true, allow: false })
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    dnsPrefetch(ctx)
 
-		assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'off')
-	})
+    assert.equal(ctx.response.getHeader('X-DNS-Prefetch-Control'), 'off')
+  })
 })

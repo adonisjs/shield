@@ -12,45 +12,45 @@ import { setup, fs } from '../test-helpers'
 import { xssFactory } from '../src/xssProtection'
 
 test.group('Xss Protection', (group) => {
-	group.afterEach(async () => {
-		await fs.cleanup()
-	})
+  group.afterEach(async () => {
+    await fs.cleanup()
+  })
 
-	test('return noop function when enabled is false', async (assert) => {
-		const xss = xssFactory({ enabled: false })
+  test('return noop function when enabled is false', async (assert) => {
+    const xss = xssFactory({ enabled: false })
 
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		xss(ctx)
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    xss(ctx)
 
-		assert.isUndefined(ctx.response.getHeader('X-XSS-Protection'))
-	})
+    assert.isUndefined(ctx.response.getHeader('X-XSS-Protection'))
+  })
 
-	test('set X-XSS-Protection header', async (assert) => {
-		const xss = xssFactory({ enabled: true })
+  test('set X-XSS-Protection header', async (assert) => {
+    const xss = xssFactory({ enabled: true })
 
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		xss(ctx)
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    xss(ctx)
 
-		assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1; mode=block')
-	})
+    assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1; mode=block')
+  })
 
-	test('disable block mode', async (assert) => {
-		const xss = xssFactory({ enabled: true, mode: null })
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		xss(ctx)
+  test('disable block mode', async (assert) => {
+    const xss = xssFactory({ enabled: true, mode: null })
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    xss(ctx)
 
-		assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1')
-	})
+    assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1')
+  })
 
-	test('set report uri', async (assert) => {
-		const xss = xssFactory({ enabled: true, reportUri: '/' })
-		const app = await setup()
-		const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
-		xss(ctx)
+  test('set report uri', async (assert) => {
+    const xss = xssFactory({ enabled: true, reportUri: '/' })
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+    xss(ctx)
 
-		assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1; mode=block; report=/')
-	})
+    assert.equal(ctx.response.getHeader('X-XSS-Protection'), '1; mode=block; report=/')
+  })
 })
