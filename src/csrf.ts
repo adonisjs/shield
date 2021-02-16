@@ -10,14 +10,13 @@
 /// <reference path="../adonis-typings/index.ts" />
 
 import Tokens from 'csrf'
-import { Exception } from '@poppinss/utils'
 import { ViewContract } from '@ioc:Adonis/Core/View'
 import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
-import { RequestContract } from '@ioc:Adonis/Core/Request'
 import { EncryptionContract } from '@ioc:Adonis/Core/Encryption'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import { noop } from './noop'
+import { InvalidCsrfTokenException } from './Exceptions/InvalidCsrfTokenException'
 
 /**
  * A class to encapsulate the logic of verifying and generating
@@ -91,10 +90,15 @@ export class Csrf {
    * - Or `x-xsrf-token` header. The header value must be set by
    *   reading the `XSRF-TOKEN` cookie.
    */
-  private getCsrfTokenFromRequest(request: RequestContract): string | null {
-    const token = request.input('_csrf', request.header('x-csrf-token'))
-    if (token) {
-      return token
+  private getCsrfTokenFromRequest({ request, logger }: HttpContextContract): string | null {
+    if (request.input('_csrf')) {
+      logger.trace('retrieved token from "_csrf" input')
+      return request.input('_csrf')
+    }
+
+    if (request.header('x-csrf-token')) {
+      logger.trace('retrieved token from "x-csrf-token" header')
+      return request.header('x-csrf-token')!
     }
 
     /**
@@ -110,6 +114,7 @@ export class Csrf {
       return null
     }
 
+    logger.trace('retrieved token from "x-xsrf-token" header')
     return this.encryption.decrypt(decodeURIComponent(encryptedToken).slice(2), 'XSRF-TOKEN')
   }
 
@@ -172,9 +177,9 @@ export class Csrf {
      * Validate current request before moving forward
      */
     if (this.shouldValidateRequest(ctx)) {
-      const csrfToken = this.getCsrfTokenFromRequest(ctx.request)
+      const csrfToken = this.getCsrfTokenFromRequest(ctx)
       if (!csrfToken || !this.tokens.verify(csrfSecret, csrfToken)) {
-        throw new Exception('Invalid CSRF Token', 403, 'E_BAD_CSRF_TOKEN')
+        throw InvalidCsrfTokenException.invoke()
       }
     }
 
