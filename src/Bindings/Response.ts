@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { randomString } from '@poppinss/utils'
+import { string } from '@poppinss/utils/build/helpers'
 import { ResponseConstructorContract } from '@ioc:Adonis/Core/Response'
 
 /**
@@ -17,7 +17,7 @@ export default function responseBinding(Response: ResponseConstructorContract) {
 	Response.getter(
 		'nonce',
 		() => {
-			return randomString(16)
+			return string.generateRandom(16)
 		},
 		true
 	)

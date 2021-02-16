@@ -9,7 +9,7 @@
 
 /// <reference path="../adonis-typings/index.ts" />
 
-import ms from 'ms'
+import { string } from '@poppinss/utils/build/helpers'
 import { HstsOptions } from '@ioc:Adonis/Addons/Shield'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { noop } from './noop'
@@ -24,7 +24,7 @@ function normalizeMaxAge(maxAge?: string | number): number {
 		return DEFAULT_MAX_AGE
 	}
 
-	maxAge = (typeof maxAge === 'string' ? ms(maxAge) : maxAge) as number
+	maxAge = (typeof maxAge === 'string' ? string.toMs(maxAge) : maxAge) as number
 	if (maxAge < 0) {
 		throw new Error('Max age for "shield.hsts" cannot be a negative value')
 	}

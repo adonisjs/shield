@@ -38,9 +38,9 @@
     "csp"
   ],
   "peerDependencies": {
-    "@adonisjs/session": "^4.0.0",
-    "@adonisjs/core": "^5.0.4-preview-rc",
-    "@adonisjs/view": "^3.0.0"
+    "@adonisjs/session": "^5.0.0",
+    "@adonisjs/core": "^5.0.5-canary-rc",
+    "@adonisjs/view": "^4.0.0"
   },
   "peerDependenciesMeta": {
     "@adonisjs/view": {
@@ -50,36 +50,35 @@
   "author": "virk",
   "license": "MIT",
   "devDependencies": {
-    "@adonisjs/core": "^5.0.4-preview-rc-2.1",
-    "@adonisjs/mrm-preset": "^2.4.0",
-    "@adonisjs/require-ts": "^1.1.1",
-    "@adonisjs/session": "^4.0.6",
-    "@adonisjs/view": "^3.0.9",
-    "@poppinss/dev-utils": "^1.0.11",
+    "@adonisjs/core": "^5.0.5-canary-rc-2",
+    "@adonisjs/mrm-preset": "^3.0.0",
+    "@adonisjs/require-ts": "^2.0.2",
+    "@adonisjs/session": "^5.0.0",
+    "@adonisjs/view": "^4.0.0",
+    "@poppinss/dev-utils": "^1.1.0",
     "@types/csrf": "^1.3.2",
-    "@types/node": "^14.14.10",
-    "commitizen": "^4.2.2",
+    "@types/node": "^14.14.28",
+    "commitizen": "^4.2.3",
     "copyfiles": "^2.4.1",
     "cz-conventional-changelog": "^3.3.0",
     "del-cli": "^3.0.1",
-    "eslint": "^7.14.0",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-adonis": "^1.0.15",
-    "eslint-plugin-prettier": "^3.1.4",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-adonis": "^1.2.1",
+    "eslint-plugin-prettier": "^3.3.1",
     "github-label-sync": "^2.0.0",
-    "husky": "^4.3.0",
+    "husky": "^5.0.9",
     "japa": "^3.1.1",
-    "mrm": "^2.5.13",
-    "np": "^7.0.0",
+    "mrm": "^2.5.18",
+    "np": "^7.4.0",
     "npm-audit-html": "^1.5.0",
     "prettier": "^2.2.1",
-    "typescript": "^4.1.2"
+    "typescript": "^4.1.5"
   },
   "dependencies": {
-    "@poppinss/utils": "^2.5.10",
+    "@poppinss/utils": "^3.0.3",
     "csrf": "^3.1.0",
-    "helmet-csp": "^3.3.1",
-    "ms": "^2.1.3"
+    "helmet-csp": "^3.3.1"
   },
   "repository": {
     "type": "git",

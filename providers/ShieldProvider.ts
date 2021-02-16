@@ -18,10 +18,10 @@ export default class ShieldProvider {
 
 	public register() {
 		this.app.container.singleton('Adonis/Addons/ShieldMiddleware', () => {
-			const Config = this.app.container.use('Adonis/Core/Config')
-			const Encryption = this.app.container.use('Adonis/Core/Encryption')
+			const Config = this.app.container.resolveBinding('Adonis/Core/Config')
+			const Encryption = this.app.container.resolveBinding('Adonis/Core/Encryption')
 			const View = this.app.container.hasBinding('Adonis/Core/View')
-				? this.app.container.use('Adonis/Core/View')
+				? this.app.container.resolveBinding('Adonis/Core/View')
 				: undefined
 
 			const { ShieldMiddleware } = require('../src/ShieldMiddleware')
@@ -30,7 +30,7 @@ export default class ShieldProvider {
 	}
 
 	public boot() {
-		this.app.container.with(['Adonis/Core/Response'], (Response) => {
+		this.app.container.withBindings(['Adonis/Core/Response'], (Response) => {
 			require('../src/Bindings/Response').default(Response)
 		})
 	}
