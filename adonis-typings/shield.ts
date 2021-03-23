@@ -44,16 +44,6 @@ declare module '@ioc:Adonis/Addons/Shield' {
   }
 
   /**
-   * Config for X-XSS-Protection
-   */
-  export type XSSOptions = {
-    enabled: boolean
-    enableOnOldIE?: boolean
-    reportUri?: string
-    mode?: 'block' | null
-  }
-
-  /**
    * Config for X-Download-Options
    */
   export type IENoOpenOptions = {
@@ -91,7 +81,6 @@ declare module '@ioc:Adonis/Addons/Shield' {
     xFrame: XFrameOptions
     contentTypeSniffing: ContentTypeSniffingOptions
     hsts: HstsOptions
-    xss: XSSOptions
     noOpen: IENoOpenOptions
     dnsPrefetch: DnsPrefetchOptions
     csp: CspOptions

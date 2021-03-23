@@ -30,7 +30,6 @@ export class ShieldMiddleware {
     shield.hstsFactory(this.config.hsts || {}),
     shield.noOpenFactory(this.config.noOpen || {}),
     shield.noSniffFactory(this.config.contentTypeSniffing || {}),
-    shield.xssFactory(this.config.xss || {}),
   ]
 
   constructor(
