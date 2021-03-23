@@ -10,7 +10,6 @@
 export { cspFactory } from './src/csp'
 export { csrfFactory } from './src/csrf'
 export { hstsFactory } from './src/hsts'
-export { noOpenFactory } from './src/noOpen'
 export { noSniffFactory } from './src/noSniff'
 export { frameGuardFactory } from './src/frameGuard'
 export { dnsPrefetchFactory } from './src/dnsPrefetch'

@@ -28,7 +28,6 @@ export class ShieldMiddleware {
     shield.dnsPrefetchFactory(this.config.dnsPrefetch || {}),
     shield.frameGuardFactory(this.config.xFrame || {}),
     shield.hstsFactory(this.config.hsts || {}),
-    shield.noOpenFactory(this.config.noOpen || {}),
     shield.noSniffFactory(this.config.contentTypeSniffing || {}),
   ]
 

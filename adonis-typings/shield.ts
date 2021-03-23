@@ -44,13 +44,6 @@ declare module '@ioc:Adonis/Addons/Shield' {
   }
 
   /**
-   * Config for X-Download-Options
-   */
-  export type IENoOpenOptions = {
-    enabled: boolean
-  }
-
-  /**
    * Config for X-DNS-Prefetch-Control
    */
   export type DnsPrefetchOptions = {
@@ -81,7 +74,6 @@ declare module '@ioc:Adonis/Addons/Shield' {
     xFrame: XFrameOptions
     contentTypeSniffing: ContentTypeSniffingOptions
     hsts: HstsOptions
-    noOpen: IENoOpenOptions
     dnsPrefetch: DnsPrefetchOptions
     csp: CspOptions
     csrf: CsrfOptions
