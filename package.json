@@ -118,7 +118,7 @@
     }
   },
   "publishConfig": {
-    "tag": "next",
+    "tag": "latest",
     "access": "public"
   },
   "np": {
