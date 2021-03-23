@@ -65,11 +65,12 @@ export function cspFactory(options: CspOptions) {
 
   const helmetCspMiddleware = helmetCsp(options)
 
-  return function csp({ response }: HttpContextContract) {
+  return function csp({ response, view }: HttpContextContract) {
     /**
      * Helmet csp needs the `nonce` property on the HTTP ServerResponse
      */
     response.response['nonce'] = response.nonce
+    view.share({ cspNonce: response.nonce })
     helmetCspMiddleware(response.request, response.response, () => {})
   }
 }
