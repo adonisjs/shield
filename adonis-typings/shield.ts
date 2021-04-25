@@ -10,6 +10,7 @@
 declare module '@ioc:Adonis/Addons/Shield' {
   import { CookieOptions } from '@ioc:Adonis/Core/Response'
   import { ContentSecurityPolicyOptions } from 'helmet-csp'
+  import { ApplicationContract } from '@ioc:Adonis/Core/Application'
   import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
   /**
@@ -78,4 +79,16 @@ declare module '@ioc:Adonis/Addons/Shield' {
     csp: CspOptions
     csrf: CsrfOptions
   }
+
+  /**
+   * Shape of the shield middleware class constructor
+   */
+  export interface ShieldMiddlewareContract {
+    new (application: ApplicationContract): {
+      handle(ctx: HttpContextContract, next: () => Promise<void>): any
+    }
+  }
+
+  const ShieldMiddleware: ShieldMiddlewareContract
+  export default ShieldMiddleware
 }

@@ -19,10 +19,15 @@ test.group('Shield Provider', (group) => {
   test('register shield provider', async (assert) => {
     const app = await setup()
 
-    assert.instanceOf(app.container.use('Adonis/Addons/ShieldMiddleware'), ShieldMiddleware)
-    assert.deepEqual(
-      app.container.use('Adonis/Addons/ShieldMiddleware'),
-      app.container.use('Adonis/Addons/ShieldMiddleware')
+    assert.deepEqual(app.container.use('Adonis/Addons/Shield'), ShieldMiddleware)
+  })
+
+  test('make shield middleware instance via container', async (assert) => {
+    const app = await setup()
+
+    assert.instanceOf(
+      app.container.make(app.container.use('Adonis/Addons/Shield')),
+      ShieldMiddleware
     )
   })
 })

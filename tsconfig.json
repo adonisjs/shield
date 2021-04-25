@@ -6,6 +6,8 @@
     "./node_modules/@adonisjs/view/build/adonis-typings/index.d.ts"
   ],
   "compilerOptions": {
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

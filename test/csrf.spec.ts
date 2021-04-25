@@ -390,15 +390,15 @@ test.group('Csrf', (group) => {
     assert.isDefined(ctx.request.csrfToken)
     tokens.verify(ctx.session.get('csrf-secret'), ctx.request.csrfToken)
 
-    assert.equal(ctx.view.render('token').trim(), ctx.request.csrfToken)
+    assert.equal((await ctx.view.render('token')).trim(), ctx.request.csrfToken)
 
     assert.equal(
-      ctx.view.render('token-meta').trim(),
+      (await ctx.view.render('token-meta')).trim(),
       `<meta name='csrf-token' content='${ctx.request.csrfToken}'>`
     )
 
     assert.equal(
-      ctx.view.render('token-function').trim(),
+      (await ctx.view.render('token-function')).trim(),
       `<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`
     )
   })

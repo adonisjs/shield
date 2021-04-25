@@ -17,15 +17,9 @@ export default class ShieldProvider {
   public static needsApplication = true
 
   public register() {
-    this.app.container.singleton('Adonis/Addons/ShieldMiddleware', () => {
-      const Config = this.app.container.resolveBinding('Adonis/Core/Config')
-      const Encryption = this.app.container.resolveBinding('Adonis/Core/Encryption')
-      const View = this.app.container.hasBinding('Adonis/Core/View')
-        ? this.app.container.resolveBinding('Adonis/Core/View')
-        : undefined
-
+    this.app.container.singleton('Adonis/Addons/Shield', () => {
       const { ShieldMiddleware } = require('../src/ShieldMiddleware')
-      return new ShieldMiddleware(Config.get('shield', {}), Encryption, View)
+      return ShieldMiddleware
     })
   }
 
