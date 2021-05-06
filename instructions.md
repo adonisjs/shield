@@ -2,10 +2,10 @@ Congratulations! You have configured `@adonisjs/shield` package successfully. Ju
 
 ```ts
 Server.middleware.register([
-  'Adonis/Core/BodyParserMiddleware',
-  'Adonis/Addons/ShieldMiddleware',
+  () => import('@ioc:Adonis/Core/BodyParser'),
+  () => import('@ioc:Adonis/Addons/Shield')
   '...',
 ])
 ```
 
-**The middleware must be right after the `BodyParserMiddleware`.**
+**The middleware must be right after the `BodyParser` middleware.**
