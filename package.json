@@ -53,7 +53,7 @@
     "@adonisjs/core": "^5.1.8",
     "@adonisjs/mrm-preset": "^4.1.0",
     "@adonisjs/require-ts": "^2.0.4",
-    "@adonisjs/session": "^6.0.4",
+    "@adonisjs/session": "^6.0.5",
     "@adonisjs/view": "^6.0.3",
     "@poppinss/dev-utils": "^1.1.4",
     "@types/csrf": "^3.1.0",
