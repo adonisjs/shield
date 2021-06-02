@@ -38,8 +38,8 @@
     "csp"
   ],
   "peerDependencies": {
-    "@adonisjs/session": "^6.0.0",
     "@adonisjs/core": "^5.1.0",
+    "@adonisjs/session": "^6.0.0",
     "@adonisjs/view": "^6.0.0"
   },
   "peerDependenciesMeta": {
@@ -58,9 +58,7 @@
     "@poppinss/dev-utils": "^1.1.4",
     "@types/csrf": "^3.1.0",
     "@types/node": "^15.6.2",
-    "commitizen": "^4.2.4",
     "copyfiles": "^2.4.1",
-    "cz-conventional-changelog": "^3.3.0",
     "del-cli": "^3.0.1",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
