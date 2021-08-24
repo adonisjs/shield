@@ -25,7 +25,7 @@
       Website
     </a>
     <span> | </span>
-    <a href="https://docs-adonisjs-com.pages.dev/guides/security/web-security">
+    <a href="https://docs.adonisjs.com/guides/security/web-security">
       Guides
     </a>
     <span> | </span>
