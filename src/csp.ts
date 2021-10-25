@@ -11,7 +11,6 @@
 
 import { CspOptions } from '@ioc:Adonis/Addons/Shield'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { dir } from 'console'
 import helmetCsp, { ContentSecurityPolicyOptions } from 'helmet-csp'
 
 type ValueOf<T> = T[keyof T]
