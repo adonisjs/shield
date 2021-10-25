@@ -40,7 +40,7 @@ export const csp: ShieldConfig['csp'] = {
   |
   | @example
   | directives: {
-  |   defaultSrc: ['self', '@nonce', 'cdnjs.cloudflare.com']
+  |   defaultSrc: ["'self'", '@nonce', 'cdnjs.cloudflare.com']
   | }
   |
   */
