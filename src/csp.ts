@@ -11,11 +11,17 @@
 
 import { CspOptions } from '@ioc:Adonis/Addons/Shield'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { dir } from 'console'
 import helmetCsp, { ContentSecurityPolicyOptions } from 'helmet-csp'
 
 type ValueOf<T> = T[keyof T]
 
 import { noop } from './noop'
+
+/**
+ * Directives to inspect for the `@nonce` keyword
+ */
+const nonceDirectives = ['defaultSrc', 'scriptSrc', 'styleSrc']
 
 /**
  * Reads `nonce` from the ServerResponse and returns appropriate
@@ -53,14 +59,16 @@ export function cspFactory(options: CspOptions) {
     return noop
   }
 
-  const scriptSrc = options.directives && options.directives.scriptSrc
-  if (scriptSrc) {
-    options.directives!.scriptSrc = transformNonceKeywords(options.directives!.scriptSrc!)
-  }
-
-  const styleSrc = options.directives && options.directives.styleSrc
-  if (styleSrc) {
-    options.directives!.styleSrc = transformNonceKeywords(options.directives!.styleSrc!)
+  if (options.directives) {
+    /**
+     * Transform directives that may contain the
+     * "@nonce" directive.
+     */
+    nonceDirectives.forEach((directive) => {
+      if (options.directives![directive]) {
+        options.directives![directive] = transformNonceKeywords(options.directives![directive])
+      }
+    })
   }
 
   const helmetCspMiddleware = helmetCsp(options)

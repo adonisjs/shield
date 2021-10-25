@@ -78,4 +78,22 @@ test.group('Csp', (group) => {
       `default-src 'self';style-src 'nonce-${ctx.response.nonce}'`
     )
   })
+
+  test('transform @nonce keyword on defaultSrc', async (assert) => {
+    const app = await setup()
+    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
+
+    const csp = cspFactory({
+      enabled: true,
+      directives: {
+        defaultSrc: ["'self'", '@nonce'],
+      },
+    })
+
+    csp(ctx)
+    assert.equal(
+      ctx.response.getHeader('Content-Security-Policy'),
+      `default-src 'self' 'nonce-${ctx.response.nonce}'`
+    )
+  })
 })
