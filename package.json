@@ -74,7 +74,7 @@
     "typescript": "^4.4.2"
   },
   "dependencies": {
-    "@poppinss/utils": "^3.2.0",
+    "@poppinss/utils": "^4.0.1",
     "csrf": "^3.1.0",
     "helmet-csp": "^3.4.0"
   },
