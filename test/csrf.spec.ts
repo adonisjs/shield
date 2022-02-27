@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import test from 'japa'
+import { test } from '@japa/runner'
 import Tokens from 'csrf'
 
 import { csrfFactory } from '../src/csrf'
@@ -16,15 +16,15 @@ import { fs, setup } from '../test-helpers'
 const tokens = new Tokens()
 
 test.group('Csrf', (group) => {
-  group.before(async () => {
+  group.setup(async () => {
     await setup()
   })
 
-  group.afterEach(async () => {
+  group.each.teardown(async () => {
     await fs.cleanup()
   })
 
-  test('return noop function when enabled is false', async (assert) => {
+  test('return noop function when enabled is false', async ({ assert }) => {
     const app = await setup()
     const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 
@@ -39,7 +39,7 @@ test.group('Csrf', (group) => {
     assert.isUndefined(ctx.request.csrfToken)
   })
 
-  test('validate csrf token on a request', async (assert) => {
+  test('validate csrf token on a request', async ({ assert }) => {
     assert.plan(1)
 
     const app = await setup()
@@ -61,7 +61,9 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('skip validation when request method is not one of whitelisted methods', async (assert) => {
+  test('skip validation when request method is not one of whitelisted methods', async ({
+    assert,
+  }) => {
     const app = await setup()
     const ctx = app.container.use('Adonis/Core/HttpContext').create('/users/:id', { id: 12453 })
 
@@ -78,7 +80,7 @@ test.group('Csrf', (group) => {
     assert.isDefined(ctx.request.csrfToken)
   })
 
-  test('enforce validation request method is part of whitelisted methods', async (assert) => {
+  test('enforce validation request method is part of whitelisted methods', async ({ assert }) => {
     assert.plan(1)
     const app = await setup()
 
@@ -99,7 +101,7 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('skip validation when request route is inside the exceptRoutes list', async (assert) => {
+  test('skip validation when request route is inside the exceptRoutes list', async ({ assert }) => {
     assert.plan(1)
     const app = await setup()
 
@@ -118,7 +120,7 @@ test.group('Csrf', (group) => {
     assert.isDefined(ctx.request.csrfToken)
   })
 
-  test('validate when request route is not inside the exceptRoutes list', async (assert) => {
+  test('validate when request route is not inside the exceptRoutes list', async ({ assert }) => {
     assert.plan(2)
     const app = await setup()
 
@@ -211,7 +213,7 @@ test.group('Csrf', (group) => {
     await csrf(ctx)
   })
 
-  test('fail when csrf input value is incorrect', async (assert) => {
+  test('fail when csrf input value is incorrect', async ({ assert }) => {
     assert.plan(1)
 
     const app = await setup()
@@ -233,7 +235,7 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('fail when csrf header value is incorrect', async (assert) => {
+  test('fail when csrf header value is incorrect', async ({ assert }) => {
     assert.plan(1)
 
     const app = await setup()
@@ -258,7 +260,7 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('fail when csrf encrypted header value is incorrect', async (assert) => {
+  test('fail when csrf encrypted header value is incorrect', async ({ assert }) => {
     assert.plan(1)
 
     const app = await setup()
@@ -283,7 +285,7 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('fail when csrf encrypted header is not an encrypted cookie', async (assert) => {
+  test('fail when csrf encrypted header is not an encrypted cookie', async ({ assert }) => {
     assert.plan(1)
 
     const app = await setup()
@@ -312,7 +314,9 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('fail when csrf encrypted header is valid but cookie feature is disabled', async (assert) => {
+  test('fail when csrf encrypted header is valid but cookie feature is disabled', async ({
+    assert,
+  }) => {
     assert.plan(1)
 
     const app = await setup()
@@ -344,7 +348,7 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('fail when csrf secret session is missing', async (assert) => {
+  test('fail when csrf secret session is missing', async ({ assert }) => {
     assert.plan(1)
 
     const app = await setup()
@@ -370,7 +374,7 @@ test.group('Csrf', (group) => {
     }
   })
 
-  test('generate csrf token and share it with request and view', async (assert) => {
+  test('generate csrf token and share it with request and view', async ({ assert }) => {
     await fs.add('resources/views/token.edge', '{{ csrfToken }}')
     await fs.add('resources/views/token-meta.edge', '{{ csrfMeta() }}')
     await fs.add('resources/views/token-function.edge', '{{ csrfField() }}')
@@ -403,7 +407,9 @@ test.group('Csrf', (group) => {
     )
   })
 
-  test('generate csrf token and share as a cookie when enableXsrfCookie is true', async (assert) => {
+  test('generate csrf token and share as a cookie when enableXsrfCookie is true', async ({
+    assert,
+  }) => {
     await fs.add('token.edge', '{{ csrfToken }}')
     await fs.add('token-meta.edge', '{{ csrfMeta() }}')
     await fs.add('token-function.edge', '{{ csrfField() }}')
@@ -436,7 +442,7 @@ test.group('Csrf', (group) => {
     )
   })
 
-  test('skip validation when except routes callback returns true', async (assert) => {
+  test('skip validation when except routes callback returns true', async ({ assert }) => {
     assert.plan(1)
 
     const app = await setup()
