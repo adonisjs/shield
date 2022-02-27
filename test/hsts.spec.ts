@@ -7,16 +7,16 @@
  * file that was distributed with this source code.
  */
 
-import test from 'japa'
+import { test } from '@japa/runner'
 import { setup, fs } from '../test-helpers'
 import { hstsFactory } from '../src/hsts'
 
 test.group('Hsts', (group) => {
-  group.afterEach(async () => {
+  group.each.teardown(async () => {
     await fs.cleanup()
   })
 
-  test('return noop function when enabled is false', async (assert) => {
+  test('return noop function when enabled is false', async ({ assert }) => {
     const hsts = hstsFactory({ enabled: false })
 
     const app = await setup()
@@ -26,7 +26,7 @@ test.group('Hsts', (group) => {
     assert.isUndefined(ctx.response.getHeader('Strict-Transport-Security'))
   })
 
-  test('set Strict-Transport-Security header with defined maxAge', async (assert) => {
+  test('set Strict-Transport-Security header with defined maxAge', async ({ assert }) => {
     const hsts = hstsFactory({ enabled: true, maxAge: 100 })
 
     const app = await setup()
@@ -36,7 +36,7 @@ test.group('Hsts', (group) => {
     assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=100')
   })
 
-  test('handle string based max-age', async (assert) => {
+  test('handle string based max-age', async ({ assert }) => {
     const hsts = hstsFactory({ enabled: true, maxAge: '1s' })
 
     const app = await setup()
@@ -46,7 +46,7 @@ test.group('Hsts', (group) => {
     assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=1000')
   })
 
-  test('entertain includeSubDomains flag', async (assert) => {
+  test('entertain includeSubDomains flag', async ({ assert }) => {
     const hsts = hstsFactory({ enabled: true, maxAge: '1s', includeSubDomains: true })
 
     const app = await setup()
@@ -59,7 +59,7 @@ test.group('Hsts', (group) => {
     )
   })
 
-  test('entertain preload flag', async (assert) => {
+  test('entertain preload flag', async ({ assert }) => {
     const hsts = hstsFactory({
       enabled: true,
       maxAge: '1s',
@@ -77,8 +77,8 @@ test.group('Hsts', (group) => {
     )
   })
 
-  test('raise error when maxAge is in negative', async (assert) => {
+  test('raise error when maxAge is in negative', async ({ assert }) => {
     const fn = () => hstsFactory({ enabled: true, maxAge: -1 })
-    assert.throw(fn, 'Max age for "shield.hsts" cannot be a negative value')
+    assert.throws(fn, 'Max age for "shield.hsts" cannot be a negative value')
   })
 })

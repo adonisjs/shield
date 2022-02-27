@@ -7,16 +7,16 @@
  * file that was distributed with this source code.
  */
 
-import test from 'japa'
+import { test } from '@japa/runner'
 import { setup, fs } from '../test-helpers'
 import { noSniffFactory } from '../src/noSniff'
 
 test.group('No Sniff', (group) => {
-  group.afterEach(async () => {
+  group.each.teardown(async () => {
     await fs.cleanup()
   })
 
-  test('return noop function when enabled is false', async (assert) => {
+  test('return noop function when enabled is false', async ({ assert }) => {
     const noSniff = noSniffFactory({ enabled: false })
 
     const app = await setup()
@@ -26,7 +26,7 @@ test.group('No Sniff', (group) => {
     assert.isUndefined(ctx.response.getHeader('X-Content-Type-Options'))
   })
 
-  test('set X-Content-Type-Options header', async (assert) => {
+  test('set X-Content-Type-Options header', async ({ assert }) => {
     const noSniff = noSniffFactory({ enabled: true })
 
     const app = await setup()

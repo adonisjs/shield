@@ -7,16 +7,16 @@
  * file that was distributed with this source code.
  */
 
-import test from 'japa'
+import { test } from '@japa/runner'
 import { cspFactory } from '../src/csp'
 import { setup, fs } from '../test-helpers'
 
 test.group('Csp', (group) => {
-  group.afterEach(async () => {
+  group.each.teardown(async () => {
     await fs.cleanup()
   })
 
-  test('return noop function when enabled is false', async (assert) => {
+  test('return noop function when enabled is false', async ({ assert }) => {
     const app = await setup()
     const csp = cspFactory({ enabled: false })
     const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
@@ -25,7 +25,7 @@ test.group('Csp', (group) => {
     assert.isUndefined(ctx.response.getHeader('Content-Security-Policy'))
   })
 
-  test('set Content-Security-Policy header', async (assert) => {
+  test('set Content-Security-Policy header', async ({ assert }) => {
     const app = await setup()
     const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 
@@ -41,7 +41,7 @@ test.group('Csp', (group) => {
     assert.equal(ctx.response.getHeader('Content-Security-Policy'), "default-src 'self'")
   })
 
-  test('transform @nonce keyword on scriptSrc', async (assert) => {
+  test('transform @nonce keyword on scriptSrc', async ({ assert }) => {
     const app = await setup()
     const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 
@@ -60,7 +60,7 @@ test.group('Csp', (group) => {
     )
   })
 
-  test('transform @nonce keyword on styleSrc', async (assert) => {
+  test('transform @nonce keyword on styleSrc', async ({ assert }) => {
     const app = await setup()
     const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 
@@ -79,7 +79,7 @@ test.group('Csp', (group) => {
     )
   })
 
-  test('transform @nonce keyword on defaultSrc', async (assert) => {
+  test('transform @nonce keyword on defaultSrc', async ({ assert }) => {
     const app = await setup()
     const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
 
