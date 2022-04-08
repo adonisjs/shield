@@ -16,7 +16,7 @@
   "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
-    "test": "node -r ts-node/register/transpile-only .bin/test.ts",
+    "test": "node -r @adonisjs/require-ts/build/register bin/test.ts",
     "prepublishOnly": "npm run build",
     "clean": "del-cli build",
     "copy:files": "copyfiles \"templates/**/*.txt\" build && npm run copy:instructions_md",
@@ -38,9 +38,9 @@
     "csp"
   ],
   "peerDependencies": {
-    "@adonisjs/core": "^5.1.0",
-    "@adonisjs/session": "^6.0.0",
-    "@adonisjs/view": "^6.0.0"
+    "@adonisjs/core": "^5.7.0",
+    "@adonisjs/session": "^6.2.0",
+    "@adonisjs/view": "^6.1.0"
   },
   "peerDependenciesMeta": {
     "@adonisjs/view": {
