@@ -1,6 +1,6 @@
 {
   "name": "@adonisjs/shield",
-  "version": "7.0.10",
+  "version": "7.0.11",
   "description": "A middleware for AdonisJS to keep web applications secure from common web attacks",
   "main": "build/providers/ShieldProvider.js",
   "files": [
