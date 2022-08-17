@@ -27,5 +27,13 @@ export default class ShieldProvider {
     this.app.container.withBindings(['Adonis/Core/Response'], (Response) => {
       require('../src/Bindings/Response').default(Response)
     })
+
+    this.app.container.withBindings(
+      ['Japa/Preset/ApiRequest', 'Japa/Preset/ApiClient'],
+      (ApiRequest, ApiClient) => {
+        const { defineTestsBindings } = require('../src/Bindings/Tests')
+        defineTestsBindings(ApiRequest, ApiClient)
+      }
+    )
   }
 }
