@@ -42,7 +42,7 @@
     "@adonisjs/core": "6.1.5-10",
     "@adonisjs/eslint-config": "^1.1.8",
     "@adonisjs/prettier-config": "^1.1.8",
-    "@adonisjs/session": "7.0.0-0",
+    "@adonisjs/session": "7.0.0-1",
     "@adonisjs/tsconfig": "^1.1.8",
     "@adonisjs/view": "7.0.0-5",
     "@japa/api-client": "2.0.0-0",
@@ -69,7 +69,7 @@
   },
   "peerDependencies": {
     "@adonisjs/core": "6.1.5-10",
-    "@adonisjs/session": "7.0.0-0",
+    "@adonisjs/session": "7.0.0-1",
     "@adonisjs/view": "7.0.0-5",
     "@japa/api-client": "2.0.0-0"
   },
