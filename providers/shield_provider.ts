@@ -19,7 +19,7 @@ import { ShieldConfig } from '../src/types.js'
 export default class ShieldProvider {
   constructor(protected app: ApplicationService) {}
 
-  public async register() {
+  async register() {
     this.app.container.bind(ShieldMiddleware, async () => {
       const config = this.app.config.get<ShieldConfig>('shield', {})
       const view = this.app.container.hasBinding('view')
@@ -35,7 +35,7 @@ export default class ShieldProvider {
   /**
    * Register Http and ApiClient bindings
    */
-  public boot() {
+  boot() {
     extendHttpResponse()
     extendApiClient()
   }

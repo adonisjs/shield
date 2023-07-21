@@ -41,7 +41,7 @@ export default class ShieldMiddleware {
   /**
    * Handle request
    */
-  public async handle(ctx: HttpContext, next: () => Promise<void>) {
+  async handle(ctx: HttpContext, next: () => Promise<void>) {
     for (let action of this.#actions) {
       await action(ctx)
     }

@@ -186,7 +186,7 @@ export class Csrf {
    * verified. Next, attach the newly generated
    * csrf token to the request object.
    */
-  public async handle(ctx: HttpContext): Promise<void> {
+  async handle(ctx: HttpContext): Promise<void> {
     const csrfSecret = await this.getCsrfSecret(ctx)
 
     /**
