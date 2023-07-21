@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { dnsPrefetchFactory } from '../src/dns_prefetch.js'
+import { dnsPrefetchFactory } from '../src/defenses/dns_prefetch.js'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
 test.group('Dns Prefetch', () => {

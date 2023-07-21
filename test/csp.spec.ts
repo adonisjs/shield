@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { cspFactory } from '../src/csp.js'
+import { cspFactory } from '../src/defenses/csp.js'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 import extendHttpResponse from '../src/bindings/http_response.js'
 

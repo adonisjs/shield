@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import * as shield from '../index.js'
+import * as shield from './defenses/index.js'
 import { EncryptionService } from '@adonisjs/core/types'
 import { ShieldConfig } from './types.js'
 import { ViewContract } from '@adonisjs/view/types'

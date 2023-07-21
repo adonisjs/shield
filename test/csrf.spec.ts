@@ -12,7 +12,7 @@
 import { test } from '@japa/runner'
 import Tokens from 'csrf'
 
-import { csrfFactory } from '../src/csrf.js'
+import { csrfFactory } from '../src/defenses/csrf.js'
 import { setup } from '../test_helpers/index.js'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 import { E_BAD_CSRF_TOKEN } from '../src/exceptions.js'

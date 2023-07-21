@@ -8,8 +8,8 @@
  */
 
 import type { HttpContext } from '@adonisjs/core/http'
-import type { DnsPrefetchOptions } from './types.js'
-import { noop } from './noop.js'
+import type { DnsPrefetchOptions } from '../types.js'
+import { noop } from '../noop.js'
 
 /**
  * Factory that returns a function to set `X-DNS-Prefetch-Control` header.

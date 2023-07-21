@@ -10,11 +10,11 @@
 import type { ViewContract } from '@adonisjs/view/types'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { Encryption } from '@adonisjs/core/encryption'
-import type { CsrfOptions } from './types.js'
+import type { CsrfOptions } from '../types.js'
 
 import Tokens from 'csrf'
-import { noop } from './noop.js'
-import { E_BAD_CSRF_TOKEN } from './exceptions.js'
+import { noop } from '../noop.js'
+import { E_BAD_CSRF_TOKEN } from '../exceptions.js'
 
 /**
  * A class to encapsulate the logic of verifying and generating

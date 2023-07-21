@@ -7,10 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import type { HstsOptions } from './types.js'
+import type { HstsOptions } from '../types.js'
 import type { HttpContext } from '@adonisjs/core/http'
 import string from '@adonisjs/core/helpers/string'
-import { noop } from './noop.js'
+import { noop } from '../noop.js'
 
 const DEFAULT_MAX_AGE = 180 * 24 * 60 * 60
 

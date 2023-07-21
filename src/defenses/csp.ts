@@ -7,10 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import type { CspOptions } from './types.js'
+import type { CspOptions } from '../types.js'
 import type { HttpContext } from '@adonisjs/core/http'
 import baseHelmetCsp, { ContentSecurityPolicyOptions } from 'helmet-csp'
-import { noop } from './noop.js'
+import { noop } from '../noop.js'
 
 const helmetCsp = baseHelmetCsp as any as typeof baseHelmetCsp.default
 

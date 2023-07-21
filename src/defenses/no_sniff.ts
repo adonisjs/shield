@@ -8,8 +8,8 @@
  */
 
 import type { HttpContext } from '@adonisjs/core/http'
-import type { ContentTypeSniffingOptions } from './types.js'
-import { noop } from './noop.js'
+import type { ContentTypeSniffingOptions } from '../types.js'
+import { noop } from '../noop.js'
 
 /**
  * Factory function that returns a function to Add `X-Content-Type-Options`
