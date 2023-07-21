@@ -1,17 +1,15 @@
 /*
  * @adonisjs/shield
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-/// <reference path="../adonis-typings/index.ts" />
-
-import { DnsPrefetchOptions } from '@ioc:Adonis/Addons/Shield'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { noop } from './noop'
+import type { HttpContext } from '@adonisjs/core/http'
+import type { DnsPrefetchOptions } from './types.js'
+import { noop } from './noop.js'
 
 /**
  * Factory that returns a function to set `X-DNS-Prefetch-Control` header.
@@ -23,7 +21,7 @@ export function dnsPrefetchFactory(options: DnsPrefetchOptions) {
 
   const value = options.allow ? 'on' : 'off'
 
-  return function dnsPrefetch({ response }: HttpContextContract) {
+  return function dnsPrefetch({ response }: HttpContext) {
     response.header('X-DNS-Prefetch-Control', value)
   }
 }

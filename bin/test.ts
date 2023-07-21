@@ -1,8 +1,7 @@
 import { assert } from '@japa/assert'
-import { specReporter } from '@japa/spec-reporter'
-import { runFailedTests } from '@japa/run-failed-tests'
-import { processCliArgs, configure, run } from '@japa/runner'
-import 'reflect-metadata'
+import { processCLIArgs, configure, run } from '@japa/runner'
+import { fileSystem } from '@japa/file-system'
+import { BASE_URL } from '../test_helpers/index.js'
 
 /*
 |--------------------------------------------------------------------------
@@ -17,13 +16,11 @@ import 'reflect-metadata'
 |
 | Please consult japa.dev/runner-config for the config docs.
 */
+processCLIArgs(process.argv.slice(2))
 configure({
-  ...processCliArgs(process.argv.slice(2)),
   ...{
     files: ['test/**/*.spec.ts'],
-    plugins: [assert(), runFailedTests()],
-    reporters: [specReporter()],
-    importer: (filePath: string) => import(filePath),
+    plugins: [assert(), fileSystem({ basePath: BASE_URL, autoClean: true })],
   },
 })
 

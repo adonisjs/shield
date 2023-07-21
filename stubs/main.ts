@@ -7,5 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import type { HttpContext } from '@adonisjs/core/http'
-export function noop(_: HttpContext) {}
+import { getDirname } from '@poppinss/utils'
+
+export const stubsRoot = getDirname(import.meta.url)

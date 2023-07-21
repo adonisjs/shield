@@ -1,22 +1,20 @@
 /*
  * @adonisjs/shield
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-/// <reference path="../adonis-typings/index.ts" />
+import type { ViewContract } from '@adonisjs/view/types'
+import type { HttpContext } from '@adonisjs/core/http'
+import type { Encryption } from '@adonisjs/core/encryption'
+import type { CsrfOptions } from './types.js'
 
 import Tokens from 'csrf'
-import { ViewContract } from '@ioc:Adonis/Core/View'
-import { CsrfOptions } from '@ioc:Adonis/Addons/Shield'
-import { EncryptionContract } from '@ioc:Adonis/Core/Encryption'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-
-import { noop } from './noop'
-import { InvalidCsrfTokenException } from './Exceptions/InvalidCsrfTokenException'
+import { noop } from './noop.js'
+import { E_BAD_CSRF_TOKEN } from './exceptions.js'
 
 /**
  * A class to encapsulate the logic of verifying and generating
@@ -26,40 +24,58 @@ export class Csrf {
   /**
    * Factory for generate csrf secrets and tokens
    */
-  private tokens = new Tokens()
+  #tokens = new Tokens()
 
   /**
    * An array of methods on which the CSRF validation should be enforced.
    */
-  private whitelistedMethods = (this.options.methods || []).map((method) => method.toLowerCase())
+  #whitelistedMethods: NonNullable<CsrfOptions['methods']>
 
   /**
    * An array of routes to be ignored from CSRF validation
    */
-  private routesToIgnore = this.options.exceptRoutes || []
+  #routesToIgnore: NonNullable<CsrfOptions['exceptRoutes']>
 
   /**
    * Name of the csrf section key stored inside the session store
    */
-  private secretSessionKey = 'csrf-secret'
+  #secretSessionKey = 'csrf-secret'
 
-  constructor(
-    private options: CsrfOptions,
-    private encryption: EncryptionContract,
-    private viewProvider?: ViewContract
-  ) {}
+  /**
+   * Csrf options
+   */
+  #options: CsrfOptions
+
+  /**
+   * Reference to the encryption module
+   */
+  #encryption: Encryption
+
+  /**
+   * Reference to the view provider
+   */
+  #viewProvider?: ViewContract
+
+  constructor(options: CsrfOptions, encryption: Encryption, viewProvider?: ViewContract) {
+    this.#options = options
+    this.#encryption = encryption
+    this.#viewProvider = viewProvider
+
+    this.#routesToIgnore = this.#options.exceptRoutes || []
+    this.#whitelistedMethods = (this.#options.methods || []).map((method) => method.toLowerCase())
+  }
 
   /**
    * Find if a request should be validated or not
    */
-  private shouldValidateRequest(ctx: HttpContextContract) {
+  private shouldValidateRequest(ctx: HttpContext) {
     /**
      * Do not validate when whitelisted methods are defined and current
      * method is not part of the white list
      */
     if (
-      this.whitelistedMethods.length &&
-      !this.whitelistedMethods.includes(ctx.request.method().toLowerCase())
+      this.#whitelistedMethods.length &&
+      !this.#whitelistedMethods.includes(ctx.request.method().toLowerCase())
     ) {
       return false
     }
@@ -67,15 +83,15 @@ export class Csrf {
     /**
      * Invoke callback when defined
      */
-    if (typeof this.routesToIgnore === 'function') {
-      return !this.routesToIgnore(ctx)
+    if (typeof this.#routesToIgnore === 'function') {
+      return !this.#routesToIgnore(ctx)
     }
 
     /**
      * Do not validate when current request route is ignored inside `routesToIgnore`
      * array
      */
-    if (this.routesToIgnore.includes(ctx.route!.pattern)) {
+    if (this.#routesToIgnore.includes(ctx.route!.pattern)) {
       return false
     }
 
@@ -90,7 +106,7 @@ export class Csrf {
    * - Or `x-xsrf-token` header. The header value must be set by
    *   reading the `XSRF-TOKEN` cookie.
    */
-  private getCsrfTokenFromRequest({ request, logger }: HttpContextContract): string | null {
+  private getCsrfTokenFromRequest({ request, logger }: HttpContext): string | null {
     if (request.input('_csrf')) {
       logger.trace('retrieved token from "_csrf" input')
       return request.input('_csrf')
@@ -105,7 +121,7 @@ export class Csrf {
      * Only entertain header based on cookie value, when `enableXsrfCookie`
      * is enabled
      */
-    if (!this.options.enableXsrfCookie) {
+    if (!this.#options.enableXsrfCookie) {
       return null
     }
 
@@ -115,26 +131,26 @@ export class Csrf {
     }
 
     logger.trace('retrieved token from "x-xsrf-token" header')
-    return this.encryption.decrypt(decodeURIComponent(encryptedToken).slice(2), 'XSRF-TOKEN')
+    return this.#encryption.decrypt(decodeURIComponent(encryptedToken).slice(2), 'XSRF-TOKEN')
   }
 
   /**
    * Share csrf helper methods with the view engine.
    */
-  private shareCsrfViewLocals(ctx: HttpContextContract): void {
-    if (!ctx.view || !this.viewProvider) {
+  private shareCsrfViewLocals(ctx: HttpContext): void {
+    if (!ctx.view || !this.#viewProvider) {
       return
     }
 
     ctx.view.share({
       csrfToken: ctx.request.csrfToken,
       csrfMeta: () => {
-        return this.viewProvider!.GLOBALS.safe(
+        return this.#viewProvider!.GLOBALS.safe(
           `<meta name='csrf-token' content='${ctx.request.csrfToken}'>`
         )
       },
       csrfField: () => {
-        return this.viewProvider!.GLOBALS.safe(
+        return this.#viewProvider!.GLOBALS.safe(
           `<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`
         )
       },
@@ -145,7 +161,7 @@ export class Csrf {
    * Generate a new csrf token using the csrf secret extracted from session.
    */
   private generateCsrfToken(csrfSecret: string): string {
-    return this.tokens.create(csrfSecret)
+    return this.#tokens.create(csrfSecret)
   }
 
   /**
@@ -153,12 +169,12 @@ export class Csrf {
    * new one. Newly created secret is persisted to session at
    * the same time
    */
-  private async getCsrfSecret(ctx: HttpContextContract): Promise<string> {
-    let csrfSecret = ctx.session.get(this.secretSessionKey)
+  private async getCsrfSecret(ctx: HttpContext): Promise<string> {
+    let csrfSecret = ctx.session.get(this.#secretSessionKey)
 
     if (!csrfSecret) {
-      csrfSecret = await this.tokens.secret()
-      ctx.session.put(this.secretSessionKey, csrfSecret)
+      csrfSecret = await this.#tokens.secret()
+      ctx.session.put(this.#secretSessionKey, csrfSecret)
     }
 
     return csrfSecret
@@ -170,7 +186,7 @@ export class Csrf {
    * verified. Next, attach the newly generated
    * csrf token to the request object.
    */
-  public async handle(ctx: HttpContextContract): Promise<void> {
+  public async handle(ctx: HttpContext): Promise<void> {
     const csrfSecret = await this.getCsrfSecret(ctx)
 
     /**
@@ -178,8 +194,8 @@ export class Csrf {
      */
     if (this.shouldValidateRequest(ctx)) {
       const csrfToken = this.getCsrfTokenFromRequest(ctx)
-      if (!csrfToken || !this.tokens.verify(csrfSecret, csrfToken)) {
-        throw InvalidCsrfTokenException.invoke()
+      if (!csrfToken || !this.#tokens.verify(csrfSecret, csrfToken)) {
+        throw new E_BAD_CSRF_TOKEN()
       }
     }
 
@@ -191,8 +207,8 @@ export class Csrf {
     /**
      * Set it as a cookie
      */
-    if (this.options.enableXsrfCookie) {
-      const cookieOptions = Object.assign({}, this.options.cookieOptions, {
+    if (this.#options.enableXsrfCookie) {
+      const cookieOptions = Object.assign({}, this.#options.cookieOptions, {
         httpOnly: false,
       })
       ctx.response.encryptedCookie('XSRF-TOKEN', ctx.request.csrfToken, cookieOptions)
@@ -211,7 +227,7 @@ export class Csrf {
  */
 export function csrfFactory(
   options: CsrfOptions,
-  encryption: EncryptionContract,
+  encryption: Encryption,
   viewProvider?: ViewContract
 ) {
   if (!options.enabled) {

@@ -1,26 +1,21 @@
 /*
  * @adonisjs/shield
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 import { test } from '@japa/runner'
-import { setup, fs } from '../test-helpers'
-import { frameGuardFactory } from '../src/frameGuard'
+import { frameGuardFactory } from '../src/frame_guard.js'
+import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
-test.group('FrameGuard', (group) => {
-  group.each.teardown(async () => {
-    await fs.cleanup()
-  })
-
+test.group('FrameGuard', () => {
   test('return noop function when enabled is false', async ({ assert }) => {
     const frameGuard = frameGuardFactory({ enabled: false })
+    const ctx = new HttpContextFactory().create()
 
-    const app = await setup()
-    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
     frameGuard(ctx)
 
     assert.isUndefined(ctx.response.getHeader('X-Frame-Options'))
@@ -46,9 +41,8 @@ test.group('FrameGuard', (group) => {
 
   test('set X-Frame-Options header', async ({ assert }) => {
     const frameGuard = frameGuardFactory({ enabled: true })
+    const ctx = new HttpContextFactory().create()
 
-    const app = await setup()
-    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
     frameGuard(ctx)
 
     assert.equal(ctx.response.getHeader('X-Frame-Options'), 'SAMEORIGIN')
@@ -56,9 +50,8 @@ test.group('FrameGuard', (group) => {
 
   test('set X-Frame-Options header for allow from action', async ({ assert }) => {
     const frameGuard = frameGuardFactory({ enabled: true, action: 'ALLOW-FROM', domain: 'foo.com' })
+    const ctx = new HttpContextFactory().create()
 
-    const app = await setup()
-    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
     frameGuard(ctx)
 
     assert.equal(ctx.response.getHeader('X-Frame-Options'), 'ALLOW-FROM foo.com')

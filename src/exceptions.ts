@@ -7,5 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import type { HttpContext } from '@adonisjs/core/http'
-export function noop(_: HttpContext) {}
+import { createError } from '@poppinss/utils'
+
+export const E_BAD_CSRF_TOKEN = createError('Invalid CSRF Token', 'E_BAD_CSRF_TOKEN', 403)

@@ -1,17 +1,15 @@
 /*
  * @adonisjs/shield
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-/// <reference path="../adonis-typings/index.ts" />
-
-import { XFrameOptions } from '@ioc:Adonis/Addons/Shield'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { noop } from './noop'
+import { HttpContext } from '@adonisjs/core/http'
+import { noop } from './noop.js'
+import { XFrameOptions } from './types.js'
 
 const ALLOWED_ACTIONS = ['DENY', 'ALLOW-FROM', 'SAMEORIGIN']
 
@@ -25,16 +23,20 @@ export function frameGuardFactory(options: XFrameOptions) {
   }
 
   const action = ((options.action || 'SAMEORIGIN').toUpperCase() as typeof options.action)!
-  if (!ALLOWED_ACTIONS.includes(action)) {
+  const resolvedOptions = { ...options, action } as Required<XFrameOptions>
+
+  if (!ALLOWED_ACTIONS.includes(resolvedOptions.action)) {
     throw new Error('frameGuard: Action must be one of "DENY", "ALLOW-FROM" or "SAMEORGIGIN"')
   }
 
-  if (action === 'ALLOW-FROM' && !options['domain']) {
+  if (resolvedOptions.action === 'ALLOW-FROM' && !resolvedOptions['domain']) {
     throw new Error('frameGuard: Domain value is required when using action as "ALLOW-FROM"')
   }
 
-  const result = action === 'ALLOW-FROM' ? `${action} ${options['domain']}` : action
-  return function frameGuard({ response }: HttpContextContract) {
+  const result =
+    resolvedOptions.action === 'ALLOW-FROM' ? `${action} ${resolvedOptions['domain']}` : action
+
+  return function frameGuard({ response }: HttpContext) {
     response.header('X-Frame-Options', result)
   }
 }

@@ -7,22 +7,17 @@
  * file that was distributed with this source code.
  */
 
-/// <reference path="../../adonis-typings/index.ts" />
-
+import { ApiClient, ApiRequest } from '@japa/api-client'
 import Tokens from 'csrf'
-import { ContainerBindings } from '@ioc:Adonis/Core/Application'
 
 /**
  * Define test bindings
  */
-export function defineTestsBindings(
-  ApiRequest: ContainerBindings['Japa/Preset/ApiRequest'],
-  ApiClient: ContainerBindings['Japa/Preset/ApiClient']
-) {
+export default async function extendApiClient() {
   /**
    * Set CSRF token during the HTTP request
    */
-  ApiRequest.macro('withCsrfToken', function () {
+  ApiRequest.macro('withCsrfToken', function (this: ApiRequest) {
     this['setCsrfToken'] = true
     return this
   })
@@ -37,6 +32,7 @@ export function defineTestsBindings(
     const secret = await tokens.secret()
     const token = tokens.create(secret)
 
+    // @ts-ignore todo fixme
     request.session({ 'csrf-secret': secret })
     request.header('x-csrf-token', token)
   })

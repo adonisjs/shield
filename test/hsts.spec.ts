@@ -1,26 +1,21 @@
 /*
  * @adonisjs/shield
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 import { test } from '@japa/runner'
-import { setup, fs } from '../test-helpers'
-import { hstsFactory } from '../src/hsts'
+import { hstsFactory } from '../src/hsts.js'
+import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
-test.group('Hsts', (group) => {
-  group.each.teardown(async () => {
-    await fs.cleanup()
-  })
-
+test.group('Hsts', () => {
   test('return noop function when enabled is false', async ({ assert }) => {
     const hsts = hstsFactory({ enabled: false })
+    const ctx = new HttpContextFactory().create()
 
-    const app = await setup()
-    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
     hsts(ctx)
 
     assert.isUndefined(ctx.response.getHeader('Strict-Transport-Security'))
@@ -28,9 +23,8 @@ test.group('Hsts', (group) => {
 
   test('set Strict-Transport-Security header with defined maxAge', async ({ assert }) => {
     const hsts = hstsFactory({ enabled: true, maxAge: 100 })
+    const ctx = new HttpContextFactory().create()
 
-    const app = await setup()
-    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
     hsts(ctx)
 
     assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=100')
@@ -38,9 +32,8 @@ test.group('Hsts', (group) => {
 
   test('handle string based max-age', async ({ assert }) => {
     const hsts = hstsFactory({ enabled: true, maxAge: '1s' })
+    const ctx = new HttpContextFactory().create()
 
-    const app = await setup()
-    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
     hsts(ctx)
 
     assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=1000')
@@ -48,9 +41,8 @@ test.group('Hsts', (group) => {
 
   test('entertain includeSubDomains flag', async ({ assert }) => {
     const hsts = hstsFactory({ enabled: true, maxAge: '1s', includeSubDomains: true })
+    const ctx = new HttpContextFactory().create()
 
-    const app = await setup()
-    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
     hsts(ctx)
 
     assert.equal(
@@ -66,9 +58,8 @@ test.group('Hsts', (group) => {
       includeSubDomains: true,
       preload: true,
     })
+    const ctx = new HttpContextFactory().create()
 
-    const app = await setup()
-    const ctx = app.container.use('Adonis/Core/HttpContext').create('/', {})
     hsts(ctx)
 
     assert.equal(

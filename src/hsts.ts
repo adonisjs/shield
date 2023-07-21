@@ -1,18 +1,16 @@
 /*
  * @adonisjs/shield
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-/// <reference path="../adonis-typings/index.ts" />
-
-import { string } from '@poppinss/utils/build/helpers'
-import { HstsOptions } from '@ioc:Adonis/Addons/Shield'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { noop } from './noop'
+import type { HstsOptions } from './types.js'
+import type { HttpContext } from '@adonisjs/core/http'
+import string from '@adonisjs/core/helpers/string'
+import { noop } from './noop.js'
 
 const DEFAULT_MAX_AGE = 180 * 24 * 60 * 60
 
@@ -24,7 +22,7 @@ function normalizeMaxAge(maxAge?: string | number): number {
     return DEFAULT_MAX_AGE
   }
 
-  maxAge = (typeof maxAge === 'string' ? string.toMs(maxAge) : maxAge) as number
+  maxAge = (typeof maxAge === 'string' ? string.milliseconds.parse(maxAge) : maxAge) as number
   if (maxAge < 0) {
     throw new Error('Max age for "shield.hsts" cannot be a negative value')
   }
@@ -52,7 +50,7 @@ export function hstsFactory(options: HstsOptions) {
     value += '; preload'
   }
 
-  return function hsts({ response }: HttpContextContract) {
+  return function hsts({ response }: HttpContext) {
     response.header('Strict-Transport-Security', value)
   }
 }

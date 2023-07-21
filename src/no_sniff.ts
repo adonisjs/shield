@@ -1,17 +1,15 @@
 /*
  * @adonisjs/shield
  *
- * (c) Harminder Virk <virk@adonisjs.com>
+ * (c) AdonisJS
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-/// <reference path="../adonis-typings/index.ts" />
-
-import { ContentTypeSniffingOptions } from '@ioc:Adonis/Addons/Shield'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { noop } from './noop'
+import type { HttpContext } from '@adonisjs/core/http'
+import type { ContentTypeSniffingOptions } from './types.js'
+import { noop } from './noop.js'
 
 /**
  * Factory function that returns a function to Add `X-Content-Type-Options`
@@ -22,7 +20,7 @@ export function noSniffFactory(options: ContentTypeSniffingOptions) {
     return noop
   }
 
-  return function noSniff({ response }: HttpContextContract) {
+  return function noSniff({ response }: HttpContext) {
     response.header('X-Content-Type-Options', 'nosniff')
   }
 }
