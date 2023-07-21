@@ -7,11 +7,11 @@
  * file that was distributed with this source code.
  */
 
-import { ApplicationService } from '@adonisjs/core/types'
+import type { ApplicationService } from '@adonisjs/core/types'
+import type { ShieldConfig } from '../src/types.js'
 import extendHttpResponse from '../src/bindings/http_response.js'
 import extendApiClient from '../src/bindings/api_client.js'
 import ShieldMiddleware from '../src/shield_middleware.js'
-import { ShieldConfig } from '../src/types.js'
 
 /**
  * Provider to register shield middleware
@@ -19,6 +19,9 @@ import { ShieldConfig } from '../src/types.js'
 export default class ShieldProvider {
   constructor(protected app: ApplicationService) {}
 
+  /**
+   * Register ShieldMiddleware to the container
+   */
   async register() {
     this.app.container.bind(ShieldMiddleware, async () => {
       const config = this.app.config.get<ShieldConfig>('shield', {})

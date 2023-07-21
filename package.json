@@ -1,11 +1,12 @@
 {
   "name": "@adonisjs/shield",
-  "version": "7.1.1",
   "description": "A middleware for AdonisJS to keep web applications secure from common web attacks",
-  "main": "build/index.js",
+  "version": "7.1.1",
   "engines": {
     "node": ">=18.16.0"
   },
+  "main": "build/index.js",
+  "type": "module",
   "files": [
     "build/src",
     "build/stubs",
@@ -37,30 +38,6 @@
     "sync-labels": "github-label-sync --labels .github/labels.json adonisjs/ally",
     "quick:test": "node --enable-source-maps --loader=ts-node/esm bin/test.ts"
   },
-  "type": "module",
-  "keywords": [
-    "adonisjs",
-    "adonis",
-    "web-security",
-    "csrf",
-    "csp"
-  ],
-  "peerDependencies": {
-    "@adonisjs/core": "6.1.5-10",
-    "@adonisjs/session": "7.0.0-0",
-    "@adonisjs/view": "7.0.0-5",
-    "@japa/api-client": "2.0.0-0"
-  },
-  "peerDependenciesMeta": {
-    "@adonisjs/view": {
-      "optional": true
-    },
-    "@japa/api-client": {
-      "optional": true
-    }
-  },
-  "author": "virk",
-  "license": "MIT",
   "devDependencies": {
     "@adonisjs/core": "6.1.5-10",
     "@adonisjs/eslint-config": "^1.1.8",
@@ -90,6 +67,23 @@
     "csrf": "^3.1.0",
     "helmet-csp": "^3.4.0"
   },
+  "peerDependencies": {
+    "@adonisjs/core": "6.1.5-10",
+    "@adonisjs/session": "7.0.0-0",
+    "@adonisjs/view": "7.0.0-5",
+    "@japa/api-client": "2.0.0-0"
+  },
+  "peerDependenciesMeta": {
+    "@adonisjs/view": {
+      "optional": true
+    },
+    "@japa/api-client": {
+      "optional": true
+    }
+  },
+  "author": "virk",
+  "license": "MIT",
+  "homepage": "https://github.com/adonisjs/shield#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adonisjs/shield.git"
@@ -97,7 +91,13 @@
   "bugs": {
     "url": "https://github.com/adonisjs/shield/issues"
   },
-  "homepage": "https://github.com/adonisjs/shield#readme",
+  "keywords": [
+    "adonisjs",
+    "adonis",
+    "web-security",
+    "csrf",
+    "csp"
+  ],
   "eslintConfig": {
     "extends": "@adonisjs/eslint-config/package"
   },
