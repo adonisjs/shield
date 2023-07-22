@@ -13,6 +13,7 @@ import type { Encryption } from '@adonisjs/core/encryption'
 import type { CsrfOptions } from '../types.js'
 
 import Tokens from 'csrf'
+import debug from '../debug.js'
 import { noop } from '../noop.js'
 import { E_BAD_CSRF_TOKEN } from '../exceptions.js'
 
@@ -106,14 +107,14 @@ export class Csrf {
    * - Or `x-xsrf-token` header. The header value must be set by
    *   reading the `XSRF-TOKEN` cookie.
    */
-  private getCsrfTokenFromRequest({ request, logger }: HttpContext): string | null {
+  private getCsrfTokenFromRequest({ request }: HttpContext): string | null {
     if (request.input('_csrf')) {
-      logger.trace('retrieved token from "_csrf" input')
+      debug('retrieved token from "_csrf" input')
       return request.input('_csrf')
     }
 
     if (request.header('x-csrf-token')) {
-      logger.trace('retrieved token from "x-csrf-token" header')
+      debug('retrieved token from "x-csrf-token" header')
       return request.header('x-csrf-token')!
     }
 
@@ -130,7 +131,7 @@ export class Csrf {
       return null
     }
 
-    logger.trace('retrieved token from "x-xsrf-token" header')
+    debug('retrieved token from "x-xsrf-token" header')
     return this.#encryption.decrypt(decodeURIComponent(encryptedToken).slice(2), 'XSRF-TOKEN')
   }
 
