@@ -32,7 +32,6 @@ export async function extendApiClient() {
     const secret = await tokens.secret()
     const token = tokens.create(secret)
 
-    // @ts-ignore todo fixme
     request.session({ 'csrf-secret': secret })
     request.header('x-csrf-token', token)
   })
