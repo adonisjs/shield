@@ -8,10 +8,10 @@
  */
 
 import * as shield from './defenses/index.js'
-import { EncryptionService } from '@adonisjs/core/types'
-import { ShieldConfig } from './types.js'
-import { ViewContract } from '@adonisjs/view/types'
-import { HttpContext } from '@adonisjs/core/http'
+import type { EncryptionService } from '@adonisjs/core/types'
+import type { ShieldConfig } from './types.js'
+import type { ViewContract } from '@adonisjs/view/types'
+import type { HttpContext } from '@adonisjs/core/http'
 
 /**
  * Shield middleware to protect web applications against common
