@@ -13,7 +13,7 @@ import Tokens from 'csrf'
 /**
  * Define test bindings
  */
-export default async function extendApiClient() {
+export async function extendApiClient() {
   /**
    * Set CSRF token during the HTTP request
    */

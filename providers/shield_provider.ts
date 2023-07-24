@@ -10,7 +10,6 @@
 import type { ApplicationService } from '@adonisjs/core/types'
 import type { ShieldConfig } from '../src/types.js'
 import extendHttpResponse from '../src/bindings/http_response.js'
-import extendApiClient from '../src/bindings/api_client.js'
 import ShieldMiddleware from '../src/shield_middleware.js'
 
 /**
@@ -36,10 +35,20 @@ export default class ShieldProvider {
   }
 
   /**
+   * Register Japa API Client bindings
+   */
+  async #registerApiClientBindings() {
+    if (this.app.getEnvironment() === 'test') {
+      const { extendApiClient } = await import('../src/bindings/api_client.js')
+      extendApiClient()
+    }
+  }
+
+  /**
    * Register Http and ApiClient bindings
    */
-  boot() {
+  async boot() {
     extendHttpResponse()
-    extendApiClient()
+    this.#registerApiClientBindings()
   }
 }
