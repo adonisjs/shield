@@ -7,16 +7,13 @@
  * file that was distributed with this source code.
  */
 
+import { Edge } from 'edge.js'
 import { test } from '@japa/runner'
-import { cspFactory } from '../src/defenses/csp.js'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
-import extendHttpResponse from '../src/bindings/http_response.js'
 
-test.group('Csp', (group) => {
-  group.each.setup(() => {
-    extendHttpResponse()
-  })
+import { cspFactory } from '../src/guards/csp.js'
 
+test.group('Csp', () => {
   test('return noop function when enabled is false', async ({ assert }) => {
     const csp = cspFactory({ enabled: false })
     const ctx = new HttpContextFactory().create()
@@ -36,11 +33,7 @@ test.group('Csp', (group) => {
       },
     })
 
-    // @ts-ignore
-    ctx.view = { share: (_: any) => {} }
-
     csp(ctx)
-
     assert.equal(ctx.response.getHeader('Content-Security-Policy'), "default-src 'self'")
   })
 
@@ -54,9 +47,6 @@ test.group('Csp', (group) => {
         scriptSrc: ['@nonce'],
       },
     })
-
-    // @ts-ignore
-    ctx.view = { share: (_: any) => {} }
 
     csp(ctx)
 
@@ -78,9 +68,6 @@ test.group('Csp', (group) => {
       },
     })
 
-    // @ts-ignore
-    ctx.view = { share: (_: any) => {} }
-
     csp(ctx)
     assert.equal(
       ctx.response.getHeader('Content-Security-Policy'),
@@ -98,9 +85,6 @@ test.group('Csp', (group) => {
       },
     })
 
-    // @ts-ignore
-    ctx.view = { share: (_: any) => null }
-
     csp(ctx)
     assert.equal(
       ctx.response.getHeader('Content-Security-Policy'),
@@ -109,7 +93,6 @@ test.group('Csp', (group) => {
   })
 
   test('share cspNonce with view', async ({ assert }) => {
-    assert.plan(2)
     const ctx = new HttpContextFactory().create()
 
     const csp = cspFactory({
@@ -119,14 +102,9 @@ test.group('Csp', (group) => {
       },
     })
 
-    // @ts-ignore
-    ctx.view = {
-      share: (locals): any => {
-        assert.isDefined(locals.cspNonce)
-        assert.equal(locals.cspNonce, ctx.response.nonce)
-      },
-    }
-
+    ctx.view = Edge.create().createRenderer()
     csp(ctx)
+
+    assert.equal(await ctx.view.renderRaw('{{ cspNonce }}'), ctx.response.nonce)
   })
 })

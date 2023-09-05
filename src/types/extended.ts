@@ -1,3 +1,12 @@
+/*
+ * @adonisjs/shield
+ *
+ * (c) AdonisJS
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare module '@adonisjs/core/http' {
   interface Response {
     readonly nonce: string
@@ -14,21 +23,5 @@ declare module '@adonisjs/core/http' {
 declare module 'http' {
   export interface ServerResponse {
     nonce: string
-  }
-}
-
-/**
- * Extending Japa Api Client with new macros
- */
-
-declare module '@japa/api-client' {
-  interface ApiRequest {
-    setCsrfToken: boolean
-
-    /**
-     * Send CSRF token to the server when making the
-     * API request.
-     */
-    withCsrfToken(): this
   }
 }

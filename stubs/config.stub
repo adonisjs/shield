@@ -1,7 +1,6 @@
 ---
 to: {{ app.configPath('shield.ts') }}
 ---
-
 import { defineConfig } from '@adonisjs/shield'
 
 export default defineConfig({

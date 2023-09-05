@@ -7,9 +7,11 @@
  * file that was distributed with this source code.
  */
 
+import { Edge } from 'edge.js'
 import type { ApplicationService } from '@adonisjs/core/types'
-import type { ShieldConfig } from '../src/types.js'
-import extendHttpResponse from '../src/bindings/http_response.js'
+
+import debug from '../src/debug.js'
+import type { ShieldConfig } from '../src/types/main.js'
 import ShieldMiddleware from '../src/shield_middleware.js'
 
 /**
@@ -17,6 +19,16 @@ import ShieldMiddleware from '../src/shield_middleware.js'
  */
 export default class ShieldProvider {
   constructor(protected app: ApplicationService) {}
+  /**
+   * Returns edge when it's installed
+   */
+  protected async getEdge(): Promise<Edge | undefined> {
+    try {
+      const { default: edge } = await import('edge.js')
+      debug('Detected edge.js package. Adding shield primitives to it')
+      return edge
+    } catch {}
+  }
 
   /**
    * Register ShieldMiddleware to the container
@@ -24,31 +36,10 @@ export default class ShieldProvider {
   async register() {
     this.app.container.bind(ShieldMiddleware, async () => {
       const config = this.app.config.get<ShieldConfig>('shield', {})
-      const view = this.app.container.hasBinding('view')
-        ? await this.app.container.make('view')
-        : undefined
-
       const encryption = await this.app.container.make('encryption')
+      const edge = await this.getEdge()
 
-      return new ShieldMiddleware(config, encryption, view)
+      return new ShieldMiddleware(config, encryption, edge)
     })
-  }
-
-  /**
-   * Register Japa API Client bindings
-   */
-  async #registerApiClientBindings() {
-    if (this.app.getEnvironment() === 'test') {
-      const { extendApiClient } = await import('../src/bindings/api_client.js')
-      extendApiClient()
-    }
-  }
-
-  /**
-   * Register Http and ApiClient bindings
-   */
-  async boot() {
-    extendHttpResponse()
-    this.#registerApiClientBindings()
   }
 }

@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { hstsFactory } from '../src/defenses/hsts.js'
+import { hstsFactory } from '../src/guards/hsts.js'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
 test.group('Hsts', () => {
@@ -36,7 +36,7 @@ test.group('Hsts', () => {
 
     hsts(ctx)
 
-    assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=1000')
+    assert.equal(ctx.response.getHeader('Strict-Transport-Security'), 'max-age=1')
   })
 
   test('entertain includeSubDomains flag', async ({ assert }) => {
@@ -47,7 +47,7 @@ test.group('Hsts', () => {
 
     assert.equal(
       ctx.response.getHeader('Strict-Transport-Security'),
-      'max-age=1000; includeSubDomains'
+      'max-age=1; includeSubDomains'
     )
   })
 
@@ -64,7 +64,7 @@ test.group('Hsts', () => {
 
     assert.equal(
       ctx.response.getHeader('Strict-Transport-Security'),
-      'max-age=1000; includeSubDomains; preload'
+      'max-age=1; includeSubDomains; preload'
     )
   })
 

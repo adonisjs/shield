@@ -8,8 +8,9 @@
  */
 
 import { HttpContext } from '@adonisjs/core/http'
+
 import { noop } from '../noop.js'
-import { XFrameOptions } from '../types.js'
+import { XFrameOptions } from '../types/main.js'
 
 const ALLOWED_ACTIONS = ['DENY', 'ALLOW-FROM', 'SAMEORIGIN']
 
@@ -22,7 +23,7 @@ export function frameGuardFactory(options: XFrameOptions) {
     return noop
   }
 
-  const action = ((options.action || 'SAMEORIGIN').toUpperCase() as typeof options.action)!
+  const action = options.action || ('SAMEORIGIN' as const)
   const resolvedOptions = { ...options, action } as Required<XFrameOptions>
 
   if (!ALLOWED_ACTIONS.includes(resolvedOptions.action)) {

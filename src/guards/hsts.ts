@@ -7,27 +7,28 @@
  * file that was distributed with this source code.
  */
 
-import type { HstsOptions } from '../types.js'
-import type { HttpContext } from '@adonisjs/core/http'
 import string from '@adonisjs/core/helpers/string'
+import type { HttpContext } from '@adonisjs/core/http'
+
 import { noop } from '../noop.js'
+import type { HstsOptions } from '../types/main.js'
 
 const DEFAULT_MAX_AGE = 180 * 24 * 60 * 60
 
 /**
- * Normalizes the max age to a valid number
+ * Normalizes the max age to seconds
  */
 function normalizeMaxAge(maxAge?: string | number): number {
   if (maxAge === null || maxAge === undefined) {
     return DEFAULT_MAX_AGE
   }
 
-  maxAge = (typeof maxAge === 'string' ? string.milliseconds.parse(maxAge) : maxAge) as number
-  if (maxAge < 0) {
+  const maxAgeInSeconds = string.seconds.parse(maxAge)
+  if (maxAgeInSeconds < 0) {
     throw new Error('Max age for "shield.hsts" cannot be a negative value')
   }
 
-  return maxAge
+  return maxAgeInSeconds
 }
 
 /**

@@ -7,10 +7,12 @@
  * file that was distributed with this source code.
  */
 
-import * as shield from './defenses/index.js'
+import './types/extended.js'
+import type { Edge } from 'edge.js'
 import type { EncryptionService } from '@adonisjs/core/types'
-import type { ShieldConfig } from './types.js'
-import type { ViewContract } from '@adonisjs/view/types'
+
+import * as shield from './guards/index.js'
+import type { ShieldConfig } from './types/main.js'
 import type { HttpContext } from '@adonisjs/core/http'
 
 /**
@@ -18,23 +20,16 @@ import type { HttpContext } from '@adonisjs/core/http'
  * web attacks
  */
 export default class ShieldMiddleware {
-  #config: ShieldConfig
-  #encryption: EncryptionService
-  #view?: ViewContract
-  #actions: ((ctx: HttpContext) => any)[] = []
+  #guards: ((ctx: HttpContext) => any)[] = []
 
-  constructor(config: ShieldConfig, encryption: EncryptionService, view?: ViewContract) {
-    this.#config = config
-    this.#encryption = encryption
-    this.#view = view
-
-    this.#actions = [
-      shield.csrfFactory(this.#config.csrf || {}, this.#encryption, this.#view),
-      shield.cspFactory(this.#config.csp || {}),
-      shield.dnsPrefetchFactory(this.#config.dnsPrefetch || {}),
-      shield.frameGuardFactory(this.#config.xFrame || {}),
-      shield.hstsFactory(this.#config.hsts || {}),
-      shield.noSniffFactory(this.#config.contentTypeSniffing || {}),
+  constructor(config: ShieldConfig, encryption: EncryptionService, edge?: Edge) {
+    this.#guards = [
+      shield.csrfFactory(config.csrf || {}, encryption, edge),
+      shield.cspFactory(config.csp || {}),
+      shield.dnsPrefetchFactory(config.dnsPrefetch || {}),
+      shield.frameGuardFactory(config.xFrame || {}),
+      shield.hstsFactory(config.hsts || {}),
+      shield.noSniffFactory(config.contentTypeSniffing || {}),
     ]
   }
 
@@ -42,7 +37,7 @@ export default class ShieldMiddleware {
    * Handle request
    */
   async handle(ctx: HttpContext, next: () => Promise<void>) {
-    for (let action of this.#actions) {
+    for (let action of this.#guards) {
       await action(ctx)
     }
 

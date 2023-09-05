@@ -22,9 +22,8 @@ export async function setup() {
       },
       rcFileContents: {
         providers: [
-          '@adonisjs/session/session_provider',
-          '@adonisjs/view/views_provider',
-          '../../providers/shield_provider.js',
+          () => import('@adonisjs/session/session_provider'),
+          () => import('@adonisjs/core/providers/edge_provider'),
         ],
       },
     })
