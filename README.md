@@ -2,7 +2,7 @@
 
 <br />
 
-[![gh-workflow-image]][gh-workflow-url] [![npm-image]][npm-url] ![][typescript-image] [![license-image]][license-url] [![snyk-image]][snyk-url]
+[![gh-workflow-image]][gh-workflow-url] [![npm-image]][npm-url] ![][typescript-image] [![license-image]][license-url]
 
 ## Introduction
 A package to keep AdonisJS applications safe from common Web attacks like **XSS**, **CSRF Protection** and a lot more.
@@ -21,8 +21,8 @@ In order to ensure that the AdonisJS community is welcoming to all, please revie
 ## License
 AdonisJS ally is open-sourced software licensed under the [MIT license](LICENSE.md).
 
-[gh-workflow-image]: https://img.shields.io/github/actions/workflow/status/adonisjs/shield/test.yml?style=for-the-badge
-[gh-workflow-url]: https://github.com/adonisjs/shield/actions/workflows/test.yml "Github action"
+[gh-workflow-image]: https://img.shields.io/github/actions/workflow/status/adonisjs/shield/checks.yml?style=for-the-badge
+[gh-workflow-url]: https://github.com/adonisjs/shield/actions/workflows/checks.yml "Github action"
 
 [npm-image]: https://img.shields.io/npm/v/@adonisjs/shield/latest.svg?style=for-the-badge&logo=npm
 [npm-url]: https://www.npmjs.com/package/@adonisjs/shield/v/latest "npm"
@@ -31,6 +31,3 @@ AdonisJS ally is open-sourced software licensed under the [MIT license](LICENSE.
 
 [license-url]: LICENSE.md
 [license-image]: https://img.shields.io/github/license/adonisjs/shield?style=for-the-badge
-
-[snyk-image]: https://img.shields.io/snyk/vulnerabilities/github/adonisjs/shield?label=Snyk%20Vulnerabilities&style=for-the-badge
-[snyk-url]: https://snyk.io/test/github/adonisjs/shield?targetFile=package.json "snyk"
