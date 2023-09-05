@@ -18,6 +18,7 @@
   ],
   "exports": {
     ".": "./build/index.js",
+    "./guards": "./build/src/guards/main.js",
     "./shield_provider": "./build/providers/shield_provider.js",
     "./shield_middleware": "./build/src/shield_middleware.js",
     "./types": "./build/src/types.js"

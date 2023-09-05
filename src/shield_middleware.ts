@@ -11,7 +11,7 @@ import './types/extended.js'
 import type { Edge } from 'edge.js'
 import type { EncryptionService } from '@adonisjs/core/types'
 
-import * as shield from './guards/index.js'
+import * as shield from './guards/main.js'
 import type { ShieldConfig } from './types/main.js'
 import type { HttpContext } from '@adonisjs/core/http'
 
