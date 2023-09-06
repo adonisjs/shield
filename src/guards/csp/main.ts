@@ -9,22 +9,11 @@
 
 import helmetCsp from 'helmet-csp'
 import string from '@adonisjs/core/helpers/string'
-import { type HttpContext, Response } from '@adonisjs/core/http'
+import { type HttpContext } from '@adonisjs/core/http'
 
 import { noop } from '../../noop.js'
 import { cspKeywords } from './keywords.js'
 import type { CspOptions } from '../../types/main.js'
-
-/**
- * Extending response class to have a nonce property
- */
-Response.getter(
-  'nonce',
-  () => {
-    return string.generateRandom(16)
-  },
-  true
-)
 
 /**
  * Registering nonce keyword
@@ -58,6 +47,11 @@ export function cspFactory(options: CspOptions) {
 
   return function csp(ctx: HttpContext) {
     return new Promise<void>((resolve, reject) => {
+      /**
+       * Generating nonce
+       */
+      ctx.response.nonce = string.generateRandom(16)
+
       /**
        * Helmet csp needs the `nonce` property on the HTTP ServerResponse
        */

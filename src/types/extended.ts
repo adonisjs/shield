@@ -9,7 +9,7 @@
 
 declare module '@adonisjs/core/http' {
   interface Response {
-    readonly nonce: string
+    nonce: string
   }
   interface Request {
     csrfToken: string
