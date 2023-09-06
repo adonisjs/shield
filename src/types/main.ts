@@ -77,22 +77,6 @@ export type HstsOptions = {
 }
 
 /**
- * Config for X-DNS-Prefetch-Control
- */
-export type DnsPrefetchOptions = {
-  /**
-   * Enable/disable the guard
-   */
-  enabled: boolean
-
-  /**
-   * The value of X-DNS-Prefetch-Control will be "on" when
-   * enabled, otherwise "off"
-   */
-  allow?: boolean
-}
-
-/**
  * Config for working with CSP
  */
 export type CspOptions = { enabled: boolean } & ContentSecurityPolicyOptions
@@ -132,7 +116,6 @@ export type ShieldConfig = {
   xFrame: XFrameOptions
   contentTypeSniffing: ContentTypeSniffingOptions
   hsts: HstsOptions
-  dnsPrefetch: DnsPrefetchOptions
   csp: CspOptions
   csrf: CsrfOptions
 }

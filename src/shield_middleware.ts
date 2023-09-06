@@ -26,7 +26,6 @@ export default class ShieldMiddleware {
     this.#guards = [
       shield.csrfFactory(config.csrf || {}, encryption, edge),
       shield.cspFactory(config.csp || {}),
-      shield.dnsPrefetchFactory(config.dnsPrefetch || {}),
       shield.frameGuardFactory(config.xFrame || {}),
       shield.hstsFactory(config.hsts || {}),
       shield.noSniffFactory(config.contentTypeSniffing || {}),
