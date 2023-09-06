@@ -11,7 +11,8 @@ import { Edge } from 'edge.js'
 import { test } from '@japa/runner'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
-import { cspFactory } from '../src/guards/csp.js'
+import { cspFactory } from '../src/guards/csp/main.js'
+import { cspKeywords } from '../src/guards/csp/keywords.js'
 
 test.group('Csp', () => {
   test('return noop function when enabled is false', async ({ assert }) => {
@@ -106,5 +107,33 @@ test.group('Csp', () => {
     csp(ctx)
 
     assert.equal(await ctx.view.renderRaw('{{ cspNonce }}'), ctx.response.nonce)
+  })
+})
+
+test.group('Csp keywords', () => {
+  test('transform custom keywords', async ({ assert }) => {
+    const ctx = new HttpContextFactory().create()
+
+    cspKeywords.register('@vite', function () {
+      return `http://localhost:5173`
+    })
+    cspKeywords.register('@viteHMR', function () {
+      return `ws://localhost:5173`
+    })
+
+    const csp = cspFactory({
+      enabled: true,
+      directives: {
+        defaultSrc: ["'self'", '@vite', '@viteHMR'],
+      },
+    })
+
+    csp(ctx)
+
+    assert.isDefined(ctx.response.nonce)
+    assert.equal(
+      ctx.response.getHeader('Content-Security-Policy'),
+      `default-src 'self' http://localhost:5173 ws://localhost:5173`
+    )
   })
 })

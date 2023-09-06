@@ -7,8 +7,8 @@
  * file that was distributed with this source code.
  */
 
-export { cspFactory } from './csp.js'
-export { csrfFactory } from './csrf.js'
 export { hstsFactory } from './hsts.js'
+export { csrfFactory } from './csrf.js'
+export { cspFactory } from './csp/main.js'
 export { noSniffFactory } from './no_sniff.js'
 export { frameGuardFactory } from './frame_guard.js'

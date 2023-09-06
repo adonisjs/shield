@@ -7,13 +7,13 @@
  * file that was distributed with this source code.
  */
 
+import helmetCsp from 'helmet-csp'
 import string from '@adonisjs/core/helpers/string'
-import type { ServerResponse, IncomingMessage } from 'node:http'
 import { type HttpContext, Response } from '@adonisjs/core/http'
-import helmetCsp, { type ContentSecurityPolicyOptions } from 'helmet-csp'
 
-import { noop } from '../noop.js'
-import type { CspOptions, ValueOf } from '../types/main.js'
+import { noop } from '../../noop.js'
+import { cspKeywords } from './keywords.js'
+import type { CspOptions } from '../../types/main.js'
 
 /**
  * Extending response class to have a nonce property
@@ -27,36 +27,11 @@ Response.getter(
 )
 
 /**
- * Directives to inspect for the `@nonce` keyword
+ * Registering nonce keyword
  */
-const DIRECTIVES_WITH_NONCE_KEYWORD = ['defaultSrc', 'scriptSrc', 'styleSrc']
-
-/**
- * Reads `nonce` from the ServerResponse and returns appropriate
- * string
- */
-function nonceFn(_: IncomingMessage, response: ServerResponse) {
+cspKeywords.register('@nonce', function (_, response) {
   return `'nonce-${response.nonce}'`
-}
-
-/**
- * Transform `@nonce` keywords for a given directive
- */
-function transformNonceKeywords(
-  directive: ValueOf<Exclude<ContentSecurityPolicyOptions['directives'], undefined>>
-): ValueOf<Exclude<ContentSecurityPolicyOptions['directives'], undefined>> {
-  /**
-   * Transform array values. There should be only one `@nonce` keyword
-   */
-  if (Array.isArray(directive)) {
-    const nonceIndex = directive.indexOf('@nonce')
-    if (nonceIndex > -1) {
-      directive[nonceIndex] = nonceFn
-    }
-  }
-
-  return directive
-}
+})
 
 /**
  * Factory that returns a function to set the `Content-Security-Policy` header based upon
@@ -69,13 +44,10 @@ export function cspFactory(options: CspOptions) {
 
   if (options.directives) {
     /**
-     * Transform directives that may contain the
-     * "@nonce" directive.
+     * Transform directives to replace keywords
      */
-    DIRECTIVES_WITH_NONCE_KEYWORD.forEach((directive) => {
-      if (options.directives![directive]) {
-        options.directives![directive] = transformNonceKeywords(options.directives![directive])
-      }
+    Object.keys(options.directives).forEach((directive) => {
+      options.directives![directive] = cspKeywords.resolve(options.directives![directive])
     })
   }
 
