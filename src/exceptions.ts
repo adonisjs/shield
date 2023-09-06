@@ -7,6 +7,21 @@
  * file that was distributed with this source code.
  */
 
-import { createError } from '@poppinss/utils'
+import { HttpContext } from '@adonisjs/core/http'
+import { Exception } from '@poppinss/utils'
 
-export const E_BAD_CSRF_TOKEN = createError('Invalid CSRF Token', 'E_BAD_CSRF_TOKEN', 403)
+export const E_BAD_CSRF_TOKEN = class InvalidCSRFToken extends Exception {
+  code = 'E_BAD_CSRF_TOKEN'
+  status = 403
+  message = 'Invalid or expired CSRF token'
+
+  async handle(error: InvalidCSRFToken, ctx: HttpContext) {
+    ctx.session.flash({
+      error: {
+        message: error.message,
+        code: error.code,
+      },
+    })
+    ctx.response.redirect().back()
+  }
+}
