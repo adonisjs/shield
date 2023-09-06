@@ -10,8 +10,29 @@
 import type { ShieldConfig } from './types/main.js'
 
 /**
- * Defines the configuration for Shield
+ * Define shield configuration
  */
-export function defineConfig(config: ShieldConfig) {
-  return config
+export function defineConfig(config: Partial<ShieldConfig>): ShieldConfig {
+  return {
+    csp: {
+      enabled: false,
+      ...config.csp,
+    },
+    csrf: {
+      enabled: false,
+      ...config.csrf,
+    },
+    hsts: {
+      enabled: false,
+      ...config.hsts,
+    },
+    contentTypeSniffing: {
+      enabled: false,
+      ...config.contentTypeSniffing,
+    },
+    xFrame: {
+      enabled: false,
+      ...config.xFrame,
+    },
+  } satisfies ShieldConfig
 }
