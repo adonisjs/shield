@@ -28,8 +28,8 @@
     "test": "c8 npm run quick:test",
     "clean": "del-cli build",
     "typecheck": "tsc --noEmit",
-    "copy:templates": "copyfiles \"stubs/**/*.stub\" build",
-    "compile": "npm run lint && npm run clean && tsc",
+    "copy:templates": "copyfiles --up 1 \"stubs/**/*.stub\" build",
+    "compile": "npm run lint && npm run clean && tsup-node",
     "build": "npm run compile && npm run copy:templates",
     "prepublishOnly": "npm run build",
     "lint": "eslint . --ext=.ts",
@@ -63,6 +63,7 @@
     "np": "^8.0.4",
     "prettier": "^3.0.0",
     "ts-node": "^10.9.1",
+    "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
@@ -126,5 +127,19 @@
       "test_helpers/**",
       "stubs/**"
     ]
+  },
+  "tsup": {
+    "entry": [
+      "./index.ts",
+      "./src/guards/main.ts",
+      "./providers/shield_provider.ts",
+      "./src/shield_middleware.ts",
+      "./src/types.ts"
+    ],
+    "outDir": "./build",
+    "clean": true,
+    "format": "esm",
+    "dts": true,
+    "target": "esnext"
   }
 }

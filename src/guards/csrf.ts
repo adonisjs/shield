@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+/// <reference types="@adonisjs/session/session_middleware" />
+
 import Tokens from 'csrf'
 import type { Edge } from 'edge.js'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -16,6 +18,12 @@ import debug from '../debug.js'
 import { noop } from '../noop.js'
 import type { CsrfOptions } from '../types.js'
 import { E_BAD_CSRF_TOKEN } from '../errors.js'
+
+declare module '@adonisjs/core/http' {
+  interface Request {
+    csrfToken: string
+  }
+}
 
 /**
  * A class to encapsulate the logic of verifying and generating

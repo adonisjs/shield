@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+/// <reference types="@adonisjs/session/session_middleware" />
+
 import { Exception } from '@poppinss/utils'
 import { HttpContext } from '@adonisjs/core/http'
 
