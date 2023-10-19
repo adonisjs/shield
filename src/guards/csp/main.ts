@@ -8,32 +8,15 @@
  */
 
 /// <reference types="@adonisjs/core/providers/edge_provider" />
+/// <reference path="../../shield_middleware.ts" />
 
-import type {} from 'node:http'
 import helmetCsp from 'helmet-csp'
-import type {} from '@adonisjs/core/http'
 import string from '@adonisjs/core/helpers/string'
 import { type HttpContext } from '@adonisjs/core/http'
 
 import { noop } from '../../noop.js'
 import { cspKeywords } from './keywords.js'
 import type { CspOptions } from '../../types.js'
-
-declare module '@adonisjs/core/http' {
-  interface Response {
-    nonce: string
-  }
-}
-
-/**
- * Extending the Node.js ServerResponse with
- * our new `nonce` property
- */
-declare module 'node:http' {
-  export interface ServerResponse {
-    nonce: string
-  }
-}
 
 /**
  * Registering nonce keyword
