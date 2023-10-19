@@ -10,7 +10,7 @@
 import { HttpContext } from '@adonisjs/core/http'
 
 import { noop } from '../noop.js'
-import { XFrameOptions } from '../types/main.js'
+import { XFrameOptions } from '../types.js'
 
 const ALLOWED_ACTIONS = ['DENY', 'ALLOW-FROM', 'SAMEORIGIN']
 

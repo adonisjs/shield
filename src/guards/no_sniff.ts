@@ -8,7 +8,7 @@
  */
 
 import type { HttpContext } from '@adonisjs/core/http'
-import type { ContentTypeSniffingOptions } from '../types/main.js'
+import type { ContentTypeSniffingOptions } from '../types.js'
 import { noop } from '../noop.js'
 
 /**

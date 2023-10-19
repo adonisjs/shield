@@ -14,8 +14,8 @@ import type { Encryption } from '@adonisjs/core/encryption'
 
 import debug from '../debug.js'
 import { noop } from '../noop.js'
-import type { CsrfOptions } from '../types/main.js'
-import { E_BAD_CSRF_TOKEN } from '../exceptions.js'
+import type { CsrfOptions } from '../types.js'
+import { E_BAD_CSRF_TOKEN } from '../errors.js'
 
 /**
  * A class to encapsulate the logic of verifying and generating

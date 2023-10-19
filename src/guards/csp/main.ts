@@ -13,7 +13,7 @@ import { type HttpContext } from '@adonisjs/core/http'
 
 import { noop } from '../../noop.js'
 import { cspKeywords } from './keywords.js'
-import type { CspOptions } from '../../types/main.js'
+import type { CspOptions } from '../../types.js'
 
 /**
  * Registering nonce keyword

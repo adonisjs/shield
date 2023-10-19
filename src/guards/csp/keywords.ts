@@ -10,7 +10,7 @@
 import type { ContentSecurityPolicyOptions } from 'helmet-csp'
 import type { ServerResponse, IncomingMessage } from 'node:http'
 
-import type { ValueOf } from '../../types/main.js'
+import type { ValueOf } from '../../types.js'
 
 /**
  * A collection of CSP keywords that are resolved to actual values

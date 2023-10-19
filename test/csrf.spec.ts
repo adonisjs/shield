@@ -17,7 +17,7 @@ import { SessionMiddlewareFactory } from '@adonisjs/session/factories'
 
 import { setup } from '../test_helpers/index.js'
 import { csrfFactory } from '../src/guards/csrf.js'
-import { E_BAD_CSRF_TOKEN } from '../src/exceptions.js'
+import { E_BAD_CSRF_TOKEN } from '../src/errors.js'
 
 const tokens = new Tokens()
 

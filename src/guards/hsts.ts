@@ -11,7 +11,7 @@ import string from '@adonisjs/core/helpers/string'
 import type { HttpContext } from '@adonisjs/core/http'
 
 import { noop } from '../noop.js'
-import type { HstsOptions } from '../types/main.js'
+import type { HstsOptions } from '../types.js'
 
 const DEFAULT_MAX_AGE = 180 * 24 * 60 * 60
 

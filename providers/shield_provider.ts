@@ -11,7 +11,7 @@ import { Edge } from 'edge.js'
 import type { ApplicationService } from '@adonisjs/core/types'
 
 import debug from '../src/debug.js'
-import type { ShieldConfig } from '../src/types/main.js'
+import type { ShieldConfig } from '../src/types.js'
 import ShieldMiddleware from '../src/shield_middleware.js'
 
 /**
