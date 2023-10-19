@@ -13,6 +13,7 @@
   "exports": {
     ".": "./build/index.js",
     "./guards": "./build/src/guards/main.js",
+    "./plugins/api_client": "./build/src/plugins/api_client.js",
     "./shield_provider": "./build/providers/shield_provider.js",
     "./shield_middleware": "./build/src/shield_middleware.js",
     "./types": "./build/src/types.js"
@@ -42,8 +43,10 @@
     "@adonisjs/tsconfig": "^1.1.8",
     "@commitlint/cli": "^17.8.0",
     "@commitlint/config-conventional": "^17.8.0",
+    "@japa/api-client": "^2.0.0",
     "@japa/assert": "^2.0.0",
     "@japa/file-system": "^2.0.0",
+    "@japa/plugin-adonisjs": "^2.0.0",
     "@japa/runner": "^3.0.4",
     "@swc/core": "1.3.82",
     "@types/node": "^20.8.6",
@@ -128,6 +131,7 @@
       "./src/guards/main.ts",
       "./providers/shield_provider.ts",
       "./src/shield_middleware.ts",
+      "./src/plugins/api_client.ts",
       "./src/types.ts"
     ],
     "outDir": "./build",
