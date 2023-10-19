@@ -1,4 +1,5 @@
 import { assert } from '@japa/assert'
+import { fileSystem } from '@japa/file-system'
 import { processCLIArgs, configure, run } from '@japa/runner'
 
 /*
@@ -18,7 +19,7 @@ processCLIArgs(process.argv.slice(2))
 configure({
   ...{
     files: ['test/**/*.spec.ts'],
-    plugins: [assert()],
+    plugins: [assert(), fileSystem()],
   },
 })
 
