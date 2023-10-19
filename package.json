@@ -8,13 +8,7 @@
   "main": "build/index.js",
   "type": "module",
   "files": [
-    "build/providers",
-    "build/src",
-    "build/stubs",
-    "build/index.d.ts",
-    "build/index.js",
-    "build/configure.d.ts",
-    "build/configure.js"
+    "build"
   ],
   "exports": {
     ".": "./build/index.js",
