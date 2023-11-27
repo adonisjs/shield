@@ -362,7 +362,7 @@ test.group('Csrf', () => {
   })
 
   test('flash CSRF error message via flash messages', async ({ assert }) => {
-    assert.plan(2)
+    assert.plan(1)
 
     const app = await setup()
     const ctx = new HttpContextFactory().create()
@@ -382,7 +382,7 @@ test.group('Csrf', () => {
     try {
       await csrf(ctx)
     } catch (error) {
-      error.handle(error, ctx)
+      await error.handle(error, ctx)
       assert.deepEqual(ctx.session.responseFlashMessages.all(), {
         error: {
           message: 'Invalid or expired CSRF token',
