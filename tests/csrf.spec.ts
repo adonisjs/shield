@@ -360,4 +360,35 @@ test.group('Csrf', () => {
       ctx.request.csrfToken
     )
   })
+
+  test('flash CSRF error message via flash messages', async ({ assert }) => {
+    assert.plan(2)
+
+    const app = await setup()
+    const ctx = new HttpContextFactory().create()
+    const encrpytion = await app.container.make('encryption')
+    const middleware = await new SessionMiddlewareFactory().create()
+
+    await middleware.handle(ctx, async () => {
+      ctx.route = { pattern: '/' } as any
+      ctx.request.request.method = 'PATCH'
+
+      const secret = await tokens.secret()
+      const csrfToken = tokens.create(secret)
+      ctx.request.updateBody({ _csrf: csrfToken })
+    })
+
+    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encrpytion)
+    try {
+      await csrf(ctx)
+    } catch (error) {
+      error.handle(error, ctx)
+      assert.deepEqual(ctx.session.responseFlashMessages.all(), {
+        error: {
+          message: 'Invalid or expired CSRF token',
+          code: 'E_BAD_CSRF_TOKEN',
+        },
+      })
+    }
+  })
 })

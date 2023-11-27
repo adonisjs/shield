@@ -130,7 +130,7 @@
     ],
     "exclude": [
       "tests/**",
-      "test_helpers/**",
+      "tests_helpers/**",
       "stubs/**"
     ]
   },
