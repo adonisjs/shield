@@ -8,7 +8,6 @@
  */
 
 export { configure } from './configure.js'
-export { stubsRoot } from './stubs/main.js'
 export * as errors from './src/errors.js'
 export { defineConfig } from './src/define_config.js'
 export { cspKeywords } from './src/guards/csp/keywords.js'
