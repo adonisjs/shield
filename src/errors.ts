@@ -18,11 +18,8 @@ export const E_BAD_CSRF_TOKEN = class InvalidCSRFToken extends Exception {
   message = 'Invalid or expired CSRF token'
 
   async handle(error: InvalidCSRFToken, ctx: HttpContext) {
-    ctx.session.flash({
-      error: {
-        message: error.message,
-        code: error.code,
-      },
+    ctx.session.flashErrors({
+      [error.code]: error.message,
     })
     ctx.response.redirect().back()
   }
