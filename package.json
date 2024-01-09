@@ -138,6 +138,7 @@
     "entry": [
       "./index.ts",
       "./src/guards/main.ts",
+      "./src/types.ts",
       "./providers/shield_provider.ts",
       "./src/shield_middleware.ts",
       "./src/plugins/api_client.ts"
