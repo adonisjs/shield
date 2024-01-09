@@ -74,10 +74,10 @@
     "helmet-csp": "^3.4.0"
   },
   "peerDependencies": {
-    "@adonisjs/core": "^6.1.5-36",
-    "@adonisjs/session": "^7.0.0-15",
+    "@adonisjs/core": "^6.2.0",
+    "@adonisjs/session": "^7.0.0",
     "@japa/api-client": "^2.0.2",
-    "edge.js": "^6.0.0"
+    "edge.js": "^6.0.1"
   },
   "peerDependenciesMeta": {
     "@japa/api-client": {
