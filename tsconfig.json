@@ -1,14 +1,7 @@
 {
-  "extends": "./node_modules/@adonisjs/mrm-preset/_tsconfig",
-  "files": [
-    "./node_modules/@adonisjs/core/build/adonis-typings/index.d.ts",
-    "./node_modules/@adonisjs/session/build/adonis-typings/index.d.ts",
-    "./node_modules/@adonisjs/view/build/adonis-typings/index.d.ts",
-    "./node_modules/@japa/preset-adonis/build/adonis-typings/index.d.ts"
-  ],
+  "extends": "@adonisjs/tsconfig/tsconfig.package.json",
   "compilerOptions": {
-    "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "rootDir": "./",
+    "outDir": "./build"
   }
 }
