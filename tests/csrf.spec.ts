@@ -18,6 +18,7 @@ import { SessionMiddlewareFactory } from '@adonisjs/session/factories'
 import { setup } from './helpers.js'
 import { csrfFactory } from '../src/guards/csrf.js'
 import { E_BAD_CSRF_TOKEN } from '../src/errors.js'
+import { I18nManagerFactory } from '@adonisjs/i18n/factories'
 
 const tokens = new Tokens()
 
@@ -386,6 +387,59 @@ test.group('Csrf', () => {
       assert.deepEqual(ctx.session.responseFlashMessages.all(), {
         errorsBag: {
           E_BAD_CSRF_TOKEN: 'Invalid or expired CSRF token',
+        },
+        input: {},
+      })
+    }
+  })
+
+  test('get error message from i18n', async ({ assert }) => {
+    assert.plan(1)
+
+    const app = await setup()
+    const ctx = new HttpContextFactory().create()
+    const encrpytion = await app.container.make('encryption')
+    const middleware = await new SessionMiddlewareFactory().create()
+
+    const i18nManager = new I18nManagerFactory()
+      .merge({
+        config: {
+          loaders: [
+            () => {
+              return {
+                async load() {
+                  return {
+                    en: {
+                      'errors.E_BAD_CSRF_TOKEN': 'Session expired',
+                    },
+                  }
+                },
+              }
+            },
+          ],
+        },
+      })
+      .create()
+
+    await middleware.handle(ctx, async () => {
+      ctx.route = { pattern: '/' } as any
+      ctx.request.request.method = 'PATCH'
+      await i18nManager.loadTranslations()
+      ctx.i18n = i18nManager.locale('en')
+
+      const secret = await tokens.secret()
+      const csrfToken = tokens.create(secret)
+      ctx.request.updateBody({ _csrf: csrfToken })
+    })
+
+    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encrpytion)
+    try {
+      await csrf(ctx)
+    } catch (error) {
+      await error.handle(error, ctx)
+      assert.deepEqual(ctx.session.responseFlashMessages.all(), {
+        errorsBag: {
+          E_BAD_CSRF_TOKEN: 'Session expired',
         },
         input: {},
       })

@@ -42,6 +42,7 @@
     "@adonisjs/assembler": "^7.1.0",
     "@adonisjs/core": "^6.2.1",
     "@adonisjs/eslint-config": "^1.2.1",
+    "@adonisjs/i18n": "^2.0.0",
     "@adonisjs/prettier-config": "^1.2.1",
     "@adonisjs/session": "^7.1.0",
     "@adonisjs/tsconfig": "^1.2.1",
@@ -75,6 +76,7 @@
   "peerDependencies": {
     "@adonisjs/core": "^6.2.0",
     "@adonisjs/session": "^7.0.0",
+    "@adonisjs/i18n": "^2.0.0",
     "@japa/api-client": "^2.0.2",
     "edge.js": "^6.0.1"
   },
@@ -83,6 +85,9 @@
       "optional": true
     },
     "edge.js": {
+      "optional": true
+    },
+    "@adonisjs/i18n": {
       "optional": true
     }
   },
