@@ -15,7 +15,7 @@ import { test } from '@japa/runner'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 import { SessionMiddlewareFactory } from '@adonisjs/session/factories'
 
-import { setup } from '../tests_helpers/index.js'
+import { setup } from './helpers.js'
 import { csrfFactory } from '../src/guards/csrf.js'
 import { E_BAD_CSRF_TOKEN } from '../src/errors.js'
 

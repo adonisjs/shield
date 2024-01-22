@@ -10,8 +10,7 @@
   "files": [
     "build",
     "!build/bin",
-    "!build/tests",
-    "!build/tests_helpers"
+    "!build/tests"
   ],
   "exports": {
     ".": "./build/index.js",
