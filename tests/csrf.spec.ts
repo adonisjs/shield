@@ -387,6 +387,7 @@ test.group('Csrf', () => {
         errorsBag: {
           E_BAD_CSRF_TOKEN: 'Invalid or expired CSRF token',
         },
+        input: {},
       })
     }
   })
