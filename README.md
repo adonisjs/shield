@@ -8,7 +8,7 @@
 A package to keep AdonisJS applications safe from common Web attacks like **XSS**, **CSRF Protection** and a lot more.
 
 ## Official Documentation
-The documentation is available on the [AdonisJS website](https://docs.adonisjs.com/guides/security/web-security)
+The documentation is available on the [AdonisJS website](https://docs.adonisjs.com/guides/web-security)
 
 ## Contributing
 One of the primary goals of AdonisJS is to have a vibrant community of users and contributors who believes in the principles of the framework.
