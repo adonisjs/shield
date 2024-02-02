@@ -82,7 +82,7 @@ export async function runJapaTest(app: ApplicationService, callback: Parameters<
         activated: [syncReporter.name],
         list: [syncReporter as NamedReporterContract],
       },
-      plugins: [apiClient(), pluginAdonisJS(app), sessionApiClient(app), shieldApiClient],
+      plugins: [apiClient(), pluginAdonisJS(app), sessionApiClient(app), shieldApiClient()],
       files: [],
     })
     .runTest('testing japa integration', callback)

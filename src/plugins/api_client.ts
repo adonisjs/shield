@@ -26,23 +26,27 @@ declare module '@japa/api-client' {
  * Configures the API client plugin to support CSRF
  * tokens
  */
-export const shieldApiClient: PluginFn = () => {
-  ApiRequest.macro('withCsrfToken', function (this: ApiRequest) {
-    this[CSRF_ENABLED] = true
-    return this
-  })
+export const shieldApiClient = () => {
+  const pluginFn: PluginFn = function () {
+    ApiRequest.macro('withCsrfToken', function (this: ApiRequest) {
+      this[CSRF_ENABLED] = true
+      return this
+    })
 
-  ApiClient.setup(async (request) => {
-    const isCSRFEnabled = request[CSRF_ENABLED]
-    if (!isCSRFEnabled) {
-      return
-    }
+    ApiClient.setup(async (request) => {
+      const isCSRFEnabled = request[CSRF_ENABLED]
+      if (!isCSRFEnabled) {
+        return
+      }
 
-    const tokens = new Tokens()
-    const secret = await tokens.secret()
-    const token = tokens.create(secret)
+      const tokens = new Tokens()
+      const secret = await tokens.secret()
+      const token = tokens.create(secret)
 
-    request.withSession({ 'csrf-secret': secret })
-    request.header('x-csrf-token', token)
-  })
+      request.withSession({ 'csrf-secret': secret })
+      request.header('x-csrf-token', token)
+    })
+  }
+
+  return pluginFn
 }
