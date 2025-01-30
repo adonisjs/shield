@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/no-await-expression-member */
-
 /*
  * @adonisjs/shield
  *
