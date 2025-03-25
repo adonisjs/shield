@@ -198,16 +198,6 @@ export class CsrfGuard {
     const csrfSecret = await this.#getCsrfSecret(ctx)
 
     /**
-     * Validate current request before moving forward
-     */
-    if (this.#shouldValidateRequest(ctx)) {
-      const csrfToken = this.#getCsrfTokenFromRequest(ctx)
-      if (!csrfToken || !this.#tokens.verify(csrfSecret, csrfToken)) {
-        throw new E_BAD_CSRF_TOKEN()
-      }
-    }
-
-    /**
      * Add csrf token on the request
      */
     ctx.request.csrfToken = this.#generateCsrfToken(csrfSecret)
@@ -226,6 +216,16 @@ export class CsrfGuard {
      * Share with the view engine
      */
     this.#shareCsrfViewLocals(ctx)
+
+    /**
+     * Validate current request before moving forward
+     */
+    if (this.#shouldValidateRequest(ctx)) {
+      const csrfToken = this.#getCsrfTokenFromRequest(ctx)
+      if (!csrfToken || !this.#tokens.verify(csrfSecret, csrfToken)) {
+        throw new E_BAD_CSRF_TOKEN()
+      }
+    }
   }
 }
 

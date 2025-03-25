@@ -328,6 +328,38 @@ test.group('Csrf', () => {
     )
   })
 
+  test('share CSRF token with templates and request even when request fails', async ({
+    assert,
+  }) => {
+    const app = await setup()
+    const ctx = new HttpContextFactory().create()
+    const encrpytion = await app.container.make('encryption')
+    const middleware = await new SessionMiddlewareFactory().create()
+
+    await middleware.handle(ctx, async () => {
+      ctx.route = { pattern: '/' } as any
+      ctx.request.request.method = 'PATCH'
+
+      const secret = await tokens.secret()
+      const csrfToken = tokens.create(secret)
+      ctx.request.updateBody({ _csrf: csrfToken })
+    })
+
+    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encrpytion, Edge.create())
+    await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
+    assert.exists(ctx.request.csrfToken)
+
+    assert.equal(
+      await ctx.view.renderRaw('{{ csrfMeta() }}'),
+      `<meta name='csrf-token' content='${ctx.request.csrfToken}'>`
+    )
+
+    assert.equal(
+      await ctx.view.renderRaw('{{ csrfField() }}'),
+      `<input type='hidden' name='_csrf' value='${ctx.request.csrfToken}'>`
+    )
+  })
+
   test('generate csrf token and share as a cookie when enableXsrfCookie is true', async ({
     assert,
   }) => {
