@@ -7,10 +7,10 @@
  * file that was distributed with this source code.
  */
 
-import type { ContentSecurityPolicyOptions } from 'helmet-csp'
 import type { ServerResponse, IncomingMessage } from 'node:http'
 
 import type { ValueOf } from '../../types.js'
+import type { ContentSecurityPolicyOptions } from '../../helmet-csp.cts'
 
 /**
  * A collection of CSP keywords that are resolved to actual values

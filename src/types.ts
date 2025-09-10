@@ -9,7 +9,7 @@
 
 import type { HttpContext } from '@adonisjs/core/http'
 import type { CookieOptions } from '@adonisjs/core/types/http'
-import type { ContentSecurityPolicyOptions } from 'helmet-csp'
+import type { ContentSecurityPolicyOptions } from './helmet-csp.cts'
 
 export type ValueOf<T> = T[keyof T]
 

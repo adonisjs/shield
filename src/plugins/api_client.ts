@@ -10,7 +10,7 @@
 /// <reference types="@adonisjs/session/plugins/api_client" />
 
 import Tokens from 'csrf'
-import { PluginFn } from '@japa/runner/types'
+import { type PluginFn } from '@japa/runner/types'
 import { ApiClient, ApiRequest } from '@japa/api-client'
 
 const CSRF_ENABLED = Symbol.for('CSRF_ENABLED')

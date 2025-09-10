@@ -7,4 +7,5 @@
  * file that was distributed with this source code.
  */
 
-export const stubsRoot = import.meta.dirname
+export * from 'helmet-csp'
+export { default as helmetMiddleware } from 'helmet-csp'

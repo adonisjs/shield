@@ -10,13 +10,13 @@
 /// <reference types="@adonisjs/core/providers/edge_provider" />
 /// <reference path="../../shield_middleware.ts" />
 
-import helmetCsp from 'helmet-csp'
 import string from '@adonisjs/core/helpers/string'
 import { type HttpContext } from '@adonisjs/core/http'
 
 import { noop } from '../../noop.js'
 import { cspKeywords } from './keywords.js'
 import type { CspOptions } from '../../types.js'
+import { helmetMiddleware } from '../../helmet-csp.cts'
 
 /**
  * Registering nonce keyword
@@ -46,7 +46,10 @@ export function cspFactory(options: CspOptions) {
   /**
    * The types of "helmetCsp" package are messed up
    */
-  const helmetCspMiddleware = (helmetCsp as unknown as typeof helmetCsp.default)(options)
+  const helmetCspMiddleware = helmetMiddleware({
+    ...options,
+    useDefaults: false,
+  })
 
   return function csp(ctx: HttpContext) {
     return new Promise<void>((resolve, reject) => {

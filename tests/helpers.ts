@@ -7,17 +7,17 @@
  * file that was distributed with this source code.
  */
 
-import { Test } from '@japa/runner/core'
+import { type Test } from '@japa/runner/core'
 import { getActiveTest } from '@japa/runner'
 import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import { ApiClient, apiClient } from '@japa/api-client'
-import { ApplicationService } from '@adonisjs/core/types'
+import { type ApplicationService } from '@adonisjs/core/types'
 import { IgnitorFactory } from '@adonisjs/core/factories'
-import { NamedReporterContract } from '@japa/runner/types'
+import { type NamedReporterContract } from '@japa/runner/types'
 import { runner, syncReporter } from '@japa/runner/factories'
 import { defineConfig as defineSessionConfig } from '@adonisjs/session'
 import { sessionApiClient } from '@adonisjs/session/plugins/api_client'
-import { IncomingMessage, ServerResponse, createServer } from 'node:http'
+import { type IncomingMessage, type ServerResponse, createServer } from 'node:http'
 
 import { shieldApiClient } from '../src/plugins/api_client.js'
 

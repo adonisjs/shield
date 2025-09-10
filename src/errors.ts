@@ -10,8 +10,8 @@
 /// <reference types="@adonisjs/session/session_middleware" />
 
 import type { I18n } from '@adonisjs/i18n'
-import { Exception } from '@poppinss/utils'
-import { HttpContext } from '@adonisjs/core/http'
+import { Exception } from '@adonisjs/core/exceptions'
+import { type HttpContext } from '@adonisjs/core/http'
 
 export const E_BAD_CSRF_TOKEN = class InvalidCSRFToken extends Exception {
   code = 'E_BAD_CSRF_TOKEN'
