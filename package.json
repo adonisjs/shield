@@ -1,7 +1,7 @@
 {
   "name": "@adonisjs/shield",
   "description": "A middleware for AdonisJS to keep web applications secure from common web attacks",
-  "version": "8.1.2",
+  "version": "9.0.0-next.0",
   "engines": {
     "node": ">=24.0.0"
   },
