@@ -23,8 +23,19 @@ declare module '@japa/api-client' {
 }
 
 /**
- * Configures the API client plugin to support CSRF
- * tokens
+ * Configures the API client plugin to support CSRF tokens.
+ * Adds a `withCsrfToken()` method to API requests that automatically
+ * generates and includes CSRF tokens for testing.
+ *
+ * @example
+ * const plugin = shieldApiClient()
+ *
+ * test('authenticated request', async ({ client }) => {
+ *   const response = await client
+ *     .post('/api/users')
+ *     .withCsrfToken()
+ *     .json({ name: 'John' })
+ * })
  */
 export const shieldApiClient = () => {
   const pluginFn: PluginFn = function () {

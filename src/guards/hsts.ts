@@ -16,7 +16,10 @@ import type { HstsOptions } from '../types.ts'
 const DEFAULT_MAX_AGE = 180 * 24 * 60 * 60
 
 /**
- * Normalizes the max age to seconds
+ * Normalizes the max age to seconds.
+ * Converts string-based time expressions to seconds or uses the provided number.
+ *
+ * @param maxAge - The max age value as string (e.g., '1 year') or number (seconds)
  */
 function normalizeMaxAge(maxAge?: string | number): number {
   if (maxAge === null || maxAge === undefined) {
@@ -32,8 +35,17 @@ function normalizeMaxAge(maxAge?: string | number): number {
 }
 
 /**
- * Factory function that returns a new function to Add `Strict-Transport-Security`
- * header based upon given user options.
+ * Factory function that returns a new function to add `Strict-Transport-Security`
+ * header based upon given user options. Enables HTTPS enforcement for enhanced security.
+ *
+ * @param options - HSTS configuration options
+ *
+ * @example
+ * const hstsGuard = hstsFactory({
+ *   enabled: true,
+ *   maxAge: '1 year',
+ *   includeSubDomains: true
+ * })
  */
 export function hstsFactory(options: HstsOptions) {
   if (!options.enabled) {

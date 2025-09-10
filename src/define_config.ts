@@ -10,7 +10,16 @@
 import type { ShieldConfig } from './types.ts'
 
 /**
- * Define shield configuration
+ * Define shield configuration with default values.
+ * Merges provided partial configuration with defaults where all guards are disabled by default.
+ *
+ * @param config - Partial shield configuration object
+ *
+ * @example
+ * const shieldConfig = defineConfig({
+ *   csrf: { enabled: true },
+ *   hsts: { enabled: true, maxAge: '1 year' }
+ * })
  */
 export function defineConfig(config: Partial<ShieldConfig>): ShieldConfig {
   return {

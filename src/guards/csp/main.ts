@@ -27,7 +27,18 @@ cspKeywords.register('@nonce', function (_, response) {
 
 /**
  * Factory that returns a function to set the `Content-Security-Policy` header based upon
- * the user config
+ * the user configuration. Provides protection against XSS and code injection attacks.
+ *
+ * @param options - CSP configuration options
+ *
+ * @example
+ * const cspGuard = cspFactory({
+ *   enabled: true,
+ *   directives: {
+ *     defaultSrc: ["'self'"],
+ *     scriptSrc: ["'self'", '@nonce']
+ *   }
+ * })
  */
 export function cspFactory(options: CspOptions) {
   if (!options.enabled) {

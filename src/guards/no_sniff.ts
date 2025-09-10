@@ -12,8 +12,13 @@ import type { ContentTypeSniffingOptions } from '../types.ts'
 import { noop } from '../noop.ts'
 
 /**
- * Factory function that returns a function to Add `X-Content-Type-Options`
- * header based upon given user options.
+ * Factory function that returns a function to add `X-Content-Type-Options`
+ * header based upon given user options. Prevents MIME type sniffing attacks.
+ *
+ * @param options - Content type sniffing configuration options
+ *
+ * @example
+ * const noSniffGuard = noSniffFactory({ enabled: true })
  */
 export function noSniffFactory(options: ContentTypeSniffingOptions) {
   if (!options.enabled) {

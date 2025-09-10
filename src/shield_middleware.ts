@@ -15,33 +15,88 @@ import type { EncryptionService } from '@adonisjs/core/types'
 import * as shield from './guards/main.ts'
 import type { ShieldConfig } from './types.ts'
 
+/**
+ * Module augmentation for AdonisJS HTTP core types.
+ * Extends Request and Response interfaces with Shield-specific properties.
+ */
 declare module '@adonisjs/core/http' {
+  /**
+   * Extended Request interface with CSRF token support.
+   */
   interface Request {
+    /**
+     * The CSRF token for the current request.
+     * Generated and attached by the CSRF guard for use in forms and AJAX requests.
+     *
+     * @example
+     * // In a controller
+     * const token = ctx.request.csrfToken
+     *
+     * // In a template
+     * <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+     */
     csrfToken: string
   }
 
+  /**
+   * Extended Response interface with CSP nonce support.
+   */
   interface Response {
+    /**
+     * A cryptographically secure random nonce for Content Security Policy.
+     * Used to allow specific inline scripts and styles while maintaining CSP security.
+     *
+     * @example
+     * // In a template
+     * <script nonce="{{ cspNonce }}">console.log('Safe inline script')</script>
+     */
     nonce: string
   }
 }
 
 /**
- * Extending the Node.js ServerResponse with
- * our new `nonce` property
+ * Module augmentation for Node.js HTTP ServerResponse.
+ * Extends the native ServerResponse interface to include the nonce property
+ * required by the helmet-csp middleware for CSP nonce generation.
  */
 declare module 'node:http' {
+  /**
+   * Extended ServerResponse interface with CSP nonce support.
+   */
   export interface ServerResponse {
+    /**
+     * A cryptographically secure random nonce for Content Security Policy.
+     * This property is set by the CSP guard and consumed by the helmet-csp middleware.
+     *
+     * @example
+     * // Set by Shield's CSP guard
+     * response.nonce = generateRandomNonce()
+     */
     nonce: string
   }
 }
 
 /**
- * Shield middleware to protect web applications against common
- * web attacks
+ * Shield middleware to protect web applications against common web attacks.
+ * Applies multiple security guards including CSRF, CSP, HSTS, frame guard, and content type sniffing protection.
+ *
+ * @example
+ * const middleware = new ShieldMiddleware(config, encryption, edge)
+ * router.use(middleware.handle.bind(middleware))
  */
 export default class ShieldMiddleware {
+  /**
+   * Array of security guard functions to be executed on each request
+   */
   #guards: ((ctx: HttpContext) => any)[] = []
 
+  /**
+   * Creates a new ShieldMiddleware instance with the provided configuration.
+   *
+   * @param config - Shield configuration object
+   * @param encryption - Encryption service for CSRF tokens
+   * @param edge - Optional Edge template engine instance
+   */
   constructor(config: ShieldConfig, encryption: EncryptionService, edge?: Edge) {
     this.#guards = [
       shield.csrfFactory(config.csrf || {}, encryption, edge),
@@ -53,7 +108,10 @@ export default class ShieldMiddleware {
   }
 
   /**
-   * Handle request
+   * Handle incoming HTTP request by applying all configured security guards.
+   *
+   * @param ctx - HTTP context object
+   * @param next - Next middleware function in the chain
    */
   async handle(ctx: HttpContext, next: () => Promise<void>) {
     for (let action of this.#guards) {

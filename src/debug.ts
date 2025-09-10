@@ -8,4 +8,12 @@
  */
 
 import { debuglog } from 'node:util'
+
+/**
+ * Debug logger instance for the Shield package.
+ * Logs debug messages when NODE_DEBUG=adonisjs:shield is set.
+ *
+ * @example
+ * debug('csrf: ignoring request for "%s" method', ctx.request.method())
+ */
 export default debuglog('adonisjs:shield')

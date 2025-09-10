@@ -16,7 +16,15 @@ const ALLOWED_ACTIONS = ['DENY', 'ALLOW-FROM', 'SAMEORIGIN']
 
 /**
  * Factory function that returns a function to set `X-Frame-Options` header
- * based upon given user options.
+ * based upon given user options. Prevents clickjacking attacks.
+ *
+ * @param options - Frame guard configuration options
+ *
+ * @example
+ * const frameGuard = frameGuardFactory({
+ *   enabled: true,
+ *   action: 'SAMEORIGIN'
+ * })
  */
 export function frameGuardFactory(options: XFrameOptions) {
   if (!options.enabled) {

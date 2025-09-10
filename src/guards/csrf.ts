@@ -61,6 +61,13 @@ export class CsrfGuard {
    */
   #edge?: Edge
 
+  /**
+   * Creates a new CsrfGuard instance.
+   *
+   * @param options - CSRF configuration options
+   * @param encryption - Encryption service instance
+   * @param edge - Optional Edge template engine instance
+   */
   constructor(options: CsrfOptions, encryption: Encryption, edge?: Edge) {
     this.#options = options
     this.#encryption = encryption
@@ -71,7 +78,10 @@ export class CsrfGuard {
   }
 
   /**
-   * Find if a request should be validated or not
+   * Determines if a request should be validated for CSRF tokens.
+   * Checks against allowed methods and routes to ignore.
+   *
+   * @param ctx - HTTP context object
    */
   #shouldValidateRequest(ctx: HttpContext) {
     /**
@@ -106,12 +116,12 @@ export class CsrfGuard {
   }
 
   /**
-   * Read csrf token from one of the following sources.
+   * Reads CSRF token from one of the following sources:
+   * - `_csrf` form input field
+   * - `x-csrf-token` request header
+   * - `x-xsrf-token` header (when XSRF cookie is enabled)
    *
-   * - `_csrf` input
-   * - `x-csrf-token` header
-   * - Or `x-xsrf-token` header. The header value must be set by
-   *   reading the `XSRF-TOKEN` cookie.
+   * @param ctx - HTTP context object containing the request
    */
   #getCsrfTokenFromRequest({ request }: HttpContext): string | null {
     if (request.input('_csrf')) {
@@ -142,7 +152,10 @@ export class CsrfGuard {
   }
 
   /**
-   * Share csrf helper methods with the view engine.
+   * Shares CSRF helper methods with the view engine.
+   * Makes csrfToken, csrfMeta(), and csrfField() available in templates.
+   *
+   * @param ctx - HTTP context object
    */
   #shareCsrfViewLocals(ctx: HttpContext): void {
     if (!ctx.view || !this.#edge) {
@@ -165,16 +178,19 @@ export class CsrfGuard {
   }
 
   /**
-   * Generate a new csrf token using the csrf secret extracted from session.
+   * Generates a new CSRF token using the CSRF secret extracted from session.
+   *
+   * @param csrfSecret - The CSRF secret from the user's session
    */
   #generateCsrfToken(csrfSecret: string): string {
     return this.#tokens.create(csrfSecret)
   }
 
   /**
-   * Return the existing CSRF secret from the session or create a
-   * new one. Newly created secret is persisted to session at
-   * the same time
+   * Returns the existing CSRF secret from the session or creates a new one.
+   * Newly created secrets are persisted to the session automatically.
+   *
+   * @param ctx - HTTP context object
    */
   async #getCsrfSecret(ctx: HttpContext): Promise<string> {
     let csrfSecret = ctx.session.get(this.#secretSessionKey)
@@ -189,10 +205,11 @@ export class CsrfGuard {
   }
 
   /**
-   * Handle csrf verification. First, get the secret,
-   * next, check if the request method should be
-   * verified. Next, attach the newly generated
-   * csrf token to the request object.
+   * Handles CSRF verification for the current request.
+   * Gets or creates a CSRF secret, generates a token, optionally sets XSRF cookie,
+   * shares helpers with views, and validates the request if required.
+   *
+   * @param ctx - HTTP context object
    */
   async handle(ctx: HttpContext): Promise<void> {
     const csrfSecret = await this.#getCsrfSecret(ctx)
@@ -230,8 +247,18 @@ export class CsrfGuard {
 }
 
 /**
- * A factory function that returns a new function to enforce CSRF
- * protection
+ * A factory function that returns a new function to enforce CSRF protection.
+ * Creates a CsrfGuard instance and returns its handle method.
+ *
+ * @param options - CSRF configuration options
+ * @param encryption - Encryption service instance
+ * @param edge - Optional Edge template engine instance
+ *
+ * @example
+ * const csrfGuard = csrfFactory({
+ *   enabled: true,
+ *   methods: ['POST', 'PUT', 'DELETE']
+ * }, encryption, edge)
  */
 export function csrfFactory(options: CsrfOptions, encryption: Encryption, edge?: Edge) {
   if (!options.enabled) {
