@@ -11,8 +11,8 @@ import { Edge } from 'edge.js'
 import { test } from '@japa/runner'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
-import { cspFactory } from '../src/guards/csp/main.js'
-import { cspKeywords } from '../src/guards/csp/keywords.js'
+import { cspFactory } from '../src/guards/csp/main.ts'
+import { cspKeywords } from '../src/guards/csp/keywords.ts'
 
 test.group('Csp', () => {
   test('return noop function when enabled is false', async ({ assert }) => {

@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { frameGuardFactory } from '../src/guards/frame_guard.js'
+import { frameGuardFactory } from '../src/guards/frame_guard.ts'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
 test.group('FrameGuard', () => {

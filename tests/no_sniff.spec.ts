@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { noSniffFactory } from '../src/guards/no_sniff.js'
+import { noSniffFactory } from '../src/guards/no_sniff.ts'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
 test.group('No Sniff', () => {

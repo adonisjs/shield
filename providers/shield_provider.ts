@@ -9,8 +9,8 @@
 
 import type { ApplicationService } from '@adonisjs/core/types'
 
-import type { ShieldConfig } from '../src/types.js'
-import ShieldMiddleware from '../src/shield_middleware.js'
+import type { ShieldConfig } from '../src/types.ts'
+import ShieldMiddleware from '../src/shield_middleware.ts'
 
 /**
  * Provider to register shield middleware

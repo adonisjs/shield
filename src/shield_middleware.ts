@@ -12,8 +12,8 @@ import type { Edge } from 'edge.js'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { EncryptionService } from '@adonisjs/core/types'
 
-import * as shield from './guards/main.js'
-import type { ShieldConfig } from './types.js'
+import * as shield from './guards/main.ts'
+import type { ShieldConfig } from './types.ts'
 
 declare module '@adonisjs/core/http' {
   interface Request {

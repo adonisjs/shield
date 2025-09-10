@@ -7,8 +7,8 @@
  * file that was distributed with this source code.
  */
 
-export { configure } from './configure.js'
-export * as errors from './src/errors.js'
-export { stubsRoot } from './stubs/main.js'
-export { defineConfig } from './src/define_config.js'
-export { cspKeywords } from './src/guards/csp/keywords.js'
+export { configure } from './configure.ts'
+export * as errors from './src/errors.ts'
+export { stubsRoot } from './stubs/main.ts'
+export { defineConfig } from './src/define_config.ts'
+export { cspKeywords } from './src/guards/csp/keywords.ts'

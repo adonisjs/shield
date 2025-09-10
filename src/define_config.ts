@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import type { ShieldConfig } from './types.js'
+import type { ShieldConfig } from './types.ts'
 
 /**
  * Define shield configuration

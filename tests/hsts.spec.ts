@@ -8,7 +8,7 @@
  */
 
 import { test } from '@japa/runner'
-import { hstsFactory } from '../src/guards/hsts.js'
+import { hstsFactory } from '../src/guards/hsts.ts'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 
 test.group('Hsts', () => {

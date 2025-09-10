@@ -13,8 +13,8 @@ import { test } from '@japa/runner'
 import { SessionMiddlewareFactory } from '@adonisjs/session/factories'
 import { HttpContextFactory, RequestFactory, ResponseFactory } from '@adonisjs/core/factories/http'
 
-import { CsrfGuard } from '../../src/guards/csrf.js'
-import { httpServer, runJapaTest, setup } from '../helpers.js'
+import { CsrfGuard } from '../../src/guards/csrf.ts'
+import { httpServer, runJapaTest, setup } from '../helpers.ts'
 
 test.group('Api client', () => {
   test('set csrf token session and the header', async ({ assert }) => {

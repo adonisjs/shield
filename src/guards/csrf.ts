@@ -15,10 +15,10 @@ import type { Edge } from 'edge.js'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { Encryption } from '@adonisjs/core/encryption'
 
-import debug from '../debug.js'
-import { noop } from '../noop.js'
-import type { CsrfOptions } from '../types.js'
-import { E_BAD_CSRF_TOKEN } from '../errors.js'
+import debug from '../debug.ts'
+import { noop } from '../noop.ts'
+import type { CsrfOptions } from '../types.ts'
+import { E_BAD_CSRF_TOKEN } from '../errors.ts'
 
 /**
  * A class to encapsulate the logic of verifying and generating

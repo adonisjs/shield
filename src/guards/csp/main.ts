@@ -13,9 +13,9 @@
 import string from '@adonisjs/core/helpers/string'
 import { type HttpContext } from '@adonisjs/core/http'
 
-import { noop } from '../../noop.js'
-import { cspKeywords } from './keywords.js'
-import type { CspOptions } from '../../types.js'
+import { noop } from '../../noop.ts'
+import { cspKeywords } from './keywords.ts'
+import type { CspOptions } from '../../types.ts'
 import { helmetMiddleware } from '../../helmet-csp.cts'
 
 /**

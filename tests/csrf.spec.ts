@@ -13,9 +13,9 @@ import { test } from '@japa/runner'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 import { SessionMiddlewareFactory } from '@adonisjs/session/factories'
 
-import { setup } from './helpers.js'
-import { csrfFactory } from '../src/guards/csrf.js'
-import { E_BAD_CSRF_TOKEN } from '../src/errors.js'
+import { setup } from './helpers.ts'
+import { csrfFactory } from '../src/guards/csrf.ts'
+import { E_BAD_CSRF_TOKEN } from '../src/errors.ts'
 import { I18nManagerFactory } from '@adonisjs/i18n/factories'
 
 const tokens = new Tokens()

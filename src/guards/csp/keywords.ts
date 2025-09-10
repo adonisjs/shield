@@ -9,7 +9,7 @@
 
 import type { ServerResponse, IncomingMessage } from 'node:http'
 
-import type { ValueOf } from '../../types.js'
+import type { ValueOf } from '../../types.ts'
 import type { ContentSecurityPolicyOptions } from '../../helmet-csp.cts'
 
 /**
