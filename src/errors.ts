@@ -32,7 +32,10 @@ export const E_BAD_CSRF_TOKEN = class InvalidCSRFToken extends Exception {
   }
 
   async handle(error: this, ctx: HttpContext) {
-    ctx.session.flashExcept(['_csrf', '_method', 'password', 'password_confirmation'])
+    if (!ctx.request.header('X-Inertia')) {
+      ctx.session.flashExcept(['_csrf', '_method', 'password', 'password_confirmation'])
+    }
+
     ctx.session.flashErrors({
       [error.code]: this.getResponseMessage(error, ctx),
     })
