@@ -16,7 +16,7 @@ import { type HttpContext } from '@adonisjs/core/http'
 import { noop } from '../../noop.ts'
 import { cspKeywords } from './keywords.ts'
 import type { CspOptions } from '../../types.ts'
-import { helmetMiddleware } from '../../helmet-csp.cts'
+import helmetMiddleware from '../../helmet_csp.ts'
 
 /**
  * Registering nonce keyword

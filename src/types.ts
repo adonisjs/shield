@@ -9,7 +9,7 @@
 
 import type { HttpContext } from '@adonisjs/core/http'
 import type { CookieOptions } from '@adonisjs/core/types/http'
-import type { ContentSecurityPolicyOptions } from './helmet-csp.cts'
+import type { ContentSecurityPolicyOptions } from './helmet_csp.ts'
 
 /**
  * Utility type that extracts the values of all properties in an object type.
