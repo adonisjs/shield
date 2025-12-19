@@ -11,6 +11,7 @@ import Tokens from 'csrf'
 import getPort from 'get-port'
 import { test } from '@japa/runner'
 import { SessionMiddlewareFactory } from '@adonisjs/session/factories'
+import { EncryptionFactory } from '@adonisjs/core/factories/encryption'
 import { HttpContextFactory, RequestFactory, ResponseFactory } from '@adonisjs/core/factories/http'
 
 import { CsrfGuard } from '../../src/guards/csrf.ts'
@@ -21,7 +22,7 @@ test.group('Api client', () => {
     const app = await setup()
 
     const server = httpServer.create(async (req, res) => {
-      const encryption = await app.container.make('encryption')
+      const encryption = new EncryptionFactory().create()
       const request = new RequestFactory().merge({ req, res, encryption }).create()
       const response = new ResponseFactory().merge({ req, res, encryption }).create()
       const ctx = new HttpContextFactory().merge({ request, response }).create()

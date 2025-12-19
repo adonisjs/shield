@@ -41,7 +41,8 @@ export default class ShieldProvider {
   async register() {
     this.app.container.bind(ShieldMiddleware, async () => {
       const config = this.app.config.get<ShieldConfig>('shield', {})
-      const encryption = await this.app.container.make('encryption')
+      const encryptionManager = await this.app.container.make('encryption')
+      const encryption = encryptionManager.use()
 
       if (this.app.usingEdgeJS) {
         const edge = await import('edge.js')

@@ -10,10 +10,10 @@
 import type {} from 'node:http'
 import type { Edge } from 'edge.js'
 import type { HttpContext } from '@adonisjs/core/http'
-import type { EncryptionService } from '@adonisjs/core/types'
 
 import * as shield from './guards/main.ts'
 import type { ShieldConfig } from './types.ts'
+import { type Encryption } from '@adonisjs/core/encryption'
 
 /**
  * Module augmentation for AdonisJS HTTP core types.
@@ -23,7 +23,7 @@ declare module '@adonisjs/core/http' {
   /**
    * Extended Request interface with CSRF token support.
    */
-  interface Request {
+  interface HttpRequest {
     /**
      * The CSRF token for the current request.
      * Generated and attached by the CSRF guard for use in forms and AJAX requests.
@@ -41,7 +41,7 @@ declare module '@adonisjs/core/http' {
   /**
    * Extended Response interface with CSP nonce support.
    */
-  interface Response {
+  interface HttpResponse {
     /**
      * A cryptographically secure random nonce for Content Security Policy.
      * Used to allow specific inline scripts and styles while maintaining CSP security.
@@ -97,7 +97,7 @@ export default class ShieldMiddleware {
    * @param encryption - Encryption service for CSRF tokens
    * @param edge - Optional Edge template engine instance
    */
-  constructor(config: ShieldConfig, encryption: EncryptionService, edge?: Edge) {
+  constructor(config: ShieldConfig, encryption: Encryption, edge?: Edge) {
     this.#guards = [
       shield.csrfFactory(config.csrf || {}, encryption, edge),
       shield.cspFactory(config.csp || {}),

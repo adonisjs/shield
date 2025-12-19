@@ -12,6 +12,7 @@ import { Edge } from 'edge.js'
 import { test } from '@japa/runner'
 import { HttpContextFactory } from '@adonisjs/core/factories/http'
 import { SessionMiddlewareFactory } from '@adonisjs/session/factories'
+import { EncryptionFactory } from '@adonisjs/core/factories/encryption'
 
 import { setup } from './helpers.ts'
 import { csrfFactory } from '../src/guards/csrf.ts'
@@ -22,19 +23,18 @@ const tokens = new Tokens()
 
 test.group('Csrf', () => {
   test('return noop function when enabled is false', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
 
-    const csrf = csrfFactory({ enabled: false }, await app.container.make('encryption'))
+    const csrf = csrfFactory({ enabled: false }, new EncryptionFactory().create())
 
     csrf(ctx)
     assert.isUndefined(ctx.request.csrfToken)
   })
 
   test('validate csrf token on a request', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, () => {
@@ -42,14 +42,13 @@ test.group('Csrf', () => {
       ctx.request.request.method = 'POST'
     })
 
-    const csrf = csrfFactory({ enabled: true }, encrpytion)
+    const csrf = csrfFactory({ enabled: true }, new EncryptionFactory().create())
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
   })
 
   test('skip validation when request method is not one of allowed methods', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, () => {
@@ -58,16 +57,18 @@ test.group('Csrf', () => {
       ctx.request.request.method = 'PUT'
     })
 
-    const csrf = csrfFactory({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, methods: ['POST', 'PATCH', 'DELETE'] },
+      new EncryptionFactory().create()
+    )
 
-    await assert.doesNotRejects(() => csrf(ctx))
+    await assert.doesNotReject(() => csrf(ctx))
     assert.isDefined(ctx.request.csrfToken)
   })
 
   test('enforce validation request method is part of allowed methods', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, () => {
@@ -76,14 +77,16 @@ test.group('Csrf', () => {
       ctx.request.request.method = 'PATCH'
     })
 
-    const csrf = csrfFactory({ enabled: true, methods: ['POST', 'PATCH', 'DELETE'] }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, methods: ['POST', 'PATCH', 'DELETE'] },
+      new EncryptionFactory().create()
+    )
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
   })
 
   test('skip validation when request route is ignored', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, () => {
@@ -92,16 +95,19 @@ test.group('Csrf', () => {
       ctx.request.request.method = 'PATCH'
     })
 
-    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/users/:id'] }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, exceptRoutes: ['/users/:id'] },
+      new EncryptionFactory().create()
+    )
 
     await assert.doesNotRejects(() => csrf(ctx))
     assert.isDefined(ctx.request.csrfToken)
   })
 
   test('skip validation when request route is ignored using a callback', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, () => {
@@ -110,16 +116,19 @@ test.group('Csrf', () => {
       ctx.request.request.method = 'PATCH'
     })
 
-    const csrf = csrfFactory({ enabled: true, exceptRoutes: () => true }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, exceptRoutes: () => true },
+      new EncryptionFactory().create()
+    )
 
     await assert.doesNotRejects(() => csrf(ctx))
     assert.isDefined(ctx.request.csrfToken)
   })
 
   test('validate when request route is not ignored', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, () => {
@@ -128,14 +137,17 @@ test.group('Csrf', () => {
       ctx.request.request.method = 'PATCH'
     })
 
-    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['posts/:post/store'] }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, exceptRoutes: ['posts/:post/store'] },
+      new EncryptionFactory().create()
+    )
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
   })
 
   test('work fine when csrf token is provided as an input', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -149,14 +161,14 @@ test.group('Csrf', () => {
       ctx.request.updateBody({ _csrf: csrfToken })
     })
 
-    const csrf = csrfFactory({ enabled: true }, encrpytion)
+    const csrf = csrfFactory({ enabled: true }, new EncryptionFactory().create())
     await assert.doesNotRejects(() => csrf(ctx))
   })
 
   test('work fine when csrf token is provided as a header', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -172,14 +184,14 @@ test.group('Csrf', () => {
       }
     })
 
-    const csrf = csrfFactory({ enabled: true }, encrpytion)
+    const csrf = csrfFactory({ enabled: true }, new EncryptionFactory().create())
     await assert.doesNotRejects(() => csrf(ctx))
   })
 
   test('work fine when csrf token is provided as an encrypted token', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -191,18 +203,21 @@ test.group('Csrf', () => {
 
       const csrfToken = tokens.create(secret)
       ctx.request.request.headers = {
-        'x-xsrf-token': `e:${encrpytion.encrypt(csrfToken, undefined, 'XSRF-TOKEN')!}`,
+        'x-xsrf-token': `e:${new EncryptionFactory().create().encrypt(csrfToken, undefined, 'XSRF-TOKEN')!}`,
       }
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: true }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: true },
+      new EncryptionFactory().create()
+    )
     await assert.doesNotRejects(() => csrf(ctx))
   })
 
   test('fail when csrf input value is incorrect', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -211,14 +226,17 @@ test.group('Csrf', () => {
       ctx.request.updateBody({ _csrf: 'foo' })
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: true }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: true },
+      new EncryptionFactory().create()
+    )
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
   })
 
   test('fail when csrf header value is incorrect', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -229,14 +247,17 @@ test.group('Csrf', () => {
       }
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: true }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: true },
+      new EncryptionFactory().create()
+    )
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
   })
 
   test('fail when csrf encrypted header value is incorrect', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -247,16 +268,19 @@ test.group('Csrf', () => {
       }
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: true }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: true },
+      new EncryptionFactory().create()
+    )
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
   })
 
   test('fail when csrf encrypted header is valid but cookie feature is disabled', async ({
     assert,
   }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -268,18 +292,21 @@ test.group('Csrf', () => {
 
       const csrfToken = tokens.create(secret)
       ctx.request.request.headers = {
-        'x-xsrf-token': `e:${encrpytion.encrypt(csrfToken, undefined, 'XSRF-TOKEN')!}`,
+        'x-xsrf-token': `e:${new EncryptionFactory().create().encrypt(csrfToken, undefined, 'XSRF-TOKEN')!}`,
       }
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: false },
+      new EncryptionFactory().create()
+    )
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
   })
 
   test('fail when csrf secret session is missing', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -291,14 +318,17 @@ test.group('Csrf', () => {
       ctx.request.updateBody({ _csrf: csrfToken })
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: false },
+      new EncryptionFactory().create()
+    )
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
   })
 
   test('share CSRF token with templates and request', async ({ assert }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
     const secret = await tokens.secret()
 
@@ -309,7 +339,11 @@ test.group('Csrf', () => {
       ctx.session.put('csrf-secret', secret)
     })
 
-    const csrf = csrfFactory({ enabled: true, exceptRoutes: ['/'] }, encrpytion, Edge.create())
+    const csrf = csrfFactory(
+      { enabled: true, exceptRoutes: ['/'] },
+      new EncryptionFactory().create(),
+      Edge.create()
+    )
     await csrf(ctx)
 
     assert.isDefined(ctx.request.csrfToken)
@@ -331,9 +365,9 @@ test.group('Csrf', () => {
   test('share CSRF token with templates and request even when request fails', async ({
     assert,
   }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -345,7 +379,11 @@ test.group('Csrf', () => {
       ctx.request.updateBody({ _csrf: csrfToken })
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encrpytion, Edge.create())
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: false },
+      new EncryptionFactory().create(),
+      Edge.create()
+    )
     await assert.rejects(async () => csrf(ctx), new E_BAD_CSRF_TOKEN().message)
     assert.exists(ctx.request.csrfToken)
 
@@ -363,9 +401,9 @@ test.group('Csrf', () => {
   test('generate csrf token and share as a cookie when enableXsrfCookie is true', async ({
     assert,
   }) => {
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
     const secret = await tokens.secret()
 
@@ -378,7 +416,7 @@ test.group('Csrf', () => {
 
     const csrf = csrfFactory(
       { enabled: true, enableXsrfCookie: true, exceptRoutes: ['/'] },
-      encrpytion,
+      new EncryptionFactory().create(),
       Edge.create()
     )
     await csrf(ctx)
@@ -387,7 +425,7 @@ test.group('Csrf', () => {
     const cookie = decodeURIComponent(cookieHeader).match(/XSRF-TOKEN=e:[^;]+/)![0]
 
     assert.equal(
-      encrpytion.decrypt(cookie.replace('XSRF-TOKEN=e:', ''), 'XSRF-TOKEN'),
+      new EncryptionFactory().create().decrypt(cookie.replace('XSRF-TOKEN=e:', ''), 'XSRF-TOKEN'),
       ctx.request.csrfToken
     )
   })
@@ -395,9 +433,9 @@ test.group('Csrf', () => {
   test('flash CSRF error message via flash messages', async ({ assert }) => {
     assert.plan(1)
 
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     await middleware.handle(ctx, async () => {
@@ -409,7 +447,10 @@ test.group('Csrf', () => {
       ctx.request.updateBody({ _csrf: csrfToken })
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: false },
+      new EncryptionFactory().create()
+    )
     try {
       await csrf(ctx)
     } catch (error) {
@@ -426,9 +467,9 @@ test.group('Csrf', () => {
   test('get error message from i18n', async ({ assert }) => {
     assert.plan(1)
 
-    const app = await setup()
+    await setup()
     const ctx = new HttpContextFactory().create()
-    const encrpytion = await app.container.make('encryption')
+
     const middleware = await new SessionMiddlewareFactory().create()
 
     const i18nManager = new I18nManagerFactory()
@@ -462,7 +503,10 @@ test.group('Csrf', () => {
       ctx.request.updateBody({ _csrf: csrfToken })
     })
 
-    const csrf = csrfFactory({ enabled: true, enableXsrfCookie: false }, encrpytion)
+    const csrf = csrfFactory(
+      { enabled: true, enableXsrfCookie: false },
+      new EncryptionFactory().create()
+    )
     try {
       await csrf(ctx)
     } catch (error) {
