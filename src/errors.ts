@@ -53,8 +53,13 @@ export const E_BAD_CSRF_TOKEN = class InvalidCSRFToken extends Exception {
       ctx.session.flashExcept(['_csrf', '_method', 'password', 'password_confirmation'])
     }
 
+    const message = this.getResponseMessage(error, ctx)
+    ctx.session.flash('error', message)
+    /**
+     * @deprecated. To be removed
+     */
     ctx.session.flashErrors({
-      [error.code]: this.getResponseMessage(error, ctx),
+      [error.code]: message,
     })
     ctx.response.redirect().back()
   }
