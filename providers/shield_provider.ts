@@ -37,9 +37,13 @@ export default class ShieldProvider {
    * Registers ShieldMiddleware to the container with proper configuration
    * and dependencies. This method binds the middleware to the IoC container
    * and sets up Edge.js integration when available.
+   *
+   * The middleware is registered as a singleton because router middleware
+   * are resolved on every request and the middleware keeps no per-request
+   * state (everything goes through the HTTP context).
    */
   async register() {
-    this.app.container.bind(ShieldMiddleware, async () => {
+    this.app.container.singleton(ShieldMiddleware, async () => {
       const config = this.app.config.get<ShieldConfig>('shield', {})
       const encryptionManager = await this.app.container.make('encryption')
       const encryption = encryptionManager.use()

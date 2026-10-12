@@ -19,6 +19,7 @@ import { defineConfig as defineSessionConfig } from '@adonisjs/session'
 import { sessionApiClient } from '@adonisjs/session/plugins/api_client'
 import { type IncomingMessage, type ServerResponse, createServer } from 'node:http'
 
+import type { ShieldConfig } from '../src/types.ts'
 import { shieldApiClient } from '../src/plugins/api_client.ts'
 
 export const BASE_URL = new URL('./tmp/', import.meta.url)
@@ -35,7 +36,7 @@ export const httpServer = {
   },
 }
 
-export async function setup() {
+export async function setup(options: { shield?: ShieldConfig } = {}) {
   const ignitor = new IgnitorFactory()
     .withCoreProviders()
     .withCoreConfig()
@@ -43,11 +44,13 @@ export async function setup() {
       config: {
         views: { cache: { enabled: false } },
         session: defineSessionConfig({ enabled: true, store: 'memory', stores: {} }),
+        ...(options.shield ? { shield: options.shield } : {}),
       },
       rcFileContents: {
         providers: [
           () => import('@adonisjs/session/session_provider'),
           () => import('@adonisjs/core/providers/edge_provider'),
+          ...(options.shield ? [() => import('../providers/shield_provider.ts')] : []),
         ],
       },
     })
