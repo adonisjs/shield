@@ -453,7 +453,7 @@ test.group('Csrf', () => {
     )
     try {
       await csrf(ctx)
-    } catch (error) {
+    } catch (error: any) {
       await error.handle(error, ctx)
       assert.deepEqual(ctx.session.responseFlashMessages.all(), {
         error: 'Invalid or expired CSRF token',
@@ -510,7 +510,7 @@ test.group('Csrf', () => {
     )
     try {
       await csrf(ctx)
-    } catch (error) {
+    } catch (error: any) {
       await error.handle(error, ctx)
       assert.deepEqual(ctx.session.responseFlashMessages.all(), {
         error: 'Session expired',
